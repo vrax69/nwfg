@@ -1,0 +1,291 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+    --ring: 215 20.2% 65.1%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --ring: 216 34% 17%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+
+/*login.css*/
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Geometos', sans-serif;
+  background-color: #212121;
+  overflow: hidden;
+}
+
+.container_login {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%; /* Opcional, depende de cómo quieras manejar el ancho */
+}
+
+.form_login {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 2em;body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Geometos', sans-serif;
+  background-color: #212121;
+ 
+}
+
+.container_login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.form_login {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 2em;
+  padding-right: 2em;
+  padding: 2em;
+  background-color: #171717dc;
+  border-radius: 25px;
+  transition: .4s ease-in-out;
+  width: 250px;
+}
+.logo {
+  width: 221px;
+  height: auto;
+  display: block;
+  margin-bottom: 10px; /* Reduce el espacio entre el logo y el texto */
+  margin: auto; /* Centra el logo horizontalmente */
+}
+
+.form_login:hover {
+  transform: scale(1.05);
+  border: 1px solid black;
+}
+
+#heading {
+  text-align: center;
+  margin: 0.5em 0; /* Reduce el margen superior e inferior */
+  color: rgb(255, 255, 255);
+  font-size: 1.2em;
+}
+
+.field_login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  border-radius: 25px;
+  padding: 0.6em;
+  border: none;
+  outline: none;
+  color: white;
+  background-color: #171717;
+  box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+}
+
+.input-icon {
+  height: 1.3em;
+  width: 1.3em;
+  fill: white;
+}
+
+.input-field {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  color: #d3d3d3;
+}
+
+.form_login .btn {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  margin-top: 2.5em;
+  gap: 20px;
+  padding-inline: 1em;
+}
+
+.button1, .button2, .button3 {
+  padding: 0.5em;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  transition: .4s ease-in-out;
+  background-color: #252525;
+  color: white;
+  cursor: pointer;
+  width: calc(50% - 10px)
+}
+
+.button1:hover {
+  background-color: rgba(25, 124, 41, 0.89);
+  color: white;
+}
+
+.button2:hover{
+  background-color: rgba(8, 108, 190, 0.89);
+  color: white;
+}
+
+.button3 {
+  margin-top: 1em;
+  width: 100%;
+  
+}
+
+.button3:hover {
+  background-color: red;
+  color: white;
+}
+
+
+  padding-right: 2em;
+  padding: 2em;
+  background-color: #171717dc;
+  border-radius: 25px;
+  transition: .4s ease-in-out;
+  width: 350px;
+}
+
+.form_login:hover {
+  transform: scale(1.05);
+  border: 1px solid black;
+}
+
+#heading {
+  text-align: center;
+  margin: 2em;
+  color: rgb(255, 255, 255);
+  font-size: 1.2em;
+}
+
+.field_login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  border-radius: 25px;
+  padding: 0.6em;
+  border: none;
+  outline: none;
+  color: white;
+  background-color: #171717;
+  box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+}
+
+.input-icon {
+  height: 1.3em;
+  width: 1.3em;
+  fill: white;
+}
+
+.input-field {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  color: #d3d3d3;
+}
+
+.form_login .btn {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  margin-top: 2.5em;
+  gap: 20px;
+  padding-inline: 1em;
+}
+
+.button1, .button2, .button3 {
+  padding: 0.5em;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  transition: .4s ease-in-out;
+  background-color: #252525;
+  color: white;
+  cursor: pointer;
+  width: calc(50% - 10px)
+}
+
+.button1:hover {
+  background-color: rgba(25, 124, 41, 0.89);
+  color: white;
+}
+
+.button2:hover{
+  background-color: rgba(8, 108, 190, 0.89);
+  color: white;
+}
+
+.button3 {
+  margin-top: 1em;
+  width: 100%;
+  
+}
+
+.button3:hover {
+  background-color: red;
+  color: white;
+}
+
