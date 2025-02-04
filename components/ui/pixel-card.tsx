@@ -1,6 +1,7 @@
 "use client";  // 👈 Agrega esto en la primera línea
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'  // 👈 Importa useRouter
 
 // Define TypeScript interfaces for better type safety
 interface PixelCanvasProps {
@@ -15,6 +16,7 @@ interface CardProps {
   label: string
   color: string
   canvasProps?: PixelCanvasProps
+  onClick?: () => void  // 👈 Agrega la prop onClick
 }
 
 // Declare the custom element for TypeScript
@@ -51,7 +53,8 @@ const Card: React.FC<CardProps> = ({
   icon, 
   label, 
   color, 
-  canvasProps = {} 
+  canvasProps = {},
+  onClick  // 👈 Recibe la prop onClick
 }) => {
   // Hover animation configuration
   const hoverTransition = { 
@@ -62,6 +65,8 @@ const Card: React.FC<CardProps> = ({
   return (
     <motion.div 
       className="light:border-gray-900 !dark:border-gray-[900] group relative isolate grid aspect-[4/5] select-none place-items-center overflow-hidden rounded-xl border transition-all duration-200 hover:text-black dark:hover:text-white sm:aspect-square md:aspect-[4/5]"
+      onClick={onClick}  // 👈 Agrega el manejador de clic
+      style={{ cursor: onClick ? 'pointer' : 'default' }}  // 👈 Cambia el cursor si hay un onClick
     >
       <PixelCanvas {...canvasProps} />
       
@@ -104,6 +109,7 @@ const Card: React.FC<CardProps> = ({
 
 export default function PixelCards() {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false)
+  const router = useRouter()  // 👈 Inicializa useRouter
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -130,7 +136,8 @@ export default function PixelCards() {
       icon: "M200,24H72A16,16,0,0,0,56,40V64H40A16,16,0,0,0,24,80v96a16,16,0,0,0,16,16H56v24a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V40A16,16,0,0,0,200,24Zm-40,80h40v48H160Zm40-16H160V80a16,16,0,0,0-16-16V40h56ZM72,40h56V64H72ZM40,80H144v79.83c0,.06,0,.11,0,.17s0,.11,0,.17V176H40ZM72,192h56v24H72Zm72,24V192a16,16,0,0,0,16-16v-8h40v48ZM65.85,146.88,81.59,128,65.85,109.12a8,8,0,0,1,12.3-10.24L92,115.5l13.85-16.62a8,8,0,1,1,12.3,10.24L102.41,128l15.74,18.88a8,8,0,0,1-12.3,10.24L92,140.5,78.15,157.12a8,8,0,0,1-12.3-10.24Z",
       label: "Rates LookUp",
       color: "#01dc36",
-      canvasProps: { gap: 10, speed: 25, colors: "#01dc36, #01dc36, #01dc36" }
+      canvasProps: { gap: 10, speed: 25, colors: "#01dc36, #01dc36, #01dc36" },
+      onClick: () => router.push('/rates')  // 👈 Agrega la redirección
     },
     {
       icon: "M180,146H158V110h22a34,34,0,1,0-34-34V98H110V76a34,34,0,1,0-34,34H98v36H76a34,34,0,1,0,34,34V158h36v22a34,34,0,1,0,34-34ZM158,76a22,22,0,1,1,22,22H158ZM54,76a22,22,0,0,1,44,0V98H76A22,22,0,0,1,54,76ZM98,180a22,22,0,1,1-22-22H98Zm12-70h36v36H110Zm70,92a22,22,0,0,1-22-22V158h22a22,22,0,0,1,0,44Z",
@@ -155,9 +162,9 @@ export default function PixelCards() {
           label={cardConfig.label}
           color={cardConfig.color}
           canvasProps={cardConfig.canvasProps}
+          onClick={cardConfig.onClick}  // 👈 Pasa la prop onClick
         />
       ))}
     </main>
   )
 }
-

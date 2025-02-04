@@ -3,8 +3,8 @@
 ┃ ┗ 📄 page.tsx
 ┣ 📂 styles/
 ┃ ┣ 📄 globals.css
-┃📄 layout.tsx
-┃📄 page.tsx
+┣📄 layout.tsx
+┣📄 page.tsx
 ┣ 📂 components/
 ┃ ┗ 📂 ui/
 ┃ ┃ ┣ 📄 background-beams-with-collision.tsx
