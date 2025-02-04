@@ -129,8 +129,8 @@ export default function PixelCards() {
     {
       icon: "M67.84,92.61,25.37,128l42.47,35.39a6,6,0,1,1-7.68,9.22l-48-40a6,6,0,0,1,0-9.22l48-40a6,6,0,0,1,7.68,9.22Zm176,30.78-48-40a6,6,0,1,0-7.68,9.22L230.63,128l-42.47,35.39a6,6,0,1,0,7.68,9.22l48-40a6,6,0,0,0,0-9.22Zm-81.79-89A6,6,0,0,0,154.36,38l-64,176A6,6,0,0,0,94,221.64a6.15,6.15,0,0,0,2,.36,6,6,0,0,0,5.64-3.95l64-176A6,6,0,0,0,162.05,34.36Z",
       label: "Rates LookUp",
-      color: "#e0f2fe",
-      canvasProps: { gap: 10, speed: 25, colors: "#e0f2fe, #7dd3fc, #0ea5e9" }
+      color: "#01dc36",
+      canvasProps: { gap: 10, speed: 25, colors: "#01dc36, #01dc36, #01dc36" }
     },
     {
       icon: "M180,146H158V110h22a34,34,0,1,0-34-34V98H110V76a34,34,0,1,0-34,34H98v36H76a34,34,0,1,0,34,34V158h36v22a34,34,0,1,0,34-34ZM158,76a22,22,0,1,1,22,22H158ZM54,76a22,22,0,0,1,44,0V98H76A22,22,0,0,1,54,76ZM98,180a22,22,0,1,1-22-22H98Zm12-70h36v36H110Zm70,92a22,22,0,0,1-22-22V158h22a22,22,0,0,1,0,44Z",
@@ -147,7 +147,7 @@ export default function PixelCards() {
   ]
 
   return (
-    <main className="m-auto grid min-h-[320px] w-full max-w-[60rem] grid-cols-1 gap-4 bg-background p-4 text-gray-800 dark:bg-background dark:text-[#e3e3e3] sm:grid-cols-2 lg:grid-cols-4">
+    <main className="m-auto grid min-h-[320px] w-full max-w-[60rem] grid-cols-1 gap-4 rounded-2xl bg-[#aecbfb] p-4 text-gray-800 dark:bg-[#8ea2db] dark:text-[#e3e3e3] sm:grid-cols-2 lg:grid-cols-4 shadow-lg">
       {isScriptLoaded && cardConfigurations.map((cardConfig, index) => (
         <Card 
           key={cardConfig.label}
