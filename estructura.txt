@@ -1,0 +1,31 @@
+📂 app/
+┣ 📂 dashboard/
+┃ ┗ 📄 page.tsx
+┣ 📂 styles/
+┃ ┣ 📄 globals.css
+┃📄 layout.tsx
+┃📄 page.tsx
+┣ 📂 components/
+┃ ┗ 📂 ui/
+┃ ┃ ┣ 📄 background-beams-with-collision.tsx
+┃ ┃ ┣ 📄 button-shadcn.tsx
+┃ ┃ ┣ 📄 login.tsx
+┃ ┃ ┣ 📄 pixel-card.tsx
+┃ ┃ ┗ 📄 wavy-background.tsx
+┣ 📂 lib/
+┣ 📂 node_modules/
+┣ 📂 public/
+┣ 📂 styles/
+┃ ┗ 📄 globals.css
+┣ 📄 .gitignore
+┣ 📄 components.json
+┣ 📄 eslint.config.mjs
+┣ 📄 global.d.ts
+┣ 📄 next-env.d.ts
+┣ 📄 next.config.ts
+┣ 📄 package.json
+┣ 📄 pnpm-lock.yaml
+┣ 📄 postcss.config.mjs
+┣ 📄 README.md
+┣ 📄 tailwind.config.ts
+┗ 📄 tsconfig.json
