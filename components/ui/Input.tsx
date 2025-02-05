@@ -13,12 +13,11 @@ const Input = () => {
   return (
     <StyledWrapper>
       <div className="container">
-        <div className="bg" />
         <div className="input-wrapper">
           <div className="input">
             <div className="glow left" />
             <div className="glow right" />
-            <input type="text" name="text" placeholder="Search..." />
+            <input type="text" name="text" placeholder="Buscar..." />
             <div className="reflection" />
             <div className="icon">
               <svg stroke="#fff" viewBox="0 0 38 38" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" className="loading">
@@ -107,19 +106,18 @@ const Input = () => {
 
 const StyledWrapper = styled.div`
   .container {
-    --ease-elastic: cubic-bezier(0.7, -0.5, 0.3, 1.5);
+   --ease-elastic: cubic-bezier(0.7, -0.5, 0.3, 1.5);
     --icon-color: #bcacbd;
     --glow-l-color: #8422b1;
     --glow-r-color: #0d00ff;
     --input-radius: 14px;
     --result-item-h: 33.5px;
-
-    background-color: #010001;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-color: transparent;
+    width: auto;
+    height: auto;
+    top: 40vh;
+    left: 20vh;
+    position: relative;
     opacity: 0;
     animation: fadeIn 1.4s ease forwards 0.2s;
   }
