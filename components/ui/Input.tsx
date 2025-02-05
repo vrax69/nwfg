@@ -792,7 +792,7 @@ const StyledWrapper = styled.div`
 
 .input input:not(:placeholder-shown),
 .input input:focus {
-  width: 360px;
+  width: 500px;
 }
 
 .input input:not(:placeholder-shown) ~ .reflection::after {
