@@ -169,7 +169,7 @@ const StyledWrapper = styled.div`
   }
   .input::before {
     pointer-events: none;
-    content: "type to interact";
+    content: "";
     position: absolute;
     left: 0;
     right: 0;
