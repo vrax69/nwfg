@@ -299,3 +299,11 @@ body, html {
     @apply bg-background text-foreground;
   }
 }
+
+/*fondo square*/
+.squares-canvas {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
