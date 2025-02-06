@@ -307,3 +307,38 @@ body, html {
   border: none;
   display: block;
 }
+
+/* Estilos para FloatingDockDesktop */
+.floating-dock-desktop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px; /* Altura fija para la barra */
+  background-color: #f8f9fa; /* Color de fondo claro, cambia según tu diseño */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Distribuye los ítems equitativamente */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra ligera para resaltar la barra */
+  z-index: 1000; /* Asegura que esté sobre otros elementos */
+}
+
+/* Estilos para FloatingDockMobile */
+.floating-dock-mobile {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: none; /* Oculto por defecto, se muestra en vista móvil */
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Estilos para hacer visible FloatingDockMobile en vistas móviles */
+@media (max-width: 768px) {
+  .floating-dock-mobile {
+      display: flex;
+      flex-direction: column;
+  }
+}
