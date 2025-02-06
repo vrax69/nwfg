@@ -24,34 +24,34 @@ const RatesDbPage = () => {
       href: "/dashboard"
     },
     {
-      title: "Products",
+      title: "Rows",
       icon: <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "/products"
+      href: ""
     },
     {
       title: "Components",
       icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "/components"
+      href: ""
     },
     {
       title: "Aceternity UI",
       icon: <Image src="https://assets.aceternity.com/logo-dark.png" width={20} height={20} alt="Aceternity Logo" />,
-      href: "/aceternity-ui"
+      href: ""
     },
     {
       title: "Changelog",
       icon: <IconExchange className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "/changelog"
+      href: ""
     },
     {
       title: "Twitter",
       icon: <IconBrandX className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "https://twitter.com"
+      href: ""
     },
     {
       title: "GitHub",
       icon: <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "https://github.com"
+      href: ""
     },
   ];
 
