@@ -1,74 +1,50 @@
-// app/rates-db/page.tsx
-import React from 'react';
-import Squares from '../../components/ui/Squares'; 
+"use client";
+import React, { useState } from 'react';
+import Squares from '../../components/ui/Squares';
 import { FloatingDock } from '../../components/ui/floating-dock';
-import {
-  IconBrandGithub,
-  IconBrandX,
-  IconExchange,
-  IconHome,
-  IconNewSection,
-  IconTerminal2,
-} from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandX, IconExchange, IconHome, IconNewSection, IconTerminal2 } from "@tabler/icons-react";
 import Image from "next/image";
-// Nuevas importaciones para CardWithForm
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileUpload } from "../../components/ui/file-upload";
+import { motion, AnimatePresence } from 'framer-motion';
 
-export const metadata = {
-  title: "Actualizar tarifas",
-};
 
-function CardWithForm() {
+interface CardWithFormProps {
+  onCancel: () => void;
+}
+
+function CardWithForm({ onCancel }: CardWithFormProps) {
   return (
-    <Card className="w-[350px]">
-      <CardHeader>
-        <CardTitle>Create project</CardTitle>
-        <CardDescription>Deploy your new project in one-click.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Name of your project" />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="framework">Framework</Label>
-              <Select>
-                <SelectTrigger id="framework">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectItem value="next">Next.js</SelectItem>
-                  <SelectItem value="sveltekit">SvelteKit</SelectItem>
-                  <SelectItem value="astro">Astro</SelectItem>
-                  <SelectItem value="nuxt">Nuxt.js</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline">Cancel</Button>
-        <Button>Deploy</Button>
-      </CardFooter>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.75 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.75 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="w-[650px]">
+        <CardHeader>
+          <CardTitle>Actualizar tarifas</CardTitle>
+          <CardDescription>Sube tu archivo y selecciona el proveedor para empezar.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FileUpload onChange={(files) => console.log(files)} />
+          {/* Contenido adicional... */}
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button>Continuar</Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }
 
 
 const RatesDbPage = () => {
+  const [showCard, setShowCard] = useState(false);  // Ahora useState debería ser reconocido correctamente
   const links = [
     {
       title: "Home",
@@ -78,12 +54,13 @@ const RatesDbPage = () => {
     {
       title: "Rows",
       icon: <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: ""
+      href: "",
     },
     {
-      title: "Components",
+      title: "Subir acrchivos",
       icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: ""
+      href: "",
+      onClick: () => setShowCard(true),
     },
     {
       title: "Aceternity UI",
@@ -109,14 +86,16 @@ const RatesDbPage = () => {
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <Squares />  // Componente de fondo
-      <FloatingDock items={links} desktopClassName="absolute bottom-0 left-0 right-0" /> // Asegúrate de que el dock sea visible
+      <Squares />
+      <FloatingDock items={links} desktopClassName="absolute bottom-0 left-0 right-0" />
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'white', textAlign: 'center' }}>
-        <CardWithForm />  // Aquí se añade el nuevo componente
-        {/* Aquí puedes agregar más contenido si es necesario */}
+        <AnimatePresence>
+          {showCard && <CardWithForm onCancel={() => setShowCard(false)} />}
+        </AnimatePresence>
       </div>
     </div>
   );
 };
 
 export default RatesDbPage;
+
