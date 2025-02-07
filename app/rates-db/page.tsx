@@ -11,10 +11,62 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 import Image from "next/image";
+// Nuevas importaciones para CardWithForm
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const metadata = {
   title: "Actualizar tarifas",
 };
+
+function CardWithForm() {
+  return (
+    <Card className="w-[350px]">
+      <CardHeader>
+        <CardTitle>Create project</CardTitle>
+        <CardDescription>Deploy your new project in one-click.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form>
+          <div className="grid w-full items-center gap-4">
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" placeholder="Name of your project" />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="framework">Framework</Label>
+              <Select>
+                <SelectTrigger id="framework">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectItem value="next">Next.js</SelectItem>
+                  <SelectItem value="sveltekit">SvelteKit</SelectItem>
+                  <SelectItem value="astro">Astro</SelectItem>
+                  <SelectItem value="nuxt">Nuxt.js</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button variant="outline">Cancel</Button>
+        <Button>Deploy</Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
 
 const RatesDbPage = () => {
   const links = [
@@ -60,6 +112,7 @@ const RatesDbPage = () => {
       <Squares />  // Componente de fondo
       <FloatingDock items={links} desktopClassName="absolute bottom-0 left-0 right-0" /> // Asegúrate de que el dock sea visible
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'white', textAlign: 'center' }}>
+        <CardWithForm />  // Aquí se añade el nuevo componente
         {/* Aquí puedes agregar más contenido si es necesario */}
       </div>
     </div>
