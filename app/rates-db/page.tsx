@@ -47,13 +47,13 @@ export function CardWithForm({ onCancel }: CardWithFormProps) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  <SelectItem value="cs">Clean Sky</SelectItem>
-                  <SelectItem value="nge">National Gas & Electric</SelectItem>
-                  <SelectItem value="nv">Next Volt</SelectItem>
-                  <SelectItem value="ne">North Eastern</SelectItem>
-                  <SelectItem value="re">Rushmore</SelectItem>
-                  <SelectItem value="spe">Spark Energy</SelectItem>
-                  <SelectItem value="wg">WG&L</SelectItem>
+                <SelectItem value="cs">Clean Sky</SelectItem>
+                <SelectItem value="ne">North Eastern</SelectItem>
+                <SelectItem value="nge">National Gas & Electric</SelectItem>
+                <SelectItem value="nv">Next Volt</SelectItem>
+                <SelectItem value="re">Rushmore</SelectItem>
+                <SelectItem value="spe">Spark Energy</SelectItem>
+                <SelectItem value="wg">WG&L</SelectItem>
                 </SelectContent>
               </Select>
             </div>
