@@ -4,7 +4,7 @@ import '../../app/styles/globals.css';
 
 const Squares = ({
   direction = 'diagonal',
-  speed = 0.5,
+  speed = 0.2,
   borderColor = '#d8f2ff',
   squareSize = 30,
   hoverFillColor = '#2cabff',

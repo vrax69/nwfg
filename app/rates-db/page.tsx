@@ -85,7 +85,7 @@ const RatesDbPage = () => {
       
     },
     {
-      title: "Components",
+      title: "Subir tarifas",
       icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       onClick: () => setShowCard(!showCard)
     },
