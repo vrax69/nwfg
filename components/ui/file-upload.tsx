@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IconUpload } from "@tabler/icons-react";
 import { useDropzone } from "react-dropzone";
@@ -27,23 +27,21 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
+  resetRef,
 }: {
   onChange?: (files: File[]) => void;
+  resetRef?: React.RefObject<(() => void) | null>;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
-    if (files.length === 0) {
-      setFiles(newFiles);
-      onChange && onChange(newFiles);
-    }
+    setFiles(newFiles);
+    onChange && onChange(newFiles);
   };
 
   const handleClick = () => {
-    if (files.length === 0) {
-      fileInputRef.current?.click();
-    }
+    fileInputRef.current?.click();
   };
 
   const { getRootProps, isDragActive } = useDropzone({
@@ -54,6 +52,17 @@ export const FileUpload = ({
       console.log(error);
     },
   });
+
+  useEffect(() => {
+    if (resetRef) {
+      resetRef.current = () => {
+        setFiles([]);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      };
+    }
+  }, [resetRef]);
 
   return (
     <div className="w-full" {...getRootProps()}>

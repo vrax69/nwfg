@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Squares from '../../components/ui/Squares';
 import { FloatingDock } from '../../components/ui/floating-dock';
 import {
@@ -31,6 +31,13 @@ interface CardWithFormProps {
 }
 
 export function CardWithForm({ onCancel }: CardWithFormProps) {
+  const resetFileUploadRef = useRef<(() => void) | null>(null);
+
+  const handleCancel = () => {
+    resetFileUploadRef.current?.();
+    onCancel();
+  };
+
   return (
     <Card className="mx-auto" style={{ width: '650px' }}>
       <CardHeader>
@@ -58,13 +65,13 @@ export function CardWithForm({ onCancel }: CardWithFormProps) {
               </Select>
             </div>
             <div className="flex flex-col space-y-1.5">
-              <FileUpload onChange={(files) => console.log(files)} />
+              <FileUpload onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} />
             </div>
           </div>
         </form>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={onCancel}>Cancelar</Button>
+        <Button variant="outline" onClick={handleCancel}>Cancelar</Button>
         <Button>Continuar</Button>
       </CardFooter>
     </Card>
