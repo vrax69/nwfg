@@ -34,12 +34,16 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-    onChange && onChange(newFiles);
+    if (files.length === 0) {
+      setFiles(newFiles);
+      onChange && onChange(newFiles);
+    }
   };
 
   const handleClick = () => {
-    fileInputRef.current?.click();
+    if (files.length === 0) {
+      fileInputRef.current?.click();
+    }
   };
 
   const { getRootProps, isDragActive } = useDropzone({
