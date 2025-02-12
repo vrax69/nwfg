@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IconUpload } from "@tabler/icons-react";
 import { useDropzone } from "react-dropzone";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "./alert-dialog";
 
 const mainVariant = {
   initial: {
@@ -28,31 +29,35 @@ const secondaryVariant = {
 export const FileUpload = ({
   onChange,
   resetRef,
-  supplier, // Añade esta línea
+  supplier,
 }: {
   onChange?: (files: File[]) => void;
   resetRef?: React.RefObject<(() => void) | null>;
-  supplier: string; // Añade esta línea
+  supplier: string;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
+  const [showAlert, setShowAlert] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
+    if (!supplier) {
+      setShowAlert(true);
+      return;
+    }
     setFiles(newFiles);
     onChange && onChange(newFiles);
-    uploadFiles(newFiles); // Llama a la función de subida de archivos
+    uploadFiles(newFiles);
   };
 
   const uploadFiles = async (files: File[]) => {
     const formData = new FormData();
-    formData.append('supplier', supplier); // Asegúrate de agregar el proveedor al formData
+    formData.append('supplier', supplier);
     files.forEach(file => {
       formData.append('file', file);
     });
 
     try {
       const response = await fetch('https://nwfg.net:3000/upload', {
-
         method: 'POST',
         body: formData,
       });
@@ -94,6 +99,22 @@ export const FileUpload = ({
 
   return (
     <div className="w-full" {...getRootProps()}>
+      {showAlert && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button onClick={() => setShowAlert(false)} />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogDescription>
+              Debes seleccionar un proveedor antes de subir un archivo.
+            </AlertDialogDescription>
+            <AlertDialogAction onClick={() => setShowAlert(false)}>
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
       <motion.div
         onClick={handleClick}
         whileHover="animate"
