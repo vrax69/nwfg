@@ -28,9 +28,11 @@ const secondaryVariant = {
 export const FileUpload = ({
   onChange,
   resetRef,
+  supplier, // Añade esta línea
 }: {
   onChange?: (files: File[]) => void;
   resetRef?: React.RefObject<(() => void) | null>;
+  supplier: string; // Añade esta línea
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +40,32 @@ export const FileUpload = ({
   const handleFileChange = (newFiles: File[]) => {
     setFiles(newFiles);
     onChange && onChange(newFiles);
+    uploadFiles(newFiles); // Llama a la función de subida de archivos
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    const formData = new FormData();
+    formData.append('supplier', supplier); // Asegúrate de agregar el proveedor al formData
+    files.forEach(file => {
+      formData.append('file', file);
+    });
+
+    try {
+      const response = await fetch('https://nwfg.net:3000/upload', {
+
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Success:', result);
+    } catch (error) {
+      console.error('Error en la subida del archivo:', error);
+    }
   };
 
   const handleClick = () => {

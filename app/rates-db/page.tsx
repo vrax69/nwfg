@@ -32,10 +32,15 @@ interface CardWithFormProps {
 
 export function CardWithForm({ onCancel }: CardWithFormProps) {
   const resetFileUploadRef = useRef<(() => void) | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState('');
 
   const handleCancel = () => {
     resetFileUploadRef.current?.();
     onCancel();
+  };
+
+  const handleSupplierChange = (value: string) => {
+    setSelectedSupplier(value);
   };
 
   return (
@@ -49,7 +54,7 @@ export function CardWithForm({ onCancel }: CardWithFormProps) {
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="spl">Supplier</Label>
-              <Select>
+              <Select onValueChange={handleSupplierChange}>
                 <SelectTrigger id="spl">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -65,7 +70,7 @@ export function CardWithForm({ onCancel }: CardWithFormProps) {
               </Select>
             </div>
             <div className="flex flex-col space-y-1.5">
-              <FileUpload onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} />
+              <FileUpload supplier={selectedSupplier} onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} />
             </div>
           </div>
         </form>
