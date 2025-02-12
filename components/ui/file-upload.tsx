@@ -100,10 +100,7 @@ export const FileUpload = ({
   return (
     <div className="w-full" {...getRootProps()}>
       {showAlert && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <button onClick={() => setShowAlert(false)} />
-          </AlertDialogTrigger>
+        <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
           <AlertDialogContent>
             <AlertDialogTitle>Error</AlertDialogTitle>
             <AlertDialogDescription>
