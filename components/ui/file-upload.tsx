@@ -57,7 +57,7 @@ export const FileUpload = ({
     });
 
     try {
-      const response = await fetch('https://nwfg.net:3000/upload', {
+      const response = await fetch('https://nwfg.net:3001/upload', {
         method: 'POST',
         body: formData,
       });
