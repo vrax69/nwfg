@@ -27,9 +27,10 @@ import Stepper, { Step } from "../../components/ui/stepper"; // Importamos el St
 
 interface CardWithFormProps {
   onCancel: () => void;
+  onContinue: () => void;
 }
 
-export function CardWithForm({ onCancel }: CardWithFormProps) {
+export function CardWithForm({ onCancel, onContinue }: CardWithFormProps) {
   const resetFileUploadRef = useRef<(() => void) | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState('');
 
@@ -76,7 +77,7 @@ export function CardWithForm({ onCancel }: CardWithFormProps) {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline" onClick={handleCancel}>Cancelar</Button>
-        <Button>Continuar</Button>
+        <Button onClick={onContinue}>Continuar</Button>
       </CardFooter>
     </Card>
   )
@@ -86,6 +87,7 @@ const RatesDbPage = () => {
   const [showCard, setShowCard] = useState(false);
   const [showStepper, setShowStepper] = useState(false); // Nuevo estado para controlar el Stepper
   const [name, setName] = useState(''); // Estado para el nombre
+  const stepperRef = useRef<HTMLDivElement>(null); // Ref para el contenedor del Stepper
 
   const links = [
     {
@@ -102,7 +104,6 @@ const RatesDbPage = () => {
       icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       onClick: () => {
         setShowCard(!showCard);
-        setTimeout(() => setShowStepper(!showStepper), 300); // Mostrar el Stepper con un pequeño retraso
       }
     },
     {
@@ -135,7 +136,13 @@ const RatesDbPage = () => {
       href: "/github"
     },
   ];
-  
+
+  const handleContinue = () => {
+    setShowStepper(true);
+    setTimeout(() => {
+      stepperRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 300); // Hacer scroll después de un pequeño retraso
+  };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
@@ -151,7 +158,7 @@ const RatesDbPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <CardWithForm onCancel={() => { setShowCard(false); setShowStepper(false); }} />
+              <CardWithForm onCancel={() => { setShowCard(false); setShowStepper(false); }} onContinue={handleContinue} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -161,6 +168,7 @@ const RatesDbPage = () => {
           {showStepper && (
             <motion.div
               key="stepper"
+              ref={stepperRef}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
