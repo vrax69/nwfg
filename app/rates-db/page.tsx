@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Squares from '../../components/ui/Squares';
 import { FloatingDock } from '../../components/ui/floating-dock';
 import {
@@ -11,7 +12,6 @@ import {
   IconNewSection,
   IconTerminal2,
 } from "@tabler/icons-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -23,9 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileUpload } from "../../components/ui/file-upload";
-import '../styles/globals.css'; // Importa el archivo CSS
-import { AnimatePresence, motion } from 'framer-motion';
-import Stepper, { Step } from "../../components/ui/stepper";
+import Stepper, { Step } from "../../components/ui/stepper"; // Importamos el Stepper
 
 interface CardWithFormProps {
   onCancel: () => void;
@@ -86,6 +84,8 @@ export function CardWithForm({ onCancel }: CardWithFormProps) {
 
 const RatesDbPage = () => {
   const [showCard, setShowCard] = useState(false);
+  const [showStepper, setShowStepper] = useState(false); // Nuevo estado para controlar el Stepper
+  const [name, setName] = useState(''); // Estado para el nombre
 
   const links = [
     {
@@ -96,12 +96,14 @@ const RatesDbPage = () => {
     {
       title: "Rows",
       icon: <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      
     },
     {
       title: "Subir tarifas",
       icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      onClick: () => setShowCard(!showCard)
+      onClick: () => {
+        setShowCard(!showCard);
+        setTimeout(() => setShowStepper(!showStepper), 300); // Mostrar el Stepper con un pequeño retraso
+      }
     },
     {
       title: "Rates",
@@ -133,21 +135,71 @@ const RatesDbPage = () => {
       href: "/github"
     },
   ];
+  
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
       <Squares />
       <FloatingDock items={links} desktopClassName="absolute bottom-0 left-0 right-0" />
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'white', textAlign: 'center', pointerEvents: showCard ? 'auto' : 'none' }}>
+
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
         <AnimatePresence>
           {showCard && (
             <motion.div
               key="card"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
             >
-              <CardWithForm onCancel={() => setShowCard(false)} />
+              <CardWithForm onCancel={() => { setShowCard(false); setShowStepper(false); }} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Stepper debajo de la carta */}
+        <AnimatePresence>
+          {showStepper && (
+            <motion.div
+              key="stepper"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              style={{ marginTop: '100px', textAlign: 'left' }} // Ajustar el espacio entre la tarjeta y el Stepper y alinear el texto a la izquierda
+            >
+              <Stepper initialStep={1} onStepChange={(step) => console.log(step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
+                <Step>
+                  <h2>Welcome to the React Bits stepper!</h2>
+                  <p>Check out the next step!</p>
+                </Step>
+                <Step>
+                  <h2>Step 2</h2>
+                  <img
+                    style={{
+                      height: "100px",
+                      width: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center -70px",
+                      borderRadius: "15px",
+                      marginTop: "1em",
+                    }}
+                    src="https://www.purrfectcatgifts.co.uk/cdn/shop/collections/Funny_Cat_Cards_640x640.png?v=1663150894"
+                    alt="Funny Cat"
+                  />
+                  <p>Custom step content!</p>
+                </Step>
+                <Step>
+                  <h2>How about an input?</h2>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name?"
+                  />
+                </Step>
+                <Step>
+                  <h2>Final Step</h2>
+                  <p>You made it!</p>
+                </Step>
+              </Stepper>
             </motion.div>
           )}
         </AnimatePresence>
