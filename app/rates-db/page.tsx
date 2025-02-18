@@ -25,6 +25,7 @@ import {
 import { FileUpload } from "../../components/ui/file-upload";
 import '../styles/globals.css'; // Importa el archivo CSS
 import { AnimatePresence, motion } from 'framer-motion';
+import Stepper, { Step } from "../../components/ui/stepper";
 
 interface CardWithFormProps {
   onCancel: () => void;
