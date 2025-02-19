@@ -180,7 +180,7 @@ const RatesDbPage = () => {
                   <p>recuerda seguir cada paso al pie de la letra!</p>
                 </Step>
                 <Step>
-                  <h2>Step 2</h2>
+                  <h2>paso 2</h2>
                   <img
                     style={{
                       height: "100px",
