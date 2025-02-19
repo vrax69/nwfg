@@ -176,8 +176,8 @@ const RatesDbPage = () => {
             >
               <Stepper initialStep={1} onStepChange={(step) => console.log(step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
                 <Step>
-                  <h2>Welcome to the React Bits stepper!</h2>
-                  <p>Check out the next step!</p>
+                  <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
+                  <p>recuerda seguir cada paso al pie de la letra!</p>
                 </Step>
                 <Step>
                   <h2>Step 2</h2>
