@@ -27,16 +27,7 @@ const ColumnSelector: React.FC = () => {
         onChange={handleChange}
         options={options}
       />
-      <Select
-        mode="multiple"
-        disabled
-        style={{ width: '100%' }}
-        placeholder="Please select"
-        defaultValue={['a10', 'c12']}
-        onChange={handleChange}
-        options={options}
-      />
-    </Space>
+      </Space>
   );
 };
 
