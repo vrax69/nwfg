@@ -26,7 +26,8 @@
     "simplex-noise": "^4.0.3",
     "styled-components": "^6.1.14",
     "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
