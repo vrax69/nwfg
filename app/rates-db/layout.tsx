@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Rates Database | Nwfg",
   icons: {
-    icon: "https://nuevo-logo.png",
+    icon: "https://rates-nwpc.s3.us-east-2.amazonaws.com/rtrete.png",
   },
 };
 
