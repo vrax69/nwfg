@@ -318,3 +318,9 @@ body, html {
   background-color: transparent;
 }
 
+/* button /components/ui/alert-dialog.tsx */
+.custom-alert-dialog-action {
+  width: auto; /* Ajusta el ancho automáticamente según el contenido */
+  max-width: 200px; /* Establece un ancho máximo para el botón */
+  margin: 0 auto; /* Centra el botón horizontalmente */
+}
