@@ -28,15 +28,18 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
+  onColumnsReceived, // Nuevo callback para recibir columnas
   resetRef,
   supplier,
 }: {
   onChange?: (files: File[]) => void;
+  onColumnsReceived?: (columns: string[]) => void; // Callback para recibir las columnas del backend
   resetRef?: React.RefObject<(() => void) | null>;
   supplier: string;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [showAlert, setShowAlert] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // Estado para la carga
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
@@ -50,15 +53,17 @@ export const FileUpload = ({
   };
 
   const uploadFiles = async (files: File[]) => {
+    setIsUploading(true); // Iniciar carga
+
     const formData = new FormData();
-    formData.append('supplier', supplier);
-    files.forEach(file => {
-      formData.append('file', file);
+    formData.append("supplier", supplier);
+    files.forEach((file) => {
+      formData.append("file", file);
     });
 
     try {
-      const response = await fetch('https://nwfg.net:3001/upload', {
-        method: 'POST',
+      const response = await fetch("https://nwfg.net:3001/upload", {
+        method: "POST",
         body: formData,
       });
 
@@ -67,9 +72,15 @@ export const FileUpload = ({
       }
 
       const result = await response.json();
-      console.log('Success:', result);
+      console.log("📂 Archivo subido con éxito:", result);
+
+      if (result.columns && onColumnsReceived) {
+        onColumnsReceived(result.columns); // Enviar columnas al stepper
+      }
     } catch (error) {
-      console.error('Error en la subida del archivo:', error);
+      console.error("❌ Error en la subida del archivo:", error);
+    } finally {
+      setIsUploading(false); // Finalizar carga
     }
   };
 
@@ -90,6 +101,7 @@ export const FileUpload = ({
     if (resetRef) {
       resetRef.current = () => {
         setFiles([]);
+        setIsUploading(false); // Resetear estado de carga
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -129,7 +141,7 @@ export const FileUpload = ({
         </div>
         <div className="flex flex-col items-center justify-center">
           <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-base">
-            Upload file
+            {isUploading ? "Uploading..." : "Upload file"}
           </p>
           <p className="relative z-20 font-sans font-normal text-neutral-400 dark:text-neutral-400 text-base mt-2">
             Drag or drop your files here or click to upload

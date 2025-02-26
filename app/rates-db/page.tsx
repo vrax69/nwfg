@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
+import Head from 'next/head';
 import { AnimatePresence, motion } from 'framer-motion';
 import Squares from '../../components/ui/Squares';
 import { FloatingDock } from '../../components/ui/floating-dock';
@@ -29,9 +30,10 @@ import ColumnSelector from '../../components/ui/ColumnSelector'; // Importamos e
 interface CardWithFormProps {
   onCancel: () => void;
   onContinue: () => void;
+  onColumnsReceived: (columns: string[]) => void; // Añadimos la función para recibir columnas
 }
 
-export function CardWithForm({ onCancel, onContinue }: CardWithFormProps) {
+export function CardWithForm({ onCancel, onContinue, onColumnsReceived }: CardWithFormProps) {
   const resetFileUploadRef = useRef<(() => void) | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState('');
 
@@ -71,7 +73,7 @@ export function CardWithForm({ onCancel, onContinue }: CardWithFormProps) {
               </Select>
             </div>
             <div className="flex flex-col space-y-1.5">
-              <FileUpload supplier={selectedSupplier} onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} />
+              <FileUpload supplier={selectedSupplier} onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} onColumnsReceived={onColumnsReceived} />
             </div>
           </div>
         </form>
@@ -87,6 +89,8 @@ export function CardWithForm({ onCancel, onContinue }: CardWithFormProps) {
 const RatesDbPage = () => {
   const [showCard, setShowCard] = useState(false);
   const [showStepper, setShowStepper] = useState(false); // Nuevo estado para controlar el Stepper
+  const [columns, setColumns] = useState<string[]>([]); // Estado para las columnas
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([]); // Estado para las columnas seleccionadas
   const [name, setName] = useState(''); // Estado para el nombre
   const stepperRef = useRef<HTMLDivElement>(null); // Ref para el contenedor del Stepper
 
@@ -138,6 +142,18 @@ const RatesDbPage = () => {
     },
   ];
 
+  const handleColumnsReceived = (newColumns: string[]) => {
+    if (newColumns.length === 0) {
+      alert("❌ Error: No se recibieron columnas del archivo.");
+      return;
+    }
+    setColumns(newColumns);
+  };
+
+  const handleColumnSelection = (selected: string[]) => {
+    setSelectedColumns(selected);
+  };
+
   const handleContinue = () => {
     setShowStepper(true);
     setTimeout(() => {
@@ -146,62 +162,71 @@ const RatesDbPage = () => {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <Squares />
-      <FloatingDock items={links} desktopClassName="absolute bottom-0 left-0 right-0" />
+    <>
+      <Head>
+        <title>Rates_DB</title>
+      </Head>
+      <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+        <Squares />
+        <FloatingDock items={links} desktopClassName="absolute bottom-0 left-0 right-0" />
 
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-        <AnimatePresence>
-          {showCard && (
-            <motion.div
-              key="card"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <CardWithForm onCancel={() => { setShowCard(false); setShowStepper(false); }} onContinue={handleContinue} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+          <AnimatePresence>
+            {showCard && (
+              <motion.div
+                key="card"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <CardWithForm onCancel={() => { setShowCard(false); setShowStepper(false); }} onContinue={handleContinue} onColumnsReceived={handleColumnsReceived} />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Stepper debajo de la carta */}
-        <AnimatePresence>
-          {showStepper && (
-            <motion.div
-              key="stepper"
-              ref={stepperRef}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              style={{ marginTop: '100px', textAlign: 'left' }} // Ajustar el espacio entre la tarjeta y el Stepper y alinear el texto a la izquierda
-            >
-              <Stepper initialStep={1} onStepChange={(step) => console.log(step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
-                <Step>
-                  <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
-                  <p>recuerda seguir cada paso al pie de la letra!</p>
-                </Step>
-                <Step>
-                  <h2>Selecciona tus columnas</h2>
-                  <ColumnSelector />
-                </Step>
-                <Step>
-                  <h2>How about an input?</h2>
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name?"
-                  />
-                </Step>
-                <Step>
-                  <h2>Final Step</h2>
-                  <p>You made it!</p>
-                </Step>
-              </Stepper>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {/* Stepper debajo de la carta */}
+          <AnimatePresence>
+            {showStepper && (
+              <motion.div
+                key="stepper"
+                ref={stepperRef}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                style={{ marginTop: '100px', textAlign: 'left' }} // Ajustar el espacio entre la tarjeta y el Stepper y alinear el texto a la izquierda
+              >
+                <Stepper initialStep={1} onStepChange={(step) => console.log(step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
+                  <Step>
+                    <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
+                    <p>recuerda seguir cada paso al pie de la letra!</p>
+                  </Step>
+                  <Step>
+                    <h2>Selecciona tus columnas</h2>
+                    {columns.length > 0 ? (
+                      <ColumnSelector options={columns} onSelectionChange={handleColumnSelection} />
+                    ) : (
+                      <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>
+                    )}
+                  </Step>
+                  <Step>
+                    <h2>How about an input?</h2>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your name?"
+                    />
+                  </Step>
+                  <Step>
+                    <h2>Final Step</h2>
+                    <p>You made it!</p>
+                  </Step>
+                </Stepper>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

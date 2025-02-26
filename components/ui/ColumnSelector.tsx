@@ -2,18 +2,15 @@ import React from 'react';
 import { Select, Space } from 'antd';
 import type { SelectProps } from 'antd';
 
-const ColumnSelector: React.FC = () => {
-  const options: SelectProps['options'] = [];
+interface ColumnSelectorProps {
+  options: string[]; // 📌 Array de columnas recibidas del backend
+  onSelectionChange: (selected: string[]) => void; // 📌 Callback para actualizar las columnas seleccionadas
+}
 
-  for (let i = 10; i < 36; i++) {
-    options.push({
-      label: i.toString(36) + i,
-      value: i.toString(36) + i,
-    });
-  }
-
+const ColumnSelector: React.FC<ColumnSelectorProps> = ({ options, onSelectionChange }) => {
   const handleChange = (value: string[]) => {
-    console.log(`selected ${value}`);
+    console.log(`📌 Columnas seleccionadas: ${value}`);
+    onSelectionChange(value); // 📌 Se actualiza el estado en `RatesDbPage.tsx`
   };
 
   return (
@@ -22,12 +19,11 @@ const ColumnSelector: React.FC = () => {
         mode="multiple"
         allowClear
         style={{ width: '100%' }}
-        placeholder="Please select"
-        defaultValue={['a10', 'c12']}
+        placeholder="Seleccione las columnas"
         onChange={handleChange}
-        options={options}
+        options={options.map(col => ({ label: col, value: col }))} // 📌 Se genera el listado dinámico
       />
-      </Space>
+    </Space>
   );
 };
 
