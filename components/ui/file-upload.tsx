@@ -43,14 +43,33 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Restablecer el valor del input de archivo
+    }
+  
     if (!supplier) {
       setShowAlert(true);
       return;
     }
+  
     setFiles(newFiles);
     onChange && onChange(newFiles);
     uploadFiles(newFiles);
   };
+  
+  // Asegúrate de que el estado showAlert se restablezca cada vez que se intente subir un archivo
+  useEffect(() => {
+    if (resetRef) {
+      resetRef.current = () => {
+        setFiles([]);
+        setIsUploading(false); // Resetear estado de carga
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        setShowAlert(false); // Resetear estado de alerta
+      };
+    }
+  }, [resetRef]);
 
   const uploadFiles = async (files: File[]) => {
     setIsUploading(true); // Iniciar carga
