@@ -40,23 +40,35 @@ export const FileUpload = ({
   const [files, setFiles] = useState<File[]>([]);
   const [showAlert, setShowAlert] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Estado para la carga
+  const [alertMessage, setAlertMessage] = useState("Debes seleccionar un proveedor antes de subir un archivo.");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // Restablecer el valor del input de archivo
     }
-  
+
     if (!supplier) {
       setShowAlert(true);
+      setAlertMessage("Debes seleccionar un proveedor antes de subir un archivo.");
       return;
     }
-  
+
+    const validFileTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"];
+    const invalidFile = newFiles.find(file => !validFileTypes.includes(file.type));
+
+    if (invalidFile) {
+      const fileExtension = invalidFile.name.split('.').pop();
+      setShowAlert(true);
+      setAlertMessage(`El formato <span style="color: red;">.${fileExtension}</span> no es admitido.`);
+      return;
+    }
+
     setFiles(newFiles);
     onChange && onChange(newFiles);
     uploadFiles(newFiles);
   };
-  
+
   // Asegúrate de que el estado showAlert se restablezca cada vez que se intente subir un archivo
   useEffect(() => {
     if (resetRef) {
@@ -67,6 +79,7 @@ export const FileUpload = ({
           fileInputRef.current.value = "";
         }
         setShowAlert(false); // Resetear estado de alerta
+        setAlertMessage("Debes seleccionar un proveedor antes de subir un archivo."); // Resetear mensaje de alerta
       };
     }
   }, [resetRef]);
@@ -134,9 +147,7 @@ export const FileUpload = ({
         <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
           <AlertDialogContent>
             <AlertDialogTitle>Error</AlertDialogTitle>
-            <AlertDialogDescription>
-              Debes seleccionar un proveedor antes de subir un archivo.
-            </AlertDialogDescription>
+            <AlertDialogDescription dangerouslySetInnerHTML={{ __html: alertMessage }} />
             <AlertDialogAction onClick={() => setShowAlert(false)}>
               Aceptar
             </AlertDialogAction>
