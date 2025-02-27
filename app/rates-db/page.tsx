@@ -222,7 +222,9 @@ const RatesDbPage = () => {
                           {selectedColumns.map((col) => (
                             <div key={col} className="flex flex-col bg-transparent-800 p-4 rounded-md shadow">
                               <span className="text-white font-medium">{col}</span>
-                              <span className="text-gray-400 text-sm">{columnSamples[col] || "No disponible"}</span>
+                              {columnSamples[col] && (
+                                <span className="text-gray-400 text-sm">{columnSamples[col]}</span>
+                              )}  
                               <Select
                                 onValueChange={(value) =>
                                   setColumnMapping((prev) => ({
