@@ -24,13 +24,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileUpload } from "../../components/ui/file-upload";
-import Stepper, { Step } from "../../components/ui/stepper"; // Importamos el Stepper
-import ColumnSelector from '../../components/ui/ColumnSelector'; // Importamos el ColumnSelector
+import Stepper, { Step } from "../../components/ui/stepper";
+import ColumnSelector from '../../components/ui/ColumnSelector';
 
 interface CardWithFormProps {
   onCancel: () => void;
   onContinue: () => void;
-  onColumnsReceived: (columns: string[]) => void; // Añadimos la función para recibir columnas
+  onColumnsReceived: (columns: string[], samples: { [key: string]: string }) => void;
 }
 
 export function CardWithForm({ onCancel, onContinue, onColumnsReceived }: CardWithFormProps) {
@@ -88,15 +88,15 @@ export function CardWithForm({ onCancel, onContinue, onColumnsReceived }: CardWi
 
 const RatesDbPage = () => {
   const [showCard, setShowCard] = useState(false);
-  const [showStepper, setShowStepper] = useState(false); // Nuevo estado para controlar el Stepper
-  const [columns, setColumns] = useState<string[]>([]); // Estado para las columnas
-  const [selectedColumns, setSelectedColumns] = useState<string[]>([]); // Estado para las columnas seleccionadas
-  const [name, setName] = useState(''); // Estado para el nombre
-  const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({}); // Estado para el mapeo de columnas
-  const stepperRef = useRef<HTMLDivElement>(null); // Ref para el contenedor del Stepper
+  const [showStepper, setShowStepper] = useState(false);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [columnSamples, setColumnSamples] = useState<{ [key: string]: string }>({});
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
+  const [name, setName] = useState('');
+  const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({});
+  const stepperRef = useRef<HTMLDivElement>(null);
 
-  // Definir dbColumns
-  const dbColumns = ["Column1", "Column2", "Column3"]; // Ejemplo de columnas de la base de datos
+  const dbColumns = ["Column1", "Column2", "Column3"];
 
   const links = [
     {
@@ -146,12 +146,13 @@ const RatesDbPage = () => {
     },
   ];
 
-  const handleColumnsReceived = (newColumns: string[]) => {
+  const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string }) => {
     if (newColumns.length === 0) {
       alert("❌ Error: No se recibieron columnas del archivo.");
       return;
     }
     setColumns(newColumns);
+    setColumnSamples(samples);
   };
 
   const handleColumnSelection = (selected: string[]) => {
@@ -162,7 +163,7 @@ const RatesDbPage = () => {
     setShowStepper(true);
     setTimeout(() => {
       stepperRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 300); // Hacer scroll después de un pequeño retraso
+    }, 300);
   };
 
   return (
@@ -188,7 +189,6 @@ const RatesDbPage = () => {
             )}
           </AnimatePresence>
 
-          {/* Stepper debajo de la carta */}
           <AnimatePresence>
             {showStepper && (
               <motion.div
@@ -197,7 +197,7 @@ const RatesDbPage = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                style={{ marginTop: '100px', textAlign: 'left' }} // Ajustar el espacio entre la tarjeta y el Stepper y alinear el texto a la izquierda
+                style={{ marginTop: '100px', textAlign: 'left' }}
               >
                 <Stepper initialStep={1} onStepChange={(step) => console.log(step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
                   <Step>
@@ -222,7 +222,7 @@ const RatesDbPage = () => {
                           {selectedColumns.map((col) => (
                             <div key={col} className="flex flex-col bg-transparent-800 p-4 rounded-md shadow">
                               <span className="text-white font-medium">{col}</span>
-                              <span className="text-gray-400 text-sm">Ejemplo: {col}</span>
+                              <span className="text-gray-400 text-sm">{columnSamples[col] || "No disponible"}</span>
                               <Select
                                 onValueChange={(value) =>
                                   setColumnMapping((prev) => ({

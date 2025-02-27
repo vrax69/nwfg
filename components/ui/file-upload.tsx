@@ -33,7 +33,7 @@ export const FileUpload = ({
   supplier,
 }: {
   onChange?: (files: File[]) => void;
-  onColumnsReceived?: (columns: string[]) => void; // Callback para recibir las columnas del backend
+  onColumnsReceived?: (columns: string[], samples: { [key: string]: string }) => void; // Callback para recibir las columnas del backend
   resetRef?: React.RefObject<(() => void) | null>;
   supplier: string;
 }) => {
@@ -106,8 +106,8 @@ export const FileUpload = ({
       const result = await response.json();
       console.log("📂 Archivo subido con éxito:", result);
 
-      if (result.columns && onColumnsReceived) {
-        onColumnsReceived(result.columns); // Enviar columnas al stepper
+      if (result.columns && result.samples && onColumnsReceived) {
+        onColumnsReceived(result.columns, result.samples); // Enviar columnas y ejemplos al stepper
       }
     } catch (error) {
       console.error("❌ Error en la subida del archivo:", error);
