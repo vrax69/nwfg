@@ -92,7 +92,11 @@ const RatesDbPage = () => {
   const [columns, setColumns] = useState<string[]>([]); // Estado para las columnas
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]); // Estado para las columnas seleccionadas
   const [name, setName] = useState(''); // Estado para el nombre
+  const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({}); // Estado para el mapeo de columnas
   const stepperRef = useRef<HTMLDivElement>(null); // Ref para el contenedor del Stepper
+
+  // Definir dbColumns
+  const dbColumns = ["Column1", "Column2", "Column3"]; // Ejemplo de columnas de la base de datos
 
   const links = [
     {
@@ -209,13 +213,42 @@ const RatesDbPage = () => {
                     )}
                   </Step>
                   <Step>
-                    <h2>How about an input?</h2>
-                    <input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your name?"
-                    />
-                  </Step>
+                      <h2 className="text-lg font-semibold">Asigna las columnas del Excel a la base de datos</h2>
+                      <p className="text-sm text-gray-400 mb-4">
+                        Asegúrate de asignar cada columna correctamente. Se ignorarán las columnas no asignadas.
+                      </p>
+                      {selectedColumns.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          {selectedColumns.map((col) => (
+                            <div key={col} className="flex flex-col bg-gray-800 p-4 rounded-md shadow">
+                              <span className="text-white font-medium">{col}</span>
+                              <span className="text-gray-400 text-sm">Ejemplo: {col}</span>
+                              <Select
+                                onValueChange={(value) =>
+                                  setColumnMapping((prev) => ({
+                                    ...prev,
+                                    [col]: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Elegir columna de la BD" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dbColumns.map((dbCol: string) => (
+                                    <SelectItem key={dbCol} value={dbCol}>
+                                      {dbCol}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p style={{ color: "red" }}>❌ No hay columnas seleccionadas en el paso 2.</p>
+                      )}
+                </Step>
                   <Step>
                     <h2>Final Step</h2>
                     <p>You made it!</p>
