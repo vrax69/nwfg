@@ -221,7 +221,7 @@ const RatesDbPage = () => {
                         <div className="grid grid-cols-2 gap-4">
                           {selectedColumns.map((col) => (
                             <div key={col} className="flex flex-col bg-transparent-800 p-4 rounded-md shadow">
-                              <span className="text-white font-medium">{col}</span>
+                              <span className="text-gray-900 font-medium">{col}</span>
                               {columnSamples[col] && (
                                 <span className="text-gray-400 text-sm">{columnSamples[col]}</span>
                               )}  
