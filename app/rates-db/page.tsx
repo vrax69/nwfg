@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import { AnimatePresence, motion } from 'framer-motion';
 import Squares from '../../components/ui/Squares';
@@ -96,7 +96,19 @@ const RatesDbPage = () => {
   const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({});
   const stepperRef = useRef<HTMLDivElement>(null);
 
-  const dbColumns = ["Column1", "Column2", "Column3"];
+  const [dbColumns, setDbColumns] = useState<string[]>([]);
+
+  // Obtener las columnas desde el backend
+  useEffect(() => {
+    fetch("https://nwfg.net:3001/columns")
+      .then(response => response.json())
+      .then(data => {
+        if (data.columns) {
+          setDbColumns(data.columns); // Guardamos las columnas reales
+        }
+      })
+      .catch(error => console.error("Error obteniendo columnas:", error));
+  }, []);
 
   const links = [
     {
@@ -207,7 +219,12 @@ const RatesDbPage = () => {
                   <Step>
                     <h2>Selecciona tus columnas</h2>
                     {columns.length > 0 ? (
-                      <ColumnSelector options={columns} onSelectionChange={handleColumnSelection} />
+                      <>
+                        <ColumnSelector options={columns} onSelectionChange={handleColumnSelection} />
+                        <p className="text-sm text-gray-400 mt-2">
+                          Recuerda no escoger nunca State, Service_Type y Unit_of_Measure.
+                        </p>
+                      </>
                     ) : (
                       <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>
                     )}
@@ -239,7 +256,7 @@ const RatesDbPage = () => {
                                 <SelectContent>
                                   {dbColumns.map((dbCol: string) => (
                                     <SelectItem key={dbCol} value={dbCol}>
-                                      {dbCol}
+                                      {dbCol} {/* Ahora muestra el nombre real de la columna en la BD */}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -250,7 +267,7 @@ const RatesDbPage = () => {
                       ) : (
                         <p style={{ color: "red" }}>❌ No hay columnas seleccionadas en el paso 2.</p>
                       )}
-                </Step>
+                  </Step>
                   <Step>
                     <h2>Final Step</h2>
                     <p>You made it!</p>
