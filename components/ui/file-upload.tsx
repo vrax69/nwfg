@@ -86,36 +86,38 @@ export const FileUpload = ({
 
   const uploadFiles = async (files: File[]) => {
     setIsUploading(true); // Iniciar carga
-
+  
     const formData = new FormData();
     formData.append("supplier", supplier);
     files.forEach((file) => {
       formData.append("file", file);
     });
-
+  
     try {
       const response = await fetch("https://nwfg.net:3001/upload", {
         method: "POST",
         body: formData,
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.json();
       console.log("📂 Archivo subido con éxito:", result);
-
-      if (result.columns && result.samples && onColumnsReceived) {
-        onColumnsReceived(result.columns, result.samples); // Enviar columnas y ejemplos al stepper
+  
+      if (result.columns && result.columns.length > 0 && onColumnsReceived) {
+        console.log("📌 Enviando columnas a page.tsx:", result.columns);
+        onColumnsReceived(result.columns, result.samples || {});
+      } else {
+        console.error("❌ No se recibieron columnas del backend.");
       }
     } catch (error) {
       console.error("❌ Error en la subida del archivo:", error);
     } finally {
-      setIsUploading(false); // Finalizar carga
+      setIsUploading(false);
     }
   };
-
   const handleClick = () => {
     fileInputRef.current?.click();
   };

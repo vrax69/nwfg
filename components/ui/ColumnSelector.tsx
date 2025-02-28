@@ -8,10 +8,11 @@ interface ColumnSelectorProps {
 }
 
 const ColumnSelector: React.FC<ColumnSelectorProps> = ({ options, onSelectionChange }) => {
-  const handleChange = (value: string[]) => {
-    console.log(`📌 Columnas seleccionadas: ${value}`);
-    onSelectionChange(value); // 📌 Se actualiza el estado en `RatesDbPage.tsx`
-  };
+  console.log("📌 Columnas recibidas en ColumnSelector:", options); // Debug
+
+  if (!options || options.length === 0) {
+    return <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>;
+  }
 
   return (
     <Space style={{ width: '100%' }} direction="vertical">
@@ -20,8 +21,8 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({ options, onSelectionCha
         allowClear
         style={{ width: '100%' }}
         placeholder="Seleccione las columnas"
-        onChange={handleChange}
-        options={options.map(col => ({ label: col, value: col }))} // 📌 Se genera el listado dinámico
+        onChange={onSelectionChange}
+        options={options.map(col => ({ label: col, value: col }))} // Genera el listado dinámico
       />
     </Space>
   );

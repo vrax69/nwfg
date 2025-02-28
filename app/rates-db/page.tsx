@@ -159,11 +159,14 @@ const RatesDbPage = () => {
   ];
 
   const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string }) => {
-    if (newColumns.length === 0) {
-      alert("❌ Error: No se recibieron columnas del archivo.");
+    console.log("📌 Columnas recibidas en page.tsx:", newColumns);
+  
+    if (!newColumns || newColumns.length === 0) {
+      alert("❌ Error: No se recibieron columnas del archivo. Revisa el formato del archivo.");
       return;
     }
-    setColumns(newColumns);
+  
+    setColumns(newColumns); // Guardamos las columnas correctamente
     setColumnSamples(samples);
   };
 
