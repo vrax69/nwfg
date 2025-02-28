@@ -104,10 +104,9 @@ export const FileUpload = ({
       }
   
       const result = await response.json();
-      console.log("📂 Archivo subido con éxito:", result);
+      
   
       if (result.columns && result.columns.length > 0 && onColumnsReceived) {
-        console.log("📌 Enviando columnas a page.tsx:", result.columns);
         onColumnsReceived(result.columns, result.samples || {});
       } else {
         console.error("❌ No se recibieron columnas del backend.");

@@ -8,7 +8,7 @@ interface ColumnSelectorProps {
 }
 
 const ColumnSelector: React.FC<ColumnSelectorProps> = ({ options, onSelectionChange }) => {
-  console.log("📌 Columnas recibidas en ColumnSelector:", options); // Debug
+
 
   if (!options || options.length === 0) {
     return <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>;
