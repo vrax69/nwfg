@@ -235,7 +235,7 @@ const RatesDbPage = () => {
                   <Step>
                       <h2 className="text-lg font-semibold">Asigna las columnas del Excel a la base de datos</h2>
                       <p className="text-sm text-gray-400 mb-4">
-                        Asegúrate de asignar cada columna correctamente. Se ignorarán las columnas no asignadas.
+                        Asegúrate de asignar cada columna correctamente con la base de datos. Se ignorarán las columnas no asignadas.
                       </p>
                       {selectedColumns.length > 0 ? (
                         <div className="grid grid-cols-2 gap-4">
