@@ -92,7 +92,7 @@ const RatesDbPage = () => {
   const [columns, setColumns] = useState<string[]>([]);
   const [columnSamples, setColumnSamples] = useState<{ [key: string]: string }>({});
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
-  const [name, setName] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState('');
   const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({});
   const stepperRef = useRef<HTMLDivElement>(null);
 
@@ -159,8 +159,6 @@ const RatesDbPage = () => {
   ];
 
   const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string }) => {
- 
-  
     if (!newColumns || newColumns.length === 0) {
       alert("❌ Error: No se recibieron columnas del archivo. Revisa el formato del archivo.");
       return;
@@ -179,6 +177,46 @@ const RatesDbPage = () => {
     setTimeout(() => {
       stepperRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 300);
+  };
+
+  const handleFinalize = () => {
+    if (!selectedSupplier) {
+      alert("❌ Error: No has seleccionado un proveedor.");
+      return;
+    }
+  
+    if (selectedColumns.length === 0) {
+      alert("❌ Error: No has seleccionado ninguna columna.");
+      return;
+    }
+  
+    if (Object.keys(columnMapping).length === 0) {
+      alert("❌ Error: No has asignado columnas a la base de datos.");
+      return;
+    }
+  
+    fetch("https://nwfg.net:3001/map-columns", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        supplier: selectedSupplier,
+        columnMapping: columnMapping,
+        rows: columns.map(col => columnSamples[col] ? columnSamples[col] : "⚠ Sin datos")
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message) {
+        alert("✅ Datos cargados correctamente.");
+        setShowStepper(false); // Cierra el Stepper
+      } else {
+        alert("❌ Error al procesar los datos.");
+      }
+    })
+    .catch(error => {
+      console.error("❌ Error en la carga de datos:", error);
+      alert("❌ Error en la carga de datos.");
+    });
   };
 
   return (
@@ -273,7 +311,8 @@ const RatesDbPage = () => {
                   </Step>
                   <Step>
                     <h2>Final Step</h2>
-                    <p>You made it!</p>
+                    <p>¡Carga completada! Presiona el botón para finalizar y guardar los datos.</p>
+                    <Button onClick={handleFinalize}>Finalizar carga</Button>
                   </Step>
                 </Stepper>
               </motion.div>
