@@ -28,18 +28,20 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
-  onColumnsReceived, // Nuevo callback para recibir columnas
+  onColumnsReceived, // Callback para recibir columnas
   resetRef,
   supplier,
+  selectedColumns, // Añadimos esta prop
 }: {
   onChange?: (files: File[]) => void;
-  onColumnsReceived?: (columns: string[], samples: { [key: string]: string[] }) => void; // Callback para recibir las columnas del backend
+  onColumnsReceived?: (columns: string[], samples: { [key: string]: string[] }) => void;
   resetRef?: React.RefObject<(() => void) | null>;
   supplier: string;
+  selectedColumns?: string[]; // Definimos el tipo
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [showAlert, setShowAlert] = useState(false);
-  const [isUploading, setIsUploading] = useState(false); // Estado para la carga
+  const [isUploading, setIsUploading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("Debes seleccionar un proveedor antes de subir un archivo.");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,11 +91,20 @@ export const FileUpload = ({
   
     const formData = new FormData();
     formData.append("supplier", supplier);
+    
+    // Añadimos las columnas seleccionadas a la petición si existen
+    if (selectedColumns && selectedColumns.length > 0) {
+      console.log("📌 Enviando columnas seleccionadas al backend:", selectedColumns);
+      formData.append("selectedColumns", JSON.stringify(selectedColumns));
+    }
+    
     files.forEach((file) => {
       formData.append("file", file);
     });
   
     try {
+      console.log("📌 Iniciando subida de archivo con supplier:", supplier);
+      
       const response = await fetch("https://nwfg.net:3001/upload", {
         method: "POST",
         body: formData,
@@ -104,19 +115,25 @@ export const FileUpload = ({
       }
   
       const result = await response.json();
-      
+      console.log("📌 Resultado de la subida:", result);
   
       if (result.columns && result.columns.length > 0 && onColumnsReceived) {
+        console.log("📌 Columnas recibidas del backend:", result.columns);
+        // También muestra ejemplos de datos para debug
+        console.log("📌 Ejemplos recibidos:", Object.keys(result.samples || {}).length);
         onColumnsReceived(result.columns, result.samples || {});
       } else {
         console.error("❌ No se recibieron columnas del backend.");
       }
     } catch (error) {
       console.error("❌ Error en la subida del archivo:", error);
+      setShowAlert(true);
+      setAlertMessage(`Error al procesar el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
     } finally {
       setIsUploading(false);
     }
   };
+  
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -129,18 +146,6 @@ export const FileUpload = ({
       console.log(error);
     },
   });
-
-  useEffect(() => {
-    if (resetRef) {
-      resetRef.current = () => {
-        setFiles([]);
-        setIsUploading(false); // Resetear estado de carga
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      };
-    }
-  }, [resetRef]);
 
   return (
     <div className="w-full" {...getRootProps()}>
@@ -166,13 +171,14 @@ export const FileUpload = ({
           type="file"
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
+          accept=".xlsx,.xls"
         />
         <div className="flex flex-col items-center justify-center">
           <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-base">
-            {isUploading ? "Uploading..." : "Upload file"}
+            {isUploading ? "Subiendo..." : "Subir archivo"}
           </p>
           <p className="relative z-20 font-sans font-normal text-neutral-400 dark:text-neutral-400 text-base mt-2">
-            Drag or drop your files here or click to upload
+            Arrastra y suelta tu archivo aquí o haz clic para seleccionarlo
           </p>
           <div className="relative w-full mt-10 max-w-xl mx-auto">
             {files.length > 0 &&
@@ -219,7 +225,7 @@ export const FileUpload = ({
                       animate={{ opacity: 1 }}
                       layout
                     >
-                      modified{" "}
+                      modificado{" "}
                       {new Date(file.lastModified).toLocaleDateString()}
                     </motion.p>
                   </div>
@@ -245,7 +251,7 @@ export const FileUpload = ({
                     animate={{ opacity: 1 }}
                     className="text-neutral-600 flex flex-col items-center"
                   >
-                    Drop it
+                    Suelta aquí
                     <IconUpload className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
                   </motion.p>
                 ) : (

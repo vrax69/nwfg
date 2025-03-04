@@ -33,9 +33,10 @@ interface CardWithFormProps {
   onColumnsReceived: (columns: string[], samples: { [key: string]: string[] }) => void;
   selectedSupplier: string | null;
   setSelectedSupplier: (supplier: string) => void;
+  selectedColumns: string[]; // Añadimos esta prop
 }
 
-export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selectedSupplier, setSelectedSupplier }: CardWithFormProps) {
+export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selectedSupplier, setSelectedSupplier, selectedColumns }: CardWithFormProps) {
   const resetFileUploadRef = useRef<(() => void) | null>(null);
 
   const handleCancel = () => {
@@ -74,7 +75,13 @@ export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selected
               </Select>
             </div>
             <div className="flex flex-col space-y-1.5">
-              <FileUpload supplier={selectedSupplier || ""} onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} onColumnsReceived={onColumnsReceived} />
+              <FileUpload 
+                supplier={selectedSupplier || ""} 
+                onChange={(files) => console.log(files)} 
+                resetRef={resetFileUploadRef} 
+                onColumnsReceived={onColumnsReceived}
+                selectedColumns={selectedColumns} // Pasamos las columnas seleccionadas
+              />
             </div>
           </div>
         </form>
@@ -98,6 +105,7 @@ const RatesDbPage = () => {
   const stepperRef = useRef<HTMLDivElement>(null);
 
   const [dbColumns, setDbColumns] = useState<string[]>([]);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   // Obtener las columnas desde el backend
   useEffect(() => {
@@ -119,11 +127,11 @@ const RatesDbPage = () => {
     },
     {
       title: "Rows",
-      icon: <IconTerminal2 className="h-full w/full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
     },
     {
       title: "Subir tarifas",
-      icon: <IconNewSection className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       onClick: () => {
         setShowCard(!showCard);
       }
@@ -144,17 +152,17 @@ const RatesDbPage = () => {
     },
     {
       title: "Changelog",
-      icon: <IconExchange className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconExchange className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       href: "/changelog"
     },
     {
       title: "Twitter",
-      icon: <IconBrandX className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconBrandX className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       href: "/twitter"
     },
     {
       title: "GitHub",
-      icon: <IconBrandGithub className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       href: "/github"
     },
   ];
@@ -165,11 +173,13 @@ const RatesDbPage = () => {
       return;
     }
   
+    console.log("📌 Columnas recibidas del archivo:", newColumns);
     setColumns(newColumns); // Guardamos las columnas correctamente
     setColumnSamples(samples);
   };
 
   const handleColumnSelection = (selected: string[]) => {
+    console.log("📌 Columnas seleccionadas en el UI:", selected);
     setSelectedColumns(selected);
   };
 
@@ -195,17 +205,20 @@ const RatesDbPage = () => {
       alert("❌ Error: No has asignado columnas a la base de datos.");
       return;
     }
-  
-    // 📌 Obtener la cantidad de filas reales
+    
+    console.log("📌 Columnas seleccionadas antes de enviar al backend:", selectedColumns);
+    console.log("📌 Mapping de columnas antes de enviar:", columnMapping);
+
+    // Obtener la cantidad de filas reales
     const rowCount = Object.values(columnSamples)[0]?.length || 0;
 
-    // 📌 Construir las filas correctamente asegurando que los datos sean por fila, no por carácter
+    // Construir las filas correctamente asegurando que los datos sean por fila, no por carácter
     const mappedRows = Array.from({ length: rowCount }).map((_, rowIndex) => {
-      let rowData: { [key: string]: string | null } = { SPL: selectedSupplier }; // ✅ Asegurar que SPL siempre tenga valor
+      let rowData: { [key: string]: string | null } = { SPL: selectedSupplier }; // Asegurar que SPL siempre tenga valor
 
+      // Filtrar solo las columnas que están en selectedColumns
       selectedColumns.forEach((selectedCol) => {
         if (columnMapping[selectedCol]) {
-          // 📌 Extraer el dato correcto asegurando que sea por fila, no por carácter
           const value = columnSamples[selectedCol]?.[rowIndex] || null;
           rowData[columnMapping[selectedCol]] = value;
         }
@@ -215,14 +228,8 @@ const RatesDbPage = () => {
     });
   
     console.log("📌 Filas estructuradas antes de enviar:", mappedRows);
-    console.log("📌 Datos que se enviarán al backend:", {
-      supplier: selectedSupplier,
-      columnMapping,
-      rows: mappedRows,
-      headers: columns // Asegurarse de enviar las cabeceras
-    });
   
-    // 📌 Verificar si hay filas con datos reales
+    // Verificar si hay filas con datos reales
     if (mappedRows.length === 0 || mappedRows.every(row => Object.values(row).every(value => value === null))) {
       alert("❌ Error: Los datos a cargar están vacíos o mal estructurados.");
       return;
@@ -235,21 +242,33 @@ const RatesDbPage = () => {
         supplier: selectedSupplier,
         columnMapping: columnMapping,
         rows: mappedRows,
-        headers: columns // Asegurarse de enviar las cabeceras
+        selectedColumns: selectedColumns, // Enviamos las columnas seleccionadas
+        headers: columns
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         alert("✅ Datos cargados correctamente.");
         setShowStepper(false); // Cierra el Stepper
+        
+        // Resetear estados
+        setSelectedColumns([]);
+        setColumnMapping({});
+        setColumns([]);
+        setColumnSamples({});
       } else {
-        alert("❌ Error al procesar los datos.");
+        alert(`❌ Error al procesar los datos: ${data.message || 'Error desconocido'}`);
       }
     })
     .catch(error => {
       console.error("❌ Error en la carga de datos:", error);
-      alert("❌ Error en la carga de datos.");
+      alert(`❌ Error en la carga de datos: ${error.message}`);
     });
   };
 
@@ -275,8 +294,9 @@ const RatesDbPage = () => {
                   onCancel={() => { setShowCard(false); setShowStepper(false); }} 
                   onContinue={handleContinue} 
                   onColumnsReceived={handleColumnsReceived} 
-                  setSelectedSupplier={setSelectedSupplier} // Pasa la función de actualización
-                  selectedSupplier={selectedSupplier} // Pasa el estado del proveedor
+                  setSelectedSupplier={setSelectedSupplier}
+                  selectedSupplier={selectedSupplier}
+                  selectedColumns={selectedColumns} // Pasamos las columnas seleccionadas
                 />
               </motion.div>
             )}
@@ -292,7 +312,7 @@ const RatesDbPage = () => {
                 exit={{ opacity: 0, y: -20 }}
                 style={{ marginTop: '100px', textAlign: 'left' }}
               >
-                <Stepper initialStep={1} onStepChange={(step) => console.log(step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
+                <Stepper initialStep={1} onStepChange={(step) => console.log("Paso actual:", step)} onFinalStepCompleted={() => console.log("All steps completed!")}>
                   <Step>
                     <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
                     <p>recuerda seguir cada paso al pie de la letra!</p>
@@ -318,10 +338,13 @@ const RatesDbPage = () => {
                       {selectedColumns.length > 0 ? (
                         <div className="grid grid-cols-2 gap-4">
                           {selectedColumns.map((col) => (
-                            <div key={col} className="flex flex-col bg-transparent-800 p-4 rounded-md shadow">
-                              <span className="text-gray-900 font-medium">{col}</span>
+                            <div key={col} className="flex flex-col bg-white dark:bg-gray-800 p-4 rounded-md shadow">
+                              <span className="text-gray-900 dark:text-white font-medium">{col}</span>
                               {columnSamples[col] && (
-                                <span className="text-gray-400 text-sm">{columnSamples[col]}</span>
+                                <span className="text-gray-400 text-sm">
+                                  Ejemplo: {columnSamples[col].slice(0, 3).join(", ")}
+                                  {columnSamples[col].length > 3 ? "..." : ""}
+                                </span>
                               )}  
                               <Select
                                 onValueChange={(value) =>
@@ -337,7 +360,7 @@ const RatesDbPage = () => {
                                 <SelectContent>
                                   {dbColumns.map((dbCol: string) => (
                                     <SelectItem key={dbCol} value={dbCol}>
-                                      {dbCol} {/* Ahora muestra el nombre real de la columna en la BD */}
+                                      {dbCol}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
