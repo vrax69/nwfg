@@ -181,6 +181,21 @@ const RatesDbPage = () => {
   const handleColumnSelection = (selected: string[]) => {
     console.log("📌 Columnas seleccionadas en el UI:", selected);
     setSelectedColumns(selected);
+    
+    // Enviar columnas seleccionadas al backend cuando el usuario las selecciona
+    if (selected.length > 0 && selectedSupplier) {
+      fetch("https://nwfg.net:3001/save-selected-columns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          supplier: selectedSupplier,
+          selectedColumns: selected
+        })
+      })
+      .then(response => response.json())
+      .then(data => console.log("📌 Respuesta del backend:", data))
+      .catch(error => console.error("❌ Error enviando columnas seleccionadas:", error));
+    }
   };
 
   const handleContinue = () => {
