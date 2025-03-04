@@ -30,12 +30,13 @@ import ColumnSelector from '../../components/ui/ColumnSelector';
 interface CardWithFormProps {
   onCancel: () => void;
   onContinue: () => void;
-  onColumnsReceived: (columns: string[], samples: { [key: string]: string }) => void;
+  onColumnsReceived: (columns: string[], samples: { [key: string]: string[] }) => void;
+  selectedSupplier: string | null;
+  setSelectedSupplier: (supplier: string) => void;
 }
 
-export function CardWithForm({ onCancel, onContinue, onColumnsReceived }: CardWithFormProps) {
+export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selectedSupplier, setSelectedSupplier }: CardWithFormProps) {
   const resetFileUploadRef = useRef<(() => void) | null>(null);
-  const [selectedSupplier, setSelectedSupplier] = useState('');
 
   const handleCancel = () => {
     resetFileUploadRef.current?.();
@@ -73,7 +74,7 @@ export function CardWithForm({ onCancel, onContinue, onColumnsReceived }: CardWi
               </Select>
             </div>
             <div className="flex flex-col space-y-1.5">
-              <FileUpload supplier={selectedSupplier} onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} onColumnsReceived={onColumnsReceived} />
+              <FileUpload supplier={selectedSupplier || ""} onChange={(files) => console.log(files)} resetRef={resetFileUploadRef} onColumnsReceived={onColumnsReceived} />
             </div>
           </div>
         </form>
@@ -90,9 +91,9 @@ const RatesDbPage = () => {
   const [showCard, setShowCard] = useState(false);
   const [showStepper, setShowStepper] = useState(false);
   const [columns, setColumns] = useState<string[]>([]);
-  const [columnSamples, setColumnSamples] = useState<{ [key: string]: string }>({});
+  const [columnSamples, setColumnSamples] = useState<{ [key: string]: string[] }>({});
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
-  const [selectedSupplier, setSelectedSupplier] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
   const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({});
   const stepperRef = useRef<HTMLDivElement>(null);
 
@@ -118,11 +119,11 @@ const RatesDbPage = () => {
     },
     {
       title: "Rows",
-      icon: <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconTerminal2 className="h-full w/full text-neutral-500 dark:text-neutral-300" />,
     },
     {
       title: "Subir tarifas",
-      icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconNewSection className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
       onClick: () => {
         setShowCard(!showCard);
       }
@@ -143,22 +144,22 @@ const RatesDbPage = () => {
     },
     {
       title: "Changelog",
-      icon: <IconExchange className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconExchange className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
       href: "/changelog"
     },
     {
       title: "Twitter",
-      icon: <IconBrandX className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconBrandX className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
       href: "/twitter"
     },
     {
       title: "GitHub",
-      icon: <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+      icon: <IconBrandGithub className="h/full w/full text-neutral-500 dark:text-neutral-300" />,
       href: "/github"
     },
   ];
 
-  const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string }) => {
+  const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string[] }) => {
     if (!newColumns || newColumns.length === 0) {
       alert("❌ Error: No se recibieron columnas del archivo. Revisa el formato del archivo.");
       return;
@@ -195,18 +196,51 @@ const RatesDbPage = () => {
       return;
     }
   
+    // 📌 Obtener la cantidad de filas reales
+    const rowCount = Object.values(columnSamples)[0]?.length || 0;
+
+    // 📌 Construir las filas correctamente asegurando que los datos sean por fila, no por carácter
+    const mappedRows = Array.from({ length: rowCount }).map((_, rowIndex) => {
+      let rowData: { [key: string]: string | null } = { SPL: selectedSupplier }; // ✅ Asegurar que SPL siempre tenga valor
+
+      selectedColumns.forEach((selectedCol) => {
+        if (columnMapping[selectedCol]) {
+          // 📌 Extraer el dato correcto asegurando que sea por fila, no por carácter
+          const value = columnSamples[selectedCol]?.[rowIndex] || null;
+          rowData[columnMapping[selectedCol]] = value;
+        }
+      });
+
+      return rowData;
+    });
+  
+    console.log("📌 Filas estructuradas antes de enviar:", mappedRows);
+    console.log("📌 Datos que se enviarán al backend:", {
+      supplier: selectedSupplier,
+      columnMapping,
+      rows: mappedRows,
+      headers: columns // Asegurarse de enviar las cabeceras
+    });
+  
+    // 📌 Verificar si hay filas con datos reales
+    if (mappedRows.length === 0 || mappedRows.every(row => Object.values(row).every(value => value === null))) {
+      alert("❌ Error: Los datos a cargar están vacíos o mal estructurados.");
+      return;
+    }
+  
     fetch("https://nwfg.net:3001/map-columns", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         supplier: selectedSupplier,
         columnMapping: columnMapping,
-        rows: columns.map(col => columnSamples[col] ? columnSamples[col] : "⚠ Sin datos")
+        rows: mappedRows,
+        headers: columns // Asegurarse de enviar las cabeceras
       })
     })
     .then(response => response.json())
     .then(data => {
-      if (data.message) {
+      if (data.success) {
         alert("✅ Datos cargados correctamente.");
         setShowStepper(false); // Cierra el Stepper
       } else {
@@ -237,7 +271,13 @@ const RatesDbPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <CardWithForm onCancel={() => { setShowCard(false); setShowStepper(false); }} onContinue={handleContinue} onColumnsReceived={handleColumnsReceived} />
+                <CardWithForm 
+                  onCancel={() => { setShowCard(false); setShowStepper(false); }} 
+                  onContinue={handleContinue} 
+                  onColumnsReceived={handleColumnsReceived} 
+                  setSelectedSupplier={setSelectedSupplier} // Pasa la función de actualización
+                  selectedSupplier={selectedSupplier} // Pasa el estado del proveedor
+                />
               </motion.div>
             )}
           </AnimatePresence>
