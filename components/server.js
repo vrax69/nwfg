@@ -403,6 +403,32 @@ app.post("/map-columns", async (req, res) => {
                 dbColumns.push("SPL");
             }
 
+            // 📌 Extraer duracion_rate desde Product_Name para Clean Sky (SPL = 'cs')
+            if (supplier === 'cs') {
+                console.log("📌 Procesando datos de Clean Sky: extrayendo duracion_rate de Product_Name");
+                logConsole.log("📌 Procesando datos de Clean Sky: extrayendo duracion_rate de Product_Name");
+                
+                // Añadir duracion_rate a las columnas si no está presente
+                if (!dbColumns.includes("duracion_rate")) {
+                    dbColumns.push("duracion_rate");
+                }
+                
+                // Extraer duracion_rate de cada fila
+                for (const row of rows) {
+                    if (row.Product_Name) {
+                        // Buscar el primer número en Product_Name (por ejemplo, "Eco Rewards 12" -> 12)
+                        const match = row.Product_Name.match(/\d+/);
+                        row.duracion_rate = match ? parseInt(match[0], 10) : null;
+                        
+                        console.log(`📌 Extraído duracion_rate: ${row.duracion_rate} de Product_Name: "${row.Product_Name}"`);
+                    } else {
+                        row.duracion_rate = null;
+                    }
+                }
+                
+                await fs.appendFile(mappingLogPath, `\n📊 Extraída duracion_rate automáticamente para ${rows.length} filas de Clean Sky\n`);
+            }
+
             // Crear placeholders para la query (?, ?, ?)
             const placeholders = Array(dbColumns.length).fill("?").join(", ");
             
