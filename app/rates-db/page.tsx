@@ -23,6 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { FileUpload } from "../../components/ui/file-upload";
 import Stepper, { Step } from "../../components/ui/stepper";
 import ColumnSelector from '../../components/ui/ColumnSelector';
@@ -108,6 +117,27 @@ const RatesDbPage = () => {
 
   const [dbColumns, setDbColumns] = useState<string[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  
+  // Estados para el AlertDialog
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [alertTitle, setAlertTitle] = useState<string>("");
+  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [alertType, setAlertType] = useState<"success" | "error" | "info">("info");
+  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
+
+  // Función para mostrar alertas con AlertDialog
+  const showAlert = (
+    title: string, 
+    message: string, 
+    type: "success" | "error" | "info" = "info",
+    callback?: () => void
+  ) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertType(type);
+    setAlertCallback(() => callback || null);
+    setAlertOpen(true);
+  };
 
   // Obtener las columnas desde el backend
   useEffect(() => {
@@ -171,7 +201,11 @@ const RatesDbPage = () => {
 
   const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string[] }, count?: number) => {
     if (!newColumns || newColumns.length === 0) {
-      alert("❌ Error: No se recibieron columnas del archivo. Revisa el formato del archivo.");
+      showAlert(
+        "Error en el archivo",
+        "No se recibieron columnas del archivo. Revisa el formato del archivo.",
+        "error"
+      );
       return;
     }
   
@@ -215,17 +249,29 @@ const RatesDbPage = () => {
 
   const handleFinalize = async () => {
     if (!selectedSupplier) {
-      alert("❌ Error: No has seleccionado un proveedor.");
+      showAlert(
+        "Error de validación",
+        "No has seleccionado un proveedor.",
+        "error"
+      );
       return;
     }
   
     if (selectedColumns.length === 0) {
-      alert("❌ Error: No has seleccionado ninguna columna.");
+      showAlert(
+        "Error de validación",
+        "No has seleccionado ninguna columna.",
+        "error"
+      );
       return;
     }
   
     if (Object.keys(columnMapping).length === 0) {
-      alert("❌ Error: No has asignado columnas a la base de datos.");
+      showAlert(
+        "Error de validación",
+        "No has asignado columnas a la base de datos.",
+        "error"
+      );
       return;
     }
     
@@ -286,21 +332,29 @@ const RatesDbPage = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert(`✅ Datos cargados correctamente: ${mappedRows.length} filas procesadas.`);
-        setShowStepper(false);
-        
-        // Resetear estados
-        setSelectedColumns([]);
-        setColumnMapping({});
-        setColumns([]);
-        setColumnSamples({});
-        setRowCount(0);
+        showAlert(
+          "Operación exitosa",
+          `Datos cargados correctamente: ${mappedRows.length} filas procesadas.`,
+          "success",
+          () => {
+            // Redireccionar a la misma página para empezar de nuevo
+            window.location.href = "/rates-db";
+          }
+        );
       } else {
-        alert(`❌ Error al procesar los datos: ${result.message || 'Error desconocido'}`);
+        showAlert(
+          "Error al procesar datos",
+          result.message || 'Error desconocido',
+          "error"
+        );
       }
     } catch (error) {
       console.error("❌ Error en la carga de datos:", error);
-      alert(`❌ Error en la carga de datos: ${error instanceof Error ? error.message : String(error)}`);
+      showAlert(
+        "Error en la carga de datos",
+        error instanceof Error ? error.message : String(error),
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -433,6 +487,42 @@ const RatesDbPage = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* AlertDialog para mostrar mensajes */}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className={`border-l-4 ${
+          alertType === "success" 
+            ? "border-green-500 bg-green-50" 
+            : alertType === "error" 
+            ? "border-red-500 bg-red-50" 
+            : "border-blue-500 bg-blue-50"
+        }`}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={`${
+              alertType === "success" 
+                ? "text-green-700" 
+                : alertType === "error" 
+                ? "text-red-700" 
+                : "text-blue-700"
+            }`}>{alertTitle}</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">{alertMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction 
+              onClick={() => alertCallback && alertCallback()}
+              className={`${
+                alertType === "success" 
+                  ? "bg-green-600 hover:bg-green-700" 
+                  : alertType === "error" 
+                  ? "bg-red-600 hover:bg-red-700" 
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
