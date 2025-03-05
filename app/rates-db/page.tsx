@@ -33,7 +33,7 @@ interface CardWithFormProps {
   onColumnsReceived: (columns: string[], samples: { [key: string]: string[] }) => void;
   selectedSupplier: string | null;
   setSelectedSupplier: (supplier: string) => void;
-  selectedColumns: string[]; // Añadimos esta prop
+  selectedColumns: string[];
 }
 
 export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selectedSupplier, setSelectedSupplier, selectedColumns }: CardWithFormProps) {
@@ -80,7 +80,7 @@ export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selected
                 onChange={(files) => console.log(files)} 
                 resetRef={resetFileUploadRef} 
                 onColumnsReceived={onColumnsReceived}
-                selectedColumns={selectedColumns} // Pasamos las columnas seleccionadas
+                selectedColumns={selectedColumns}
               />
             </div>
           </div>
@@ -103,6 +103,8 @@ const RatesDbPage = () => {
   const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
   const [columnMapping, setColumnMapping] = useState<{ [key: string]: string }>({});
   const stepperRef = useRef<HTMLDivElement>(null);
+  const [rowCount, setRowCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [dbColumns, setDbColumns] = useState<string[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -167,7 +169,7 @@ const RatesDbPage = () => {
     },
   ];
 
-  const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string[] }) => {
+  const handleColumnsReceived = (newColumns: string[], samples: { [key: string]: string[] }, count?: number) => {
     if (!newColumns || newColumns.length === 0) {
       alert("❌ Error: No se recibieron columnas del archivo. Revisa el formato del archivo.");
       return;
@@ -176,6 +178,12 @@ const RatesDbPage = () => {
     console.log("📌 Columnas recibidas del archivo:", newColumns);
     setColumns(newColumns); // Guardamos las columnas correctamente
     setColumnSamples(samples);
+    
+    // Si recibimos el conteo de filas, lo guardamos
+    if (count !== undefined) {
+      setRowCount(count);
+      console.log(`📌 Total de filas en el archivo: ${count}`);
+    }
   };
 
   const handleColumnSelection = (selected: string[]) => {
@@ -205,7 +213,7 @@ const RatesDbPage = () => {
     }, 300);
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     if (!selectedSupplier) {
       alert("❌ Error: No has seleccionado un proveedor.");
       return;
@@ -221,70 +229,81 @@ const RatesDbPage = () => {
       return;
     }
     
-    console.log("📌 Columnas seleccionadas antes de enviar al backend:", selectedColumns);
-    console.log("📌 Mapping de columnas antes de enviar:", columnMapping);
-
-    // Obtener la cantidad de filas reales
-    const rowCount = Object.values(columnSamples)[0]?.length || 0;
-
-    // Construir las filas correctamente asegurando que los datos sean por fila, no por carácter
-    const mappedRows = Array.from({ length: rowCount }).map((_, rowIndex) => {
-      let rowData: { [key: string]: string | null } = { SPL: selectedSupplier }; // Asegurar que SPL siempre tenga valor
-
-      // Filtrar solo las columnas que están en selectedColumns
-      selectedColumns.forEach((selectedCol) => {
-        if (columnMapping[selectedCol]) {
-          const value = columnSamples[selectedCol]?.[rowIndex] || null;
-          rowData[columnMapping[selectedCol]] = value;
-        }
-      });
-
-      return rowData;
-    });
-  
-    console.log("📌 Filas estructuradas antes de enviar:", mappedRows);
-  
-    // Verificar si hay filas con datos reales
-    if (mappedRows.length === 0 || mappedRows.every(row => Object.values(row).every(value => value === null))) {
-      alert("❌ Error: Los datos a cargar están vacíos o mal estructurados.");
-      return;
-    }
-  
-    fetch("https://nwfg.net:3001/map-columns", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        supplier: selectedSupplier,
-        columnMapping: columnMapping,
-        rows: mappedRows,
-        selectedColumns: selectedColumns, // Enviamos las columnas seleccionadas
-        headers: columns
-      })
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+    setIsLoading(true);
+    
+    try {
+      // 📌 Primero, obtener todas las filas del backend
+      console.log(`📌 Obteniendo todas las filas del proveedor: ${selectedSupplier}`);
+      
+      const rowsResponse = await fetch(`https://nwfg.net:3001/get-rows/${selectedSupplier}`);
+      
+      if (!rowsResponse.ok) {
+        throw new Error(`Error al obtener las filas: ${rowsResponse.status} ${rowsResponse.statusText}`);
       }
-      return response.json();
-    })
-    .then(data => {
-      if (data.success) {
-        alert("✅ Datos cargados correctamente.");
-        setShowStepper(false); // Cierra el Stepper
+      
+      const rowsData = await rowsResponse.json();
+      
+      if (!rowsData.success) {
+        throw new Error(rowsData.error || "Error al obtener las filas completas");
+      }
+      
+      const allRows = rowsData.rows;
+      console.log(`📌 Recibidas ${allRows.length} filas completas del archivo`);
+      
+      // 📌 Aplicar el mapeo a todas las filas recibidas
+      const mappedRows = allRows.map((row: { [key: string]: any }) => {
+        let mappedRow: { [key: string]: any } = { SPL: selectedSupplier }; // Asegurar que SPL siempre tenga valor
+        
+        // Aplicar el mapeo definido por el usuario
+        selectedColumns.forEach(selectedCol => {
+          if (columnMapping[selectedCol]) {
+            mappedRow[columnMapping[selectedCol]] = row[selectedCol];
+          }
+        });
+        
+        return mappedRow;
+      });
+      
+      console.log(`📌 Enviando ${mappedRows.length} filas mapeadas al backend`);
+      
+      // 📌 Enviar los datos mapeados al backend
+      const response = await fetch("https://nwfg.net:3001/map-columns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          supplier: selectedSupplier,
+          columnMapping: columnMapping,
+          rows: mappedRows,
+          selectedColumns: selectedColumns,
+          headers: columns
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error de HTTP al procesar datos: ${response.status} ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`✅ Datos cargados correctamente: ${mappedRows.length} filas procesadas.`);
+        setShowStepper(false);
         
         // Resetear estados
         setSelectedColumns([]);
         setColumnMapping({});
         setColumns([]);
         setColumnSamples({});
+        setRowCount(0);
       } else {
-        alert(`❌ Error al procesar los datos: ${data.message || 'Error desconocido'}`);
+        alert(`❌ Error al procesar los datos: ${result.message || 'Error desconocido'}`);
       }
-    })
-    .catch(error => {
+    } catch (error) {
       console.error("❌ Error en la carga de datos:", error);
-      alert(`❌ Error en la carga de datos: ${error.message}`);
-    });
+      alert(`❌ Error en la carga de datos: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -311,7 +330,7 @@ const RatesDbPage = () => {
                   onColumnsReceived={handleColumnsReceived} 
                   setSelectedSupplier={setSelectedSupplier}
                   selectedSupplier={selectedSupplier}
-                  selectedColumns={selectedColumns} // Pasamos las columnas seleccionadas
+                  selectedColumns={selectedColumns}
                 />
               </motion.div>
             )}
@@ -340,6 +359,11 @@ const RatesDbPage = () => {
                         <p className="text-sm text-gray-400 mt-2">
                           Recuerda no escoger nunca State, Service_Type y Unit_of_Measure.
                         </p>
+                        {rowCount > 0 && (
+                          <p className="text-sm text-blue-500 mt-1">
+                            📊 El archivo contiene {rowCount} filas que se procesarán.
+                          </p>
+                        )}
                       </>
                     ) : (
                       <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>
@@ -390,7 +414,18 @@ const RatesDbPage = () => {
                   <Step>
                     <h2>Final Step</h2>
                     <p>¡Carga completada! Presiona el botón para finalizar y guardar los datos.</p>
-                    <Button onClick={handleFinalize}>Finalizar carga</Button>
+                    {rowCount > 0 && (
+                      <p className="text-sm text-blue-500 my-2">
+                        📊 Se procesarán {rowCount} filas del archivo.
+                      </p>
+                    )}
+                    <Button 
+                      onClick={handleFinalize} 
+                      disabled={isLoading}
+                      className={isLoading ? "opacity-70 cursor-not-allowed" : ""}
+                    >
+                      {isLoading ? "Procesando..." : "Finalizar carga"}
+                    </Button>
                   </Step>
                 </Stepper>
               </motion.div>

@@ -7,6 +7,7 @@ const xlsx = require("xlsx");
 const https = require("https");
 const cors = require("cors");
 const { Console } = require("console");
+const mysql = require('mysql2/promise');
 
 // Definir directorio base para todos los archivos
 const baseDir = path.join(__dirname, "files");
@@ -23,6 +24,14 @@ const logConsole = new Console({ stdout: logFile, stderr: logFile });
 const startupLog = `\n===============================\n📋 SERVIDOR INICIADO: ${new Date().toISOString()}\n===============================\n`;
 logConsole.log(startupLog);
 console.log(startupLog);
+
+// Configuración de la base de datos
+const dbConfig = {
+    host: "nwfg.net",
+    user: "admin",
+    password: "Usuario19.",
+    database: "rates_db",
+};
 
 // Cargar certificados SSL
 const options = {
@@ -234,6 +243,37 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             });
         }
 
+        // 📌 Extraer TODAS las filas de datos completas
+        const allRows = [];
+        if (jsonData.length > 1) {
+            // Comenzar desde 1 para omitir la fila de encabezados
+            for (let i = 1; i < jsonData.length; i++) {
+                const row = {};
+                columns.forEach((col, colIndex) => {
+                    row[col] = jsonData[i][colIndex] !== undefined ? jsonData[i][colIndex] : null;
+                });
+                allRows.push(row);
+            }
+        }
+
+        console.log(`📊 Total de filas extraídas del Excel: ${allRows.length}`);
+        logConsole.log(`📊 Total de filas extraídas del Excel: ${allRows.length}`);
+
+        // 📂 Guardar todas las filas en un archivo temporal
+        const tempDir = path.join(baseDir, "temp");
+        await fs.ensureDir(tempDir);
+        const rowsFile = path.join(tempDir, `rows_${supplier}_${date}.json`);
+        await fs.writeJson(rowsFile, {
+            supplier,
+            fileOriginalName: file.originalname,
+            totalRows: allRows.length,
+            rows: allRows,
+            timestamp: new Date().toISOString()
+        }, { spaces: 2 });
+
+        // 📌 Actualizar el log con información de las filas extraídas
+        await fs.appendFile(logFilePath, `📊 Filas totales extraídas del Excel: ${allRows.length}\n`);
+
         // 📌 Guardar log con detalles y columnas seleccionadas
         const logEntry = `
 🗂️ [${time}] 
@@ -253,6 +293,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             message: "Archivo subido y guardado correctamente.", 
             columns,
             samples,
+            rowCount: allRows.length, // Añadimos el conteo total de filas
             selectedColumns // Devolver también las columnas seleccionadas para verificación
         });
     } catch (error) {
@@ -268,7 +309,7 @@ app.get("/columns", async (req, res) => {
         // Puedes reemplazar esto con una consulta a la base de datos real si lo necesitas
         const columns = [
             "Rate_ID", "SPL_Utility_Name", "Product_Name", "Rate", "ETF", 
-            "MSF", "Term", "Company_DBA_Name", "Service_Type", "Last_Updated", "SPL"
+            "MSF", "Term", "Company_DBA_Name","Last_Updated", "SPL"
         ];
         
         console.log("📌 Devolviendo columnas de base de datos:", columns.length);
@@ -282,6 +323,8 @@ app.get("/columns", async (req, res) => {
 
 // 📌 Ruta para mapear columnas y guardar datos
 app.post("/map-columns", async (req, res) => {
+    let connection = null;
+    
     try {
         const { supplier, columnMapping, rows, selectedColumns, headers } = req.body;
 
@@ -306,6 +349,7 @@ app.post("/map-columns", async (req, res) => {
         // 📌 Obtener la fecha actual
         const date = moment().format("YYYY-MM-DD");
         const time = moment().format("HH:mm:ss");
+        const timestamp = moment().format("YYYYMMDD_HHmmss");
 
         // 📂 Definir directorio para logs
         const logDir = path.join(baseDir, "logs");
@@ -324,12 +368,108 @@ app.post("/map-columns", async (req, res) => {
 `;
         await fs.appendFile(mappingLogPath, mappingLogEntry);
 
-        console.log(`✅ Mapeo completado - ${rows.length} filas procesadas`);
-        logConsole.log(`✅ Mapeo completado - ${rows.length} filas procesadas`);
+        // 📌 NUEVA FUNCIONALIDAD: Conexión a la base de datos MySQL
+        try {
+            // Crear conexión a la base de datos
+            connection = await mysql.createConnection(dbConfig);
+            console.log("✅ Conexión a la base de datos establecida");
+            logConsole.log("✅ Conexión a la base de datos establecida");
+
+            // Crear tabla de respaldo con timestamp
+            const backupTable = `Rates_backup_${timestamp}`;
+            await connection.query(`CREATE TABLE ${backupTable} LIKE Rates`);
+            await connection.query(`INSERT INTO ${backupTable} SELECT * FROM Rates`);
+            console.log(`✅ Backup creado: ${backupTable}`);
+            logConsole.log(`✅ Backup creado: ${backupTable}`);
+            
+            // Guardar información del backup en el log
+            await fs.appendFile(mappingLogPath, `\n📦 Backup creado: ${backupTable}\n`);
+
+            // Eliminar registros del proveedor seleccionado
+            console.log(`🔄 Eliminando registros previos de SPL: ${supplier}`);
+            logConsole.log(`🔄 Eliminando registros previos de SPL: ${supplier}`);
+            const [deleteResult] = await connection.query("DELETE FROM Rates WHERE SPL = ?", [supplier]);
+            console.log(`✅ Registros eliminados: ${deleteResult.affectedRows}`);
+            logConsole.log(`✅ Registros eliminados: ${deleteResult.affectedRows}`);
+            
+            // Guardar información de eliminación en el log
+            await fs.appendFile(mappingLogPath, `\n🗑️ ${deleteResult.affectedRows} registros previos de ${supplier} eliminados\n`);
+
+            // Construir query de inserción dinámicamente
+            const dbColumns = Object.values(columnMapping); // Columnas destino en la BD
+            
+            // Asegurar que SPL está incluido en las columnas
+            if (!dbColumns.includes("SPL")) {
+                dbColumns.push("SPL");
+            }
+
+            // Crear placeholders para la query (?, ?, ?)
+            const placeholders = Array(dbColumns.length).fill("?").join(", ");
+            
+            // Construir la query de inserción
+            const insertQuery = `INSERT INTO Rates (${dbColumns.join(", ")}) VALUES (${placeholders})`;
+            
+            console.log("📝 Query de inserción preparada:", insertQuery);
+            logConsole.log("📝 Query de inserción preparada:", insertQuery);
+            
+            // Log detallado de los datos a insertar
+            const insertionLogPath = path.join(logDir, `${date}_insertion_data.log`);
+            await fs.writeFile(insertionLogPath, `\n=== DATOS A INSERTAR (${time}) ===\n\n`);
+            
+            // Insertar filas en la base de datos
+            let insertedCount = 0;
+            for (const row of rows) {
+                try {
+                    // Preparar valores para la inserción
+                    const values = dbColumns.map(col => {
+                        // Si es la columna SPL y no tiene valor en la fila, usar el proveedor seleccionado
+                        if (col === "SPL" && !row[col]) {
+                            return supplier;
+                        }
+                        // Para otras columnas, usar el valor de la fila o null si no existe
+                        return row[col] !== undefined ? row[col] : null;
+                    });
+                    
+                    // Guardar detalle de la fila a insertar en el log
+                    const rowData = dbColumns.map((col, idx) => `${col}: ${values[idx]}`).join(", ");
+                    await fs.appendFile(insertionLogPath, `Fila ${insertedCount + 1}: ${rowData}\n`);
+                    
+                    // Ejecutar la inserción
+                    await connection.query(insertQuery, values);
+                    insertedCount++;
+                } catch (insertError) {
+                    console.error(`❌ Error insertando fila #${insertedCount + 1}:`, insertError);
+                    logConsole.error(`❌ Error insertando fila #${insertedCount + 1}:`, insertError);
+                    await fs.appendFile(insertionLogPath, `ERROR en fila ${insertedCount + 1}: ${insertError.message}\n`);
+                }
+            }
+            
+            console.log(`✅ ${insertedCount} filas insertadas correctamente en Rates`);
+            logConsole.log(`✅ ${insertedCount} filas insertadas correctamente en Rates`);
+            
+            // Guardar resumen de la inserción en el log principal
+            await fs.appendFile(mappingLogPath, `\n✅ ${insertedCount} filas insertadas en la base de datos\n`);
+            
+            // Registrar en el log si hubo discrepancia entre filas procesadas y insertadas
+            if (insertedCount !== rows.length) {
+                const message = `⚠️ Advertencia: Solo se insertaron ${insertedCount} de ${rows.length} filas`;
+                console.warn(message);
+                logConsole.warn(message);
+                await fs.appendFile(mappingLogPath, `\n${message}\n`);
+            }
+            
+        } catch (dbError) {
+            console.error("❌ Error en operación de base de datos:", dbError);
+            logConsole.error("❌ Error en operación de base de datos:", dbError);
+            await fs.appendFile(mappingLogPath, `\n❌ ERROR DE BASE DE DATOS: ${dbError.message}\n`);
+            
+            // Si hay error de DB, propagarlo para que se maneje en el catch general
+            throw new Error(`Error de base de datos: ${dbError.message}`);
+        }
 
         res.json({
             success: true,
-            message: `${rows.length} filas procesadas correctamente`
+            message: `Datos procesados correctamente: ${rows.length} filas.`
         });
 
     } catch (error) {
@@ -339,6 +479,18 @@ app.post("/map-columns", async (req, res) => {
             success: false,
             message: `Error interno del servidor: ${error.message}`
         });
+    } finally {
+        // Cerrar la conexión a la base de datos si está abierta
+        if (connection) {
+            try {
+                await connection.end();
+                console.log("📌 Conexión a la base de datos cerrada");
+                logConsole.log("📌 Conexión a la base de datos cerrada");
+            } catch (closeError) {
+                console.error("❌ Error al cerrar la conexión:", closeError);
+                logConsole.error("❌ Error al cerrar la conexión:", closeError);
+            }
+        }
     }
 });
 
@@ -349,6 +501,46 @@ app.get("/health", (req, res) => {
         timestamp: new Date().toISOString(),
         version: "1.0.0" 
     });
+});
+
+// 📌 Ruta para obtener todas las filas del archivo subido
+app.get("/get-rows/:supplier", async (req, res) => {
+    try {
+        const supplier = req.params.supplier;
+        if (!supplier) {
+            return res.status(400).json({ success: false, error: "Se requiere especificar un proveedor" });
+        }
+        
+        const tempDir = path.join(baseDir, "temp");
+        const date = moment().format("YYYY-MM-DD");
+        const rowsFile = path.join(tempDir, `rows_${supplier}_${date}.json`);
+        
+        if (!await fs.pathExists(rowsFile)) {
+            return res.status(404).json({ 
+                success: false, 
+                error: "No se encontraron datos para este proveedor. Asegúrate de haber subido un archivo primero." 
+            });
+        }
+        
+        const data = await fs.readJson(rowsFile);
+        
+        console.log(`📊 Devolviendo ${data.totalRows} filas para ${supplier}`);
+        logConsole.log(`📊 Devolviendo ${data.totalRows} filas para ${supplier}`);
+        
+        res.json({ 
+            success: true, 
+            supplier: data.supplier,
+            fileName: data.fileOriginalName,
+            rowCount: data.totalRows,
+            rows: data.rows,
+            timestamp: data.timestamp
+        });
+        
+    } catch (error) {
+        console.error("❌ Error al obtener filas:", error);
+        logConsole.error("❌ Error al obtener filas:", error);
+        res.status(500).json({ success: false, error: `Error interno: ${error.message}` });
+    }
 });
 
 // 📌 Manejador de errores
