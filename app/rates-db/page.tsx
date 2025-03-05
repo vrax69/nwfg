@@ -43,9 +43,10 @@ interface CardWithFormProps {
   selectedSupplier: string | null;
   setSelectedSupplier: (supplier: string) => void;
   selectedColumns: string[];
+  formKey: number;
 }
 
-export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selectedSupplier, setSelectedSupplier, selectedColumns }: CardWithFormProps) {
+export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selectedSupplier, setSelectedSupplier, selectedColumns, formKey }: CardWithFormProps) {
   const resetFileUploadRef = useRef<(() => void) | null>(null);
 
   const handleCancel = () => {
@@ -64,11 +65,11 @@ export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selected
         <CardDescription>Sube tu archivo y selecciona el proveedor para empezar.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form key={formKey}>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="spl">Supplier</Label>
-              <Select onValueChange={handleSupplierChange}>
+              <Select onValueChange={handleSupplierChange} value={selectedSupplier || undefined}>
                 <SelectTrigger id="spl">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -114,6 +115,8 @@ const RatesDbPage = () => {
   const stepperRef = useRef<HTMLDivElement>(null);
   const [rowCount, setRowCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [formKey, setFormKey] = useState<number>(Date.now());
+  const [isVisible, setIsVisible] = useState<boolean>(true);
 
   const [dbColumns, setDbColumns] = useState<string[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -127,20 +130,29 @@ const RatesDbPage = () => {
 
   // Función para reiniciar completamente todos los estados
   const resetAllState = () => {
-    // Limpiar todos los estados
-    setShowCard(false);
-    setShowStepper(false);
-    setColumns([]);
-    setSelectedColumns([]);
-    setColumnMapping({});
-    setColumnSamples({});
-    setSelectedSupplier(null);
-    setRowCount(0);
-    setUploadedFile(null);
-    setIsLoading(false);
+    // Temporalmente ocultar el contenido para evitar clicks fantasma
+    setIsVisible(false);
     
-    // Forzar un reflow del DOM para asegurarse de que todos los componentes se vuelvan a renderizar
+    // Limpiar todos los estados después de un pequeño delay
     setTimeout(() => {
+      setShowCard(false);
+      setShowStepper(false);
+      setColumns([]);
+      setSelectedColumns([]);
+      setColumnMapping({});
+      setColumnSamples({});
+      setSelectedSupplier(null);
+      setRowCount(0);
+      setUploadedFile(null);
+      setIsLoading(false);
+      
+      // Generar nueva clave para forzar el re-render del formulario
+      setFormKey(Date.now());
+      
+      // Volver a hacer visible el contenido
+      setIsVisible(true);
+      
+      // Forzar un reflow del DOM para asegurarse de que todos los componentes se vuelvan a renderizar
       window.dispatchEvent(new Event('resize'));
     }, 100);
   };
@@ -185,7 +197,12 @@ const RatesDbPage = () => {
       title: "Subir tarifas",
       icon: <IconNewSection className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       onClick: () => {
-        setShowCard(!showCard);
+        // Si ya está visible la tarjeta, resetea el estado
+        if (showCard) {
+          resetAllState();
+        } else {
+          setShowCard(true);
+        }
       }
     },
     {
@@ -389,147 +406,108 @@ const RatesDbPage = () => {
       </Head>
       <div style={{ position: 'relative', width: '100vw', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
         <Squares />
-        {/* Aplicamos el renderizado condicional del FloatingDock */}
+        
+        {/* FloatingDock con z-index muy alto y solo visible cuando no hay tarjetas o stepper */}
         {!showCard && !showStepper && (
           <FloatingDock 
             items={links} 
-            desktopClassName="absolute bottom-0 left-0 right-0 z-50" 
+            desktopClassName="absolute bottom-0 left-0 right-0 z-[9999]" 
           />
         )}
 
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-          {/* Card Component con AnimatePresence */}
-          <AnimatePresence mode="wait" onExitComplete={() => {
-            // Este callback se ejecuta cuando la animación de salida se completa
-            if (!showCard) {
-              // Si acabamos de ocultar la tarjeta, forzar un reflow
-              window.dispatchEvent(new Event('resize'));
-            }
-          }}>
-            {showCard && (
-              <motion.div
-                key="card"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
-              >
-                <CardWithForm 
-                  onCancel={resetAllState}
-                  onContinue={handleContinue} 
-                  onColumnsReceived={handleColumnsReceived} 
-                  setSelectedSupplier={setSelectedSupplier}
-                  selectedSupplier={selectedSupplier}
-                  selectedColumns={selectedColumns}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Stepper Component con AnimatePresence */}
-          <AnimatePresence mode="wait" onExitComplete={() => {
-            // Este callback se ejecuta cuando la animación de salida se completa
-            if (!showStepper) {
-              // Si acabamos de ocultar el stepper, forzar un reflow
-              window.dispatchEvent(new Event('resize'));
-            }
-          }}>
-            {showStepper && (
-              <motion.div
-                key="stepper"
-                ref={stepperRef}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
-                style={{ marginTop: '100px', textAlign: 'left' }}
-              >
-                <Stepper 
-                  initialStep={1} 
-                  onStepChange={(step) => console.log("Paso actual:", step)} 
-                  onFinalStepCompleted={() => console.log("All steps completed!")}
+        {/* Contenedor para tarjetas y stepper con control de visibilidad */}
+        {isVisible && (
+          <div 
+            style={{ 
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              transform: 'translate(-50%, -50%)', 
+              textAlign: 'center',
+              zIndex: showCard || showStepper ? 50 : -1, // Z-index negativo cuando no hay nada visible
+              pointerEvents: showCard || showStepper ? 'auto' : 'none' // No interceptar eventos cuando no hay nada visible
+            }}
+          >
+            {/* Card Component con AnimatePresence */}
+            <AnimatePresence mode="wait" onExitComplete={() => {
+              if (!showCard) {
+                // Forzar reflow y limpiar cualquier residuo invisible
+                window.dispatchEvent(new Event('resize'));
+                document.body.style.cursor = 'default'; // Reset cursor just in case
+              }
+            }}>
+              {showCard ? (
+                <motion.div
+                  key={`card-${formKey}`}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
                 >
-                  <Step>
-                    <div className="flex flex-col gap-4">
-                      <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
-                      <p>Recuerda seguir cada paso al pie de la letra!</p>
-                      <div className="flex justify-between mt-4">
-                        <Button 
-                          variant="outline" 
-                          onClick={resetAllState}
-                        >
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  </Step>
-                  <Step>
-                    <div className="flex flex-col gap-4">
-                      <h2>Selecciona tus columnas</h2>
-                      {columns.length > 0 ? (
-                        <>
-                          <ColumnSelector options={columns} onSelectionChange={handleColumnSelection} />
-                          <p className="text-sm text-gray-400 mt-2">
-                            Recuerda no escoger nunca State, Service_Type y Unit_of_Measure.
-                          </p>
-                          {rowCount > 0 && (
-                            <p className="text-sm text-blue-500 mt-1">
-                              📊 El archivo contiene {rowCount} filas que se procesarán.
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>
-                      )}
-                      <div className="flex justify-between mt-4">
-                        <Button 
-                          variant="outline" 
-                          onClick={resetAllState}
-                        >
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  </Step>
-                  <Step>
+                  <CardWithForm 
+                    onCancel={resetAllState}
+                    onContinue={handleContinue} 
+                    onColumnsReceived={handleColumnsReceived} 
+                    setSelectedSupplier={setSelectedSupplier}
+                    selectedSupplier={selectedSupplier}
+                    selectedColumns={selectedColumns}
+                    formKey={formKey}
+                  />
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
+            {/* Stepper Component con AnimatePresence */}
+            <AnimatePresence mode="wait" onExitComplete={() => {
+              if (!showStepper) {
+                // Forzar reflow y limpiar cualquier residuo invisible
+                window.dispatchEvent(new Event('resize'));
+              }
+            }}>
+              {showStepper ? (
+                <motion.div
+                  key={`stepper-${formKey}`} // Usar formKey también aquí para forzar re-render
+                  ref={stepperRef}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
+                  style={{ marginTop: '100px', textAlign: 'left' }}
+                >
+                  <Stepper 
+                    initialStep={1} 
+                    onStepChange={(step) => console.log("Paso actual:", step)} 
+                    onFinalStepCompleted={() => console.log("All steps completed!")}
+                  >
+                    <Step>
                       <div className="flex flex-col gap-4">
-                        <h2 className="text-lg font-semibold">Asigna las columnas del Excel a la base de datos</h2>
-                        <p className="text-sm text-gray-400 mb-4">
-                          Asegúrate de asignar cada columna correctamente con la base de datos. Se ignorarán las columnas no asignadas.
-                        </p>
-                        {selectedColumns.length > 0 ? (
-                          <div className="grid grid-cols-2 gap-4">
-                            {selectedColumns.map((col) => (
-                              <div key={col} className="flex flex-col bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-                                <span className="text-gray-900 dark:text-white font-medium">{col}</span>
-                                {columnSamples[col] && (
-                                  <span className="text-gray-400 text-sm">
-                                    Ejemplo: {columnSamples[col].slice(0, 3).join(", ")}
-                                    {columnSamples[col].length > 3 ? "..." : ""}
-                                  </span>
-                                )}  
-                                <Select
-                                  onValueChange={(value) =>
-                                    setColumnMapping((prev) => ({
-                                      ...prev,
-                                      [col]: value,
-                                    }))
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Elegir columna de la BD" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {dbColumns.map((dbCol: string) => (
-                                      <SelectItem key={dbCol} value={dbCol}>
-                                        {dbCol}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            ))}
-                          </div>
+                        <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
+                        <p>Recuerda seguir cada paso al pie de la letra!</p>
+                        <div className="flex justify-between mt-4">
+                          <Button 
+                            variant="outline" 
+                            onClick={resetAllState}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    </Step>
+                    <Step>
+                      <div className="flex flex-col gap-4">
+                        <h2>Selecciona tus columnas</h2>
+                        {columns.length > 0 ? (
+                          <>
+                            <ColumnSelector options={columns} onSelectionChange={handleColumnSelection} />
+                            <p className="text-sm text-gray-400 mt-2">
+                              Recuerda no escoger nunca State, Service_Type y Unit_of_Measure.
+                            </p>
+                            {rowCount > 0 && (
+                              <p className="text-sm text-blue-500 mt-1">
+                                📊 El archivo contiene {rowCount} filas que se procesarán.
+                              </p>
+                            )}
+                          </>
                         ) : (
-                          <p style={{ color: "red" }}>❌ No hay columnas seleccionadas en el paso 2.</p>
+                          <p style={{ color: "red" }}>❌ No hay columnas disponibles. Verifica tu archivo.</p>
                         )}
                         <div className="flex justify-between mt-4">
                           <Button 
@@ -540,38 +518,91 @@ const RatesDbPage = () => {
                           </Button>
                         </div>
                       </div>
-                  </Step>
-                  <Step>
-                    <div className="flex flex-col gap-4">
-                      <h2>Final Step</h2>
-                      <p>¡Carga completada! Presiona el botón para finalizar y guardar los datos.</p>
-                      {rowCount > 0 && (
-                        <p className="text-sm text-blue-500 my-2">
-                          📊 Se procesarán {rowCount} filas del archivo.
-                        </p>
-                      )}
-                      <div className="flex justify-between mt-4">
-                        <Button 
-                          variant="outline" 
-                          onClick={resetAllState}
-                        >
-                          Cancelar
-                        </Button>
-                        <Button 
-                          onClick={handleFinalize} 
-                          disabled={isLoading}
-                          className={isLoading ? "opacity-70 cursor-not-allowed" : ""}
-                        >
-                          {isLoading ? "Procesando..." : "Finalizar carga"}
-                        </Button>
+                    </Step>
+                    <Step>
+                        <div className="flex flex-col gap-4">
+                          <h2 className="text-lg font-semibold">Asigna las columnas del Excel a la base de datos</h2>
+                          <p className="text-sm text-gray-400 mb-4">
+                            Asegúrate de asignar cada columna correctamente con la base de datos. Se ignorarán las columnas no asignadas.
+                          </p>
+                          {selectedColumns.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-4">
+                              {selectedColumns.map((col) => (
+                                <div key={col} className="flex flex-col bg-white dark:bg-gray-800 p-4 rounded-md shadow">
+                                  <span className="text-gray-900 dark:text-white font-medium">{col}</span>
+                                  {columnSamples[col] && (
+                                    <span className="text-gray-400 text-sm">
+                                      Ejemplo: {columnSamples[col].slice(0, 3).join(", ")}
+                                      {columnSamples[col].length > 3 ? "..." : ""}
+                                    </span>
+                                  )}  
+                                  <Select
+                                    onValueChange={(value) =>
+                                      setColumnMapping((prev) => ({
+                                        ...prev,
+                                        [col]: value,
+                                      }))
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Elegir columna de la BD" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {dbColumns.map((dbCol: string) => (
+                                        <SelectItem key={dbCol} value={dbCol}>
+                                          {dbCol}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p style={{ color: "red" }}>❌ No hay columnas seleccionadas en el paso 2.</p>
+                          )}
+                          <div className="flex justify-between mt-4">
+                            <Button 
+                              variant="outline" 
+                              onClick={resetAllState}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        </div>
+                    </Step>
+                    <Step>
+                      <div className="flex flex-col gap-4">
+                        <h2>Final Step</h2>
+                        <p>¡Carga completada! Presiona el botón para finalizar y guardar los datos.</p>
+                        {rowCount > 0 && (
+                          <p className="text-sm text-blue-500 my-2">
+                            📊 Se procesarán {rowCount} filas del archivo.
+                          </p>
+                        )}
+                        <div className="flex justify-between mt-4">
+                          <Button 
+                            variant="outline" 
+                            onClick={resetAllState}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button 
+                            onClick={handleFinalize} 
+                            disabled={isLoading}
+                            className={isLoading ? "opacity-70 cursor-not-allowed" : ""}
+                          >
+                            {isLoading ? "Procesando..." : "Finalizar carga"}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </Step>
-                </Stepper>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                    </Step>
+                  </Stepper>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {/* AlertDialog para mostrar mensajes */}
@@ -613,4 +644,4 @@ const RatesDbPage = () => {
   );
 };
 
-export default RatesDbPage;
+export default RatesDbPage
