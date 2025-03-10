@@ -179,7 +179,7 @@ export default function Component() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch("http://nwfg.net:3002/api/rates")
+        const response = await fetch("https://nwfg.net:3002/api/rates")
         const data = await response.json()
         setItems(data)
       } catch (error) {
