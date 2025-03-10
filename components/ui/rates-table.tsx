@@ -23,7 +23,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, SearchIcon } from "lucide-react"
+import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react"
 
 // Import the Calendar component
 import Calendar from "@/components/ui/calendar"
@@ -45,18 +45,23 @@ function formatDate(date: Date, formatString: string): string {
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
-    filterVariant?: "text" | "range" | "select"
+    filterVariant?: "text" | "range" | "select" | "date"
   }
 }
 
+// Actualiza la interfaz de Item para que coincida con los campos de la API
 type Item = {
-  id: string
-  keyword: string
-  provider: "cs" | "ne" | "nge" | "nv" | "re" | "spe" | "wg"
-  volume: number
-  cpc: number
-  traffic: number
-  link: string
+  Rate_ID: string
+  SPL_Utility_Name: string
+  Product_Name: string
+  Rate: number
+  ETF: number | string
+  MSF: number | string
+  Term: number | string
+  Company_DBA_Name: string
+  duracion_rate: string
+  Last_Updated: string
+  SPL: string
 }
 
 const columns: ColumnDef<Item>[] = [
@@ -79,41 +84,47 @@ const columns: ColumnDef<Item>[] = [
   },
   {
     header: "Utilidad",
-    accessorKey: "keyword",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("keyword")}</div>,
+    accessorKey: "SPL_Utility_Name",
+    cell: ({ row }) => <div className="font-medium">{row.getValue("SPL_Utility_Name")}</div>,
+    meta: {
+      filterVariant: "text",
+    },
   },
   {
     header: "SPL",
-    accessorKey: "provider",
+    accessorKey: "SPL",
     cell: ({ row }) => {
-      const provider = row.getValue("provider") as string
-      const providerNames = {
-        cs: "Clean Sky",
-        ne: "North Eastern",
-        nge: "National Gas & Electric",
-        nv: "Next Volt",
-        re: "Rushmore",
-        spe: "Spark Energy",
-        wg: "WG&L",
+      const spl = row.getValue("SPL") as string
+      // Mapeo de SPL a nombres y estilos específicos
+      const providerNames: Record<string, string> = {
+        "CS": "Clean Sky",
+        "NE": "North Eastern",
+        "NGE": "National Gas & Electric",
+        "NV": "Next Volt",
+        "RE": "Rushmore",
+        "SPE": "Spark Energy",
+        "WG": "WG&L",
+        // Agrega más mappings según sea necesario
       }
 
-      // Colores específicos para fondo y texto basados en logos de cada proveedor
-      const providerStyles = {
-        cs: "bg-sky-50 text-blue-600 border-sky-200",
-        ne: "bg-emerald-50 text-emerald-700 border-emerald-200",
-        nge: "bg-amber-50 text-amber-600 border-amber-200",
-        nv: "bg-indigo-50 text-indigo-600 border-indigo-200",
-        re: "bg-rose-50 text-rose-600 border-rose-200",
-        spe: "bg-blue-50 text-blue-700 border-blue-200",
-        wg: "bg-orange-50 text-orange-600 border-orange-200",
+      const providerStyles: Record<string, string> = {
+        "CS": "bg-sky-50 text-blue-600 border-sky-200",
+        "NE": "bg-emerald-50 text-emerald-700 border-emerald-200",
+        "NGE": "bg-amber-50 text-amber-600 border-amber-200",
+        "NV": "bg-indigo-50 text-indigo-600 border-indigo-200",
+        "RE": "bg-rose-50 text-rose-600 border-rose-200",
+        "SPE": "bg-blue-50 text-blue-700 border-blue-200",
+        "WG": "bg-orange-50 text-orange-600 border-orange-200",
+        // Agrega más estilos según sea necesario
       }
+
+      const providerName = providerNames[spl] || spl
+      const style = providerStyles[spl] || "bg-gray-50 text-gray-600 border-gray-200"
 
       return (
         <div className="flex items-center">
-          <div
-            className={`px-3 py-1.5 rounded-md text-xs font-normal border ${providerStyles[provider as keyof typeof providerStyles]}`}
-          >
-            {providerNames[provider as keyof typeof providerNames]}
+          <div className={`px-3 py-1.5 rounded-md text-xs font-normal border ${style}`}>
+            {providerName}
           </div>
         </div>
       )
@@ -125,13 +136,10 @@ const columns: ColumnDef<Item>[] = [
   },
   {
     header: "Rate",
-    accessorKey: "volume",
+    accessorKey: "Rate",
     cell: ({ row }) => {
-      const volume = Number.parseInt(row.getValue("volume"))
-      return new Intl.NumberFormat("en-US", {
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(volume)
+      const rate = parseFloat(row.getValue("Rate"))
+      return isNaN(rate) ? "N/A" : `$${rate.toFixed(4)}`
     },
     meta: {
       filterVariant: "range",
@@ -139,34 +147,34 @@ const columns: ColumnDef<Item>[] = [
   },
   {
     header: "Rate-ID",
-    accessorKey: "cpc",
-    cell: ({ row }) => <div>${row.getValue("cpc")}</div>,
+    accessorKey: "Rate_ID",
+    cell: ({ row }) => <div>{row.getValue("Rate_ID")}</div>,
     meta: {
-      filterVariant: "range",
+      filterVariant: "text",
     },
   },
   {
-    header: "Last_Updated",
-    accessorKey: "traffic",
+    header: "Last Updated",
+    accessorKey: "Last_Updated",
     cell: ({ row }) => {
-      const traffic = Number.parseInt(row.getValue("traffic"))
-      return new Intl.NumberFormat("en-US", {
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(traffic)
+      const date = row.getValue("Last_Updated")
+      try {
+        return date ? new Date(date as string).toLocaleDateString() : "N/A"
+      } catch (e) {
+        return "Fecha inválida"
+      }
     },
     meta: {
-      filterVariant: "range",
+      filterVariant: "date",  // Cambiar de "range" a "date" para que utilice el selector de fecha
     },
   },
   {
     header: "ETF",
-    accessorKey: "link",
-    cell: ({ row }) => (
-      <a className="inline-flex items-center gap-1 hover:underline" href="#">
-        {row.getValue("link")} <ExternalLinkIcon size={12} aria-hidden="true" />
-      </a>
-    ),
+    accessorKey: "ETF",
+    cell: ({ row }) => {
+      const etf = row.getValue("ETF")
+      return etf ? `$${etf}` : "N/A"
+    },
     enableSorting: false,
   },
 ]
@@ -180,7 +188,13 @@ export default function Component() {
     async function fetchData() {
       try {
         const response = await fetch("https://nwfg.net:3002/api/rates")
+        if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`)
+        }
+        
         const data = await response.json()
+        console.log("Datos recibidos de la API:", data[0])  // Mostrar el primer elemento para depurar
+        
         setItems(data)
       } catch (error) {
         console.error("Error fetching data:", error)
@@ -193,7 +207,7 @@ export default function Component() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([
     {
-      id: "traffic",
+      id: "Rate",  // Cambiado de "traffic" a "Rate"
       desc: false,
     },
   ])
@@ -218,27 +232,27 @@ export default function Component() {
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 w-full  ml-5 ">
-        {/* Search input */}
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3 w-full ml-5">
+        {/* Filtro de utilidad */}
         <div className="w-44">
-          <Filter column={table.getColumn("keyword")!} />
+          <Filter column={table.getColumn("SPL_Utility_Name")!} />
         </div>
-        {/* Provider select */}
+        {/* Filtro de proveedor (SPL) */}
         <div className="w-36">
-          <Filter column={table.getColumn("provider")!} />
+          <Filter column={table.getColumn("SPL")!} />
         </div>
-        {/* Volume inputs */}
+        {/* Filtro de tarifa */}
         <div className="w-36">
-          <Filter column={table.getColumn("volume")!} />
+          <Filter column={table.getColumn("Rate")!} />
         </div>
-        {/* CPC inputs */}
+        {/* Filtro de Rate-ID */}
         <div className="w-36">
-          <Filter column={table.getColumn("cpc")!} />
+          <Filter column={table.getColumn("Rate_ID")!} />
         </div>
-        {/* Traffic inputs */}
+        {/* Filtro de fecha de actualización */}
         <div className="w-40">
-          <Filter column={table.getColumn("traffic")!} />
+          <Filter column={table.getColumn("Last_Updated")!} />
         </div>
       </div>
 
@@ -312,6 +326,7 @@ export default function Component() {
   )
 }
 
+// Para el filtro de fechas, reemplazar la implementación actual:
 function Filter({ column }: { column: Column<any, unknown> }) {
   const id = useId()
   const columnFilterValue = column.getFilterValue()
@@ -319,6 +334,17 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const columnHeader = typeof column.columnDef.header === "string" ? column.columnDef.header : ""
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState<Date | undefined>()
+
+  // Inicializar fecha desde el valor del filtro si existe
+  useEffect(() => {
+    if (column.id === "Last_Updated" && columnFilterValue && typeof columnFilterValue === 'string') {
+      try {
+        setDate(new Date(columnFilterValue));
+      } catch (e) {
+        console.error("Error al convertir la fecha:", e);
+      }
+    }
+  }, [column.id, columnFilterValue]);
 
   const sortedUniqueValues = useMemo(() => {
     if (filterVariant === "range") return []
@@ -338,63 +364,61 @@ function Filter({ column }: { column: Column<any, unknown> }) {
     return Array.from(new Set(flattenedValues)).sort()
   }, [column.getFacetedUniqueValues(), filterVariant, column])
 
-  // Special case for the Last_Updated column (traffic)
-  if (column.id === "traffic") {
+  // Special case for the Last_Updated column
+  if (column.id === "Last_Updated") {
     return (
       <div className="*:not-first:mt-2">
-        <Label>{columnHeader}</Label>
+        <Label>{columnHeader || "Fecha"}</Label>
         <div className="relative">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <button type="button" className="w-full" onClick={() => setOpen(true)}>
-                <div className="relative">
-                  <Input
-                    id={`${id}-date`}
-                    className={cn(
-                      "peer ps-9 w-full cursor-pointer",
-                      date && "pr-8" // Añadir padding derecho cuando hay una fecha
-                    )}
-                    value={date ? formatDate(date, "MMM dd, yyyy") : ""}
-                    placeholder="Select date"
-                    readOnly
-                  />
-                  <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-                    <CalendarIcon size={16} />
-                  </div>
-                  
-                  {/* Botón X dentro del input usando el componente Button */}
-                  {date && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Detener la propagación para evitar abrir el calendario
-                        setDate(undefined);
-                        column.setFilterValue(undefined);
-                      }}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 rounded-full"
-                      aria-label="Clear date"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="12" 
-                        height="12" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                        className="text-muted-foreground"
-                      >
-                        <path d="M18 6 6 18"></path>
-                        <path d="m6 6 12 12"></path>
-                      </svg>
-                    </Button>
+              <div className="relative">
+                <Input
+                  id={`${id}-date`}
+                  className={cn(
+                    "peer ps-9 w-full cursor-pointer",
+                    date && "pr-8"
                   )}
+                  value={date ? formatDate(date, "MMM dd, yyyy") : ""}
+                  placeholder="Seleccionar fecha"
+                  readOnly
+                  onClick={() => setOpen(true)}
+                />
+                <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+                  <CalendarIcon size={16} />
                 </div>
-              </button>
+                
+                {date && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDate(undefined);
+                      column.setFilterValue(undefined);
+                    }}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 rounded-full"
+                    aria-label="Clear date"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="12" 
+                      height="12" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      className="text-muted-foreground"
+                    >
+                      <path d="M18 6 6 18"></path>
+                      <path d="m6 6 12 12"></path>
+                    </svg>
+                  </Button>
+                )}
+              </div>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
@@ -402,10 +426,27 @@ function Filter({ column }: { column: Column<any, unknown> }) {
                 selected={date}
                 onSelect={(newDate: Date | undefined) => {
                   setDate(newDate);
-                  column.setFilterValue(newDate ? newDate.getTime() : undefined);
+                  if (newDate) {
+                    // Formato para comparar fechas en el mismo formato que devuelve la API
+                    column.setFilterValue((value) => {
+                      // Aplicar filtro a nivel de columna para comparar fechas
+                      return (rowValue: string) => {
+                        if (!rowValue) return false;
+                        
+                        // Convertir las fechas a formato YYYY-MM-DD para comparación
+                        const rowDate = new Date(rowValue).toISOString().split('T')[0];
+                        const filterDate = newDate.toISOString().split('T')[0];
+                        return rowDate === filterDate;
+                      };
+                    });
+                  } else {
+                    column.setFilterValue(undefined);
+                  }
                   setOpen(false);
                 }}
                 initialFocus
+                defaultMonth={date || new Date()}
+                className="border rounded-md"
               />
             </PopoverContent>
           </Popover>
@@ -414,48 +455,44 @@ function Filter({ column }: { column: Column<any, unknown> }) {
     );
   }
 
-  if (filterVariant === "range") {
+  // Filtros de Rate y Rate_ID como campos de texto
+  if (column.id === "Rate" || column.id === "Rate_ID") {
     return (
       <div className="*:not-first:mt-2">
-        <Label>{columnHeader}</Label>
-        <div className="flex">
+        <Label htmlFor={`${id}-input`}>{columnHeader}</Label>
+        <div className="relative">
           <Input
-            id={`${id}-range-1`}
-            className="flex-1 rounded-e-none [-moz-appearance:_textfield] focus:z-10 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-            value={(columnFilterValue as [number, number])?.[0] ?? ""}
-            onChange={(e) =>
-              column.setFilterValue((old: [number, number]) => [
-                e.target.value ? Number(e.target.value) : undefined,
-                old?.[1],
-              ])
-            }
-            placeholder="Min"
-            type="number"
-            aria-label={`${columnHeader} min`}
+            id={`${id}-input`}
+            className="peer ps-9"
+            value={(columnFilterValue ?? "") as string}
+            onChange={(e) => column.setFilterValue(e.target.value)}
+            placeholder={`Buscar ${columnHeader.toLowerCase()}`}
+            type="text"
           />
-          <Input
-            id={`${id}-range-2`}
-            className="-ms-px flex-1 rounded-s-none [-moz-appearance:_textfield] focus:z-10 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-            value={(columnFilterValue as [number, number])?.[1] ?? ""}
-            onChange={(e) =>
-              column.setFilterValue((old: [number, number]) => [
-                old?.[0],
-                e.target.value ? Number(e.target.value) : undefined,
-              ])
-            }
-            placeholder="Max"
-            type="number"
-            aria-label={`${columnHeader} max`}
-          />
+          <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+            <SearchIcon size={16} />
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
-  if (filterVariant === "select" && column.id === "provider") {
+  // Filtro para SPL con colores coincidentes
+  if (filterVariant === "select" && column.id === "SPL") {
+    // Define los mismos estilos que en la tabla para mantener consistencia
+    const providerStyles: Record<string, string> = {
+      "CS": "bg-sky-50 text-blue-600 border-sky-200",
+      "NE": "bg-emerald-50 text-emerald-700 border-emerald-200",
+      "NGE": "bg-amber-50 text-amber-600 border-amber-200",
+      "NV": "bg-indigo-50 text-indigo-600 border-indigo-200",
+      "RE": "bg-rose-50 text-rose-600 border-rose-200",
+      "SPE": "bg-blue-50 text-blue-700 border-blue-200",
+      "WG": "bg-orange-50 text-orange-600 border-orange-200",
+    }
+
     return (
       <div className="*:not-first:mt-2">
-        <Label htmlFor={`${id}-select`}>{columnHeader}</Label>
+        <Label htmlFor={`${id}-select`}>{columnHeader || "Proveedor"}</Label>
         <Select
           value={columnFilterValue?.toString() ?? "all"}
           onValueChange={(value) => {
@@ -466,14 +503,24 @@ function Filter({ column }: { column: Column<any, unknown> }) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="cs">Clean Sky</SelectItem>
-            <SelectItem value="ne">North Eastern</SelectItem>
-            <SelectItem value="nge">National Gas & Electric</SelectItem>
-            <SelectItem value="nv">Next Volt</SelectItem>
-            <SelectItem value="re">Rushmore</SelectItem>
-            <SelectItem value="spe">Spark Energy</SelectItem>
-            <SelectItem value="wg">WG&L</SelectItem>
+            <SelectItem value="all">Todos</SelectItem>
+            {Object.entries({
+              "CS": "Clean Sky",
+              "NE": "North Eastern",
+              "NGE": "National Gas & Electric",
+              "NV": "Next Volt",
+              "RE": "Rushmore",
+              "SPE": "Spark Energy",
+              "WG": "WG&L",
+            }).map(([code, name]) => (
+              <SelectItem 
+                key={code} 
+                value={code} 
+                className={`rounded px-2 my-0.5 ${providerStyles[code]}`}
+              >
+                {name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -504,6 +551,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
     )
   }
 
+  // Filtro por defecto para el resto de campos
   return (
     <div className="*:not-first:mt-2">
       <Label htmlFor={`${id}-input`}>{columnHeader}</Label>

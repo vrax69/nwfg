@@ -10,6 +10,7 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   components: userComponents,
+  selected,
   ...props
 }: React.ComponentProps<typeof DayPicker>) {
   const defaultClassNames = {
@@ -22,11 +23,12 @@ function Calendar({
     button_next: "size-9 text-muted-foreground/80 hover:text-foreground p-0",
     weekday: "size-9 p-0 text-xs font-medium text-muted-foreground/80",
     day_button:
-      "relative flex size-9 items-center justify-center whitespace-nowrap rounded-md p-0 text-foreground group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 group-data-disabled:pointer-events-none focus-visible:z-10 hover:not-in-data-selected:bg-accent group-data-selected:bg-primary hover:not-in-data-selected:text-foreground group-data-selected:text-primary-foreground group-data-disabled:text-foreground/30 group-data-disabled:line-through group-data-outside:text-foreground/30 group-data-selected:group-data-outside:text-primary-foreground outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] group-[.range-start:not(.range-end)]:rounded-e-none group-[.range-end:not(.range-start)]:rounded-s-none group-[.range-middle]:rounded-none group-[.range-middle]:group-data-selected:bg-accent group-[.range-middle]:group-data-selected:text-foreground",
+      "relative flex size-9 items-center justify-center whitespace-nowrap rounded-md p-0 text-foreground group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 group-data-disabled:pointer-events-none focus-visible:z-10 hover:not-in-data-selected:bg-accent group-data-selected:border-2 group-data-selected:border-gray-300 hover:not-in-data-selected:text-foreground group-data-disabled:text-foreground/30 group-data-disabled:line-through group-data-outside:text-foreground/30 group-data-selected:group-data-outside:border-gray-200 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] group-[.range-start:not(.range-end)]:rounded-e-none group-[.range-end:not(.range-start)]:rounded-s-none group-[.range-middle]:rounded-none group-[.range-middle]:group-data-selected:bg-accent group-[.range-middle]:group-data-selected:text-foreground",
     day: "group size-9 px-0 py-px text-sm",
     range_start: "range-start",
     range_end: "range-end",
     range_middle: "range-middle",
+    selected: "data-selected",
     today:
       "*:after:pointer-events-none *:after:absolute *:after:bottom-1 *:after:start-1/2 *:after:z-10 *:after:size-[3px] *:after:-translate-x-1/2 *:after:rounded-full *:after:bg-primary [&[data-selected]:not(.range-middle)>*]:after:bg-background [&[data-disabled]>*]:after:bg-foreground/30 *:after:transition-colors",
     // Modificado: Hacemos los días de fuera del mes actual mucho más claros
@@ -70,7 +72,16 @@ function Calendar({
       className={clsx("w-fit", className)}
       classNames={mergedClassNames}
       components={mergedComponents}
+      selected={selected}
       {...props}
+      modifiers={{
+        selected: selected ? [selected] : [],
+        today: new Date(),
+      }}
+      modifiersClassNames={{
+        selected: "border-2 border-gray-300", // Cambiado a un borde gris en lugar del fondo negro
+        today: "today"
+      }}
     />
   );
 }
