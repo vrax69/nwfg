@@ -217,7 +217,7 @@ const RatesDbPage = () => {
           <path d="M19 16l3 3l-3 3" />
         </svg>
       ),
-      href: "/rates-table"
+      href: "rates-db/rates-table"
     },
     {
       title: "Changelog",
