@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/rates-table-interno"
-import { useId, useMemo, useState } from "react"
+import { useId, useMemo, useState, useEffect } from "react"
 
 import { Checkbox } from "@/components/ui/checkbox-rates-table"
 import { Input } from "@/components/ui/input-rates-table"
@@ -160,7 +160,7 @@ const columns: ColumnDef<Item>[] = [
     },
   },
   {
-    header: "Link",
+    header: "ETF",
     accessorKey: "link",
     cell: ({ row }) => (
       <a className="inline-flex items-center gap-1 hover:underline" href="#">
@@ -171,82 +171,25 @@ const columns: ColumnDef<Item>[] = [
   },
 ]
 
-const items: Item[] = [
-  {
-    id: "1",
-    keyword: "react components",
-    provider: "cs",
-    volume: 2507,
-    cpc: 2.5,
-    traffic: 88,
-    link: "https://originui.com",
-  },
-  {
-    id: "2",
-    keyword: "buy react templates",
-    provider: "ne",
-    volume: 1850,
-    cpc: 4.75,
-    traffic: 65,
-    link: "https://originui.com/input",
-  },
-  {
-    id: "3",
-    keyword: "react ui library",
-    provider: "nge",
-    volume: 3200,
-    cpc: 3.25,
-    traffic: 112,
-    link: "https://originui.com/badge",
-  },
-  {
-    id: "4",
-    keyword: "tailwind components download",
-    provider: "nv",
-    volume: 890,
-    cpc: 1.95,
-    traffic: 45,
-    link: "https://originui.com/alert",
-  },
-  {
-    id: "5",
-    keyword: "react dashboard template free",
-    provider: "re",
-    volume: 4100,
-    cpc: 5.5,
-    traffic: 156,
-    link: "https://originui.com/tabs",
-  },
-  {
-    id: "6",
-    keyword: "how to use react components",
-    provider: "spe",
-    volume: 1200,
-    cpc: 1.25,
-    traffic: 42,
-    link: "https://originui.com/table",
-  },
-  {
-    id: "7",
-    keyword: "react ui kit premium",
-    provider: "wg",
-    volume: 760,
-    cpc: 6.8,
-    traffic: 28,
-    link: "https://originui.com/avatar",
-  },
-  {
-    id: "8",
-    keyword: "react component documentation",
-    provider: "cs",
-    volume: 950,
-    cpc: 1.8,
-    traffic: 35,
-    link: "https://originui.com",
-  },
-]
-
 export default function Component() {
+  // ✅ Movido dentro del componente
+  const [items, setItems] = useState<Item[]>([])
+
+  // ✅ useEffect ahora está correctamente dentro del componente
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch("http://nwfg.net:3002/api/rates")
+        const data = await response.json()
+        setItems(data)
+      } catch (error) {
+        console.error("Error fetching data:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([
     {
