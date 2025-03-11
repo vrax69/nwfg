@@ -42,6 +42,57 @@ function formatDate(date: Date, formatString: string): string {
   return date.toLocaleDateString('en-US', options);
 }
 
+// Añade esta función de filtrado personalizada al inicio del archivo
+const filterFunctions = {
+  // Función para filtrar valores numéricos (Rate)
+  numericFilter: (row: any, columnId: string, filterValue: string) => {
+    // Si no hay valor de filtro, mostrar todas las filas
+    if (!filterValue || filterValue === '') return true;
+    
+    // Obtener el valor numérico de la fila
+    const rowValue = row.getValue(columnId);
+    if (rowValue === null || rowValue === undefined) return false;
+    
+    // Convertir el valor de la fila a string para la búsqueda
+    const rowValueStr = String(rowValue).toLowerCase();
+    
+    // Limpiar el valor del filtro (por si acaso incluye $)
+    const cleanFilterValue = filterValue.replace(/[$,]/g, '').toLowerCase();
+    
+    // Verificar si el valor de la fila contiene el texto de búsqueda
+    return rowValueStr.includes(cleanFilterValue);
+  },
+  
+  // Función para filtrar texto (Rate_ID y otros campos de texto)
+  textFilter: (row: any, columnId: string, filterValue: string) => {
+    // Si no hay valor de filtro, mostrar todas las filas
+    if (!filterValue || filterValue === '') return true;
+    
+    // Obtener el valor de la fila
+    const rowValue = row.getValue(columnId);
+    if (rowValue === null || rowValue === undefined) return false;
+    
+    // Convertir el valor de la fila a string para la búsqueda
+    const rowValueStr = String(rowValue).toLowerCase();
+    
+    // Verificar si el valor de la fila contiene el texto de búsqueda
+    return rowValueStr.includes(filterValue.toLowerCase());
+  },
+
+  dateFilter: (row: any, columnId: string, filterValue: string) => {
+    if (!filterValue) return true;
+
+    const rowValue = row.getValue(columnId);
+    if (!rowValue) return false;
+
+    // Extraer solo la parte de la fecha (YYYY-MM-DD)
+    const rowDate = new Date(rowValue).toISOString().split('T')[0];
+    const filterDate = new Date(filterValue).toISOString().split('T')[0];
+
+    return rowDate === filterDate;
+  },
+};
+
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -144,6 +195,7 @@ const columns: ColumnDef<Item>[] = [
     meta: {
       filterVariant: "range",
     },
+    filterFn: filterFunctions.numericFilter, // Añade la función de filtro personalizada
   },
   {
     header: "Rate-ID",
@@ -152,6 +204,7 @@ const columns: ColumnDef<Item>[] = [
     meta: {
       filterVariant: "text",
     },
+    filterFn: filterFunctions.textFilter, // Añade la función de filtro personalizada
   },
   {
     header: "Last Updated",
@@ -167,6 +220,7 @@ const columns: ColumnDef<Item>[] = [
     meta: {
       filterVariant: "date",  // Cambiar de "range" a "date" para que utilice el selector de fecha
     },
+    filterFn: filterFunctions.dateFilter, // Añade la función de filtro personalizada
   },
   {
     header: "ETF",
@@ -228,6 +282,10 @@ export default function Component() {
     getFacetedMinMaxValues: getFacetedMinMaxValues(), // generate min/max values for range filter
     onSortingChange: setSorting,
     enableSortingRemoval: false,
+    filterFns: {
+      numericFilter: filterFunctions.numericFilter,
+      textFilter: filterFunctions.textFilter,
+    }
   })
 
   return (
@@ -328,14 +386,13 @@ export default function Component() {
 
 // Para el filtro de fechas, reemplazar la implementación actual:
 function Filter({ column }: { column: Column<any, unknown> }) {
-  const id = useId()
-  const columnFilterValue = column.getFilterValue()
-  const { filterVariant } = column.columnDef.meta ?? {}
-  const columnHeader = typeof column.columnDef.header === "string" ? column.columnDef.header : ""
-  const [open, setOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>()
+  const id = useId();
+  const columnFilterValue = column.getFilterValue();
+  const { filterVariant } = column.columnDef.meta ?? {};
+  const columnHeader = typeof column.columnDef.header === "string" ? column.columnDef.header : "";
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>();
 
-  // Inicializar fecha desde el valor del filtro si existe
   useEffect(() => {
     if (column.id === "Last_Updated" && columnFilterValue && typeof columnFilterValue === 'string') {
       try {
@@ -345,6 +402,86 @@ function Filter({ column }: { column: Column<any, unknown> }) {
       }
     }
   }, [column.id, columnFilterValue]);
+
+  if (column.id === "Last_Updated") {
+    return (
+      <div className="*:not-first:mt-2">
+        <Label>{columnHeader || "Fecha"}</Label>
+        <div className="relative">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <div className="relative">
+                <Input
+                  id={`${id}-date`}
+                  className={cn(
+                    "peer ps-9 w-full cursor-pointer",
+                    date && "pr-8"
+                  )}
+                  value={date ? formatDate(date, "MMM dd, yyyy") : ""}
+                  placeholder="Seleccionar fecha"
+                  readOnly
+                  onClick={() => setOpen(true)}
+                />
+                <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+                  <CalendarIcon size={16} />
+                </div>
+                
+                {date && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDate(undefined);
+                      column.setFilterValue(undefined);
+                    }}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 rounded-full"
+                    aria-label="Clear date"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="12" 
+                      height="12" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      className="text-muted-foreground"
+                    >
+                      <path d="M18 6 6 18"></path>
+                      <path d="m6 6 12 12"></path>
+                    </svg>
+                  </Button>
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(newDate: Date | undefined) => {
+                  setDate(newDate);
+                  if (newDate) {
+                    const formattedSelectedDate = newDate.toISOString().split('T')[0];
+                    column.setFilterValue(formattedSelectedDate);
+                  } else {
+                    column.setFilterValue(undefined);
+                  }
+                  setOpen(false);
+                }}
+                initialFocus
+                defaultMonth={date || new Date()}
+                className="border rounded-md"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+    );
+  }
 
   const sortedUniqueValues = useMemo(() => {
     if (filterVariant === "range") return []
@@ -427,17 +564,22 @@ function Filter({ column }: { column: Column<any, unknown> }) {
                 onSelect={(newDate: Date | undefined) => {
                   setDate(newDate);
                   if (newDate) {
-                    // Formato para comparar fechas en el mismo formato que devuelve la API
-                    column.setFilterValue((value) => {
-                      // Aplicar filtro a nivel de columna para comparar fechas
-                      return (rowValue: string) => {
-                        if (!rowValue) return false;
+                    // Convertir la fecha seleccionada a formato YYYY-MM-DD
+                    const formattedSelectedDate = newDate.toISOString().split('T')[0];
+                    
+                    column.setFilterValue((rowValue: string) => {
+                      if (!rowValue) return false;
+                      
+                      try {
+                        // Extraer solo la parte de fecha (YYYY-MM-DD) de la cadena de la API
+                        const rowDateString = new Date(rowValue).toISOString().split('T')[0];
                         
-                        // Convertir las fechas a formato YYYY-MM-DD para comparación
-                        const rowDate = new Date(rowValue).toISOString().split('T')[0];
-                        const filterDate = newDate.toISOString().split('T')[0];
-                        return rowDate === filterDate;
-                      };
+                        // Comparar las fechas en formato YYYY-MM-DD
+                        return rowDateString === formattedSelectedDate;
+                      } catch (e) {
+                        console.error("Error comparando fechas:", e);
+                        return false;
+                      }
                     });
                   } else {
                     column.setFilterValue(undefined);

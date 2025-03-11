@@ -5,6 +5,11 @@ import * as React from "react";
 import { DayPicker } from "react-day-picker";
 import clsx from "clsx"; // Asegura que `clsx` esté instalado con `pnpm add clsx`
 
+// Creamos un tipo personalizado que extiende los props de DayPicker para incluir selected
+type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  selected?: Date | Date[] | undefined;
+};
+
 function Calendar({
   className,
   classNames,
@@ -12,7 +17,7 @@ function Calendar({
   components: userComponents,
   selected,
   ...props
-}: React.ComponentProps<typeof DayPicker>) {
+}: CalendarProps) {
   const defaultClassNames = {
     months: "relative flex flex-col sm:flex-row gap-4",
     month: "w-full",
@@ -72,15 +77,17 @@ function Calendar({
       className={clsx("w-fit", className)}
       classNames={mergedClassNames}
       components={mergedComponents}
-      selected={selected}
+      selected={Array.isArray(selected) ? selected[0] : selected}
       {...props}
       modifiers={{
-        selected: selected ? [selected] : [],
+        selected: selected ? (Array.isArray(selected) ? selected : [selected]) : [],
         today: new Date(),
+        ...(props.modifiers || {})
       }}
       modifiersClassNames={{
-        selected: "border-2 border-gray-300", // Cambiado a un borde gris en lugar del fondo negro
-        today: "today"
+        selected: "border-2 border-gray-300", // Borde gris en lugar del fondo negro
+        today: "today",
+        ...(props.modifiersClassNames || {})
       }}
     />
   );
