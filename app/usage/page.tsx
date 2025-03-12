@@ -1,42 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Stepper, { Step } from "../../components/ui/stepper";
-import ColumnSelector from '../../components/ui/ColumnSelector'; // Asegúrate de importar el componente nuevo
+import { Calendar } from "@/components/ui/calendar";
 
 export default function Page() {
-  const [name, setName] = useState<string>(""); // Definir el estado correctamente
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   return (
-    <Stepper
-      initialStep={1}
-      onStepChange={(step) => {
-        console.log(step);
-      }}
-      onFinalStepCompleted={() => console.log("All steps completed!")}
-      backButtonText="Previous"
-      nextButtonText="Next"
-    >
-      <Step>
-        <h2>Bienvenido al stepper para cambiar las tarifas!</h2>
-        <p>Recuerda seguir cada paso al pie de la letra!</p>
-      </Step>
-      <Step>
-        <h2>Selecciona tus columnas</h2>
-        <ColumnSelector />
-      </Step>
-      <Step>
-        <h2>How about an input?</h2>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name?"
-        />
-      </Step>
-      <Step>
-        <h2>Final Step</h2>
-        <p>You made it!</p>
-      </Step>
-    </Stepper>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" />
+      {date && <p className="mt-4">Fecha seleccionada: {date.toDateString()}</p>}
+    </div>
   );
 }
