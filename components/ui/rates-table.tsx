@@ -246,7 +246,7 @@ export default function Component() {
   })
 
   // Añadir este estado para manejar la fecha
-  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   return (
     <div className="space-y-6">
@@ -277,7 +277,7 @@ export default function Component() {
                 className="w-full justify-start text-left font-normal"
                 id="date-filter"
               >
-                {date ? format(date, "dd MMM, yyyy", { locale: es }) : "Seleccionar fecha"}
+                {date ? format(date, "dd MMM, yyyy", { locale: es }) : "Seleccione una fecha"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
