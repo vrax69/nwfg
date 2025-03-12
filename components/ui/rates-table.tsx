@@ -27,6 +27,12 @@ import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 
 // Añadir la importación al inicio del archivo
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+
+// Añade estos imports si no están ya
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover-rates"
 
 // Añade esta función de filtrado personalizada al inicio del archivo
 const filterFunctions = {
@@ -239,6 +245,9 @@ export default function Component() {
     }
   })
 
+  // Añadir este estado para manejar la fecha
+  const [date, setDate] = useState<Date | undefined>(new Date())
+
   return (
     <div className="space-y-6">
       {/* Filtros */}
@@ -258,6 +267,28 @@ export default function Component() {
         {/* Filtro de Rate-ID */}
         <div className="w-36">
           <Filter column={table.getColumn("Rate_ID")!} />
+        </div>
+        <div className="w-44">
+          <Label htmlFor="date-filter">Fecha</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-left font-normal"
+                id="date-filter"
+              >
+                {date ? format(date, "dd MMM, yyyy", { locale: es }) : "Seleccionar fecha"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
