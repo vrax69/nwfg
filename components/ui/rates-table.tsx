@@ -33,14 +33,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button"
 
 // Función simple para formatear fechas como alternativa a date-fns
-function formatDate(date: Date, formatString: string): string {
-  const options: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: 'numeric', 
-    year: 'numeric'
-  };
-  return date.toLocaleDateString('en-US', options);
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
+
 
 // Añade esta función de filtrado personalizada al inicio del archivo
 const filterFunctions = {
@@ -85,11 +81,12 @@ const filterFunctions = {
     const rowValue = row.getValue(columnId);
     if (!rowValue) return false;
 
-    // Extraer solo la parte de la fecha (YYYY-MM-DD)
+    // Extraer solo la parte de la fecha (YYYY-MM-DD) sin convertir a UTC
     const rowDate = new Date(rowValue).toISOString().split('T')[0];
     const filterDate = new Date(filterValue).toISOString().split('T')[0];
 
     return rowDate === filterDate;
+
   },
 };
 
@@ -249,7 +246,11 @@ export default function Component() {
         const data = await response.json()
         console.log("Datos recibidos de la API:", data[0])  // Mostrar el primer elemento para depurar
         
-        setItems(data)
+        const cleanData = data.map((item: Item) => ({
+          ...item,
+          Last_Updated: item.Last_Updated.split("T")[0], // ✅ Eliminar la parte de la hora
+        }));
+        setItems(cleanData);
       } catch (error) {
         console.error("Error fetching data:", error)
       }
@@ -394,11 +395,10 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const [date, setDate] = useState<Date | undefined>();
 
   useEffect(() => {
-    if (column.id === "Last_Updated" && columnFilterValue && typeof columnFilterValue === 'string') {
-      try {
-        setDate(new Date(columnFilterValue));
-      } catch (e) {
-        console.error("Error al convertir la fecha:", e);
+    if (column.id === "Last_Updated" && columnFilterValue && typeof columnFilterValue === "string") {
+      const parsedDate = new Date(columnFilterValue);
+      if (!isNaN(parsedDate.getTime())) {
+        setDate(parsedDate);
       }
     }
   }, [column.id, columnFilterValue]);
@@ -417,7 +417,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
                     "peer ps-9 w-full cursor-pointer",
                     date && "pr-8"
                   )}
-                  value={date ? formatDate(date, "MMM dd, yyyy") : ""}
+                  value={date ? formatDate(date) : ""}
                   placeholder="Seleccionar fecha"
                   readOnly
                   onClick={() => setOpen(true)}
@@ -459,23 +459,28 @@ function Filter({ column }: { column: Column<any, unknown> }) {
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(newDate: Date | undefined) => {
-                  setDate(newDate);
-                  if (newDate) {
-                    const formattedSelectedDate = newDate.toISOString().split('T')[0];
-                    column.setFilterValue(formattedSelectedDate);
-                  } else {
-                    column.setFilterValue(undefined);
-                  }
-                  setOpen(false);
-                }}
-                initialFocus
-                defaultMonth={date || new Date()}
-                className="border rounded-md"
-              />
+            <Calendar
+                  selected={date ?? undefined}
+                  onSelect={(newDate) => {
+                    if (newDate) {
+                      console.log("Fecha seleccionada (original):", newDate);
+
+                      // 🔹 Formatear la fecha sin zona horaria ni ajuste
+                      const formattedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}-${String(newDate.getDate()).padStart(2, "0")}`;
+
+                      setDate(new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate())); // ✅ Guarda solo la fecha sin hora
+                      column.setFilterValue(formattedDate); // ✅ Envía la fecha correcta al filtro
+
+                      console.log("Fecha guardada en el filtro (sin zona horaria):", formattedDate);
+                    } else {
+                      setDate(undefined);
+                      column.setFilterValue(undefined);
+                    }
+                  }}
+                  initialFocus
+                  defaultMonth={date || new Date()}
+                  className="border rounded-md"
+                />
             </PopoverContent>
           </Popover>
         </div>
@@ -516,7 +521,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
                     "peer ps-9 w-full cursor-pointer",
                     date && "pr-8"
                   )}
-                  value={date ? formatDate(date, "MMM dd, yyyy") : ""}
+                  value={date ? formatDate(date) : ""}
                   placeholder="Seleccionar fecha"
                   readOnly
                   onClick={() => setOpen(true)}
@@ -558,38 +563,6 @@ function Filter({ column }: { column: Column<any, unknown> }) {
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(newDate: Date | undefined) => {
-                  setDate(newDate);
-                  if (newDate) {
-                    // Convertir la fecha seleccionada a formato YYYY-MM-DD
-                    const formattedSelectedDate = newDate.toISOString().split('T')[0];
-                    
-                    column.setFilterValue((rowValue: string) => {
-                      if (!rowValue) return false;
-                      
-                      try {
-                        // Extraer solo la parte de fecha (YYYY-MM-DD) de la cadena de la API
-                        const rowDateString = new Date(rowValue).toISOString().split('T')[0];
-                        
-                        // Comparar las fechas en formato YYYY-MM-DD
-                        return rowDateString === formattedSelectedDate;
-                      } catch (e) {
-                        console.error("Error comparando fechas:", e);
-                        return false;
-                      }
-                    });
-                  } else {
-                    column.setFilterValue(undefined);
-                  }
-                  setOpen(false);
-                }}
-                initialFocus
-                defaultMonth={date || new Date()}
-                className="border rounded-md"
-              />
             </PopoverContent>
           </Popover>
         </div>
