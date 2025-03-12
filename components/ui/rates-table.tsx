@@ -36,41 +36,27 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 // Añade esta función de filtrado personalizada al inicio del archivo
 const filterFunctions = {
-  // Función para filtrar valores numéricos (Rate)
-  numericFilter: (row: any, columnId: string, filterValue: string) => {
-    // Si no hay valor de filtro, mostrar todas las filas
-    if (!filterValue || filterValue === '') return true;
-    
-    // Obtener el valor numérico de la fila
-    const rowValue = row.getValue(columnId);
-    if (rowValue === null || rowValue === undefined) return false;
-    
-    // Convertir el valor de la fila a string para la búsqueda
-    const rowValueStr = String(rowValue).toLowerCase();
-    
-    // Limpiar el valor del filtro (por si acaso incluye $)
-    const cleanFilterValue = filterValue.replace(/[$,]/g, '').toLowerCase();
-    
-    // Verificar si el valor de la fila contiene el texto de búsqueda
-    return rowValueStr.includes(cleanFilterValue);
+  // Filtro de fecha (Last_Updated)
+  dateFilter: (row: any, columnId: string, filterValue: Date | undefined) => {
+    if (!filterValue) return true; // Si no hay filtro, muestra todas las filas
+
+    const rowDate = new Date(row.getValue(columnId));
+    return rowDate.toDateString() === filterValue.toDateString(); // Compara solo fecha, ignorando hora
   },
-  
-  // Función para filtrar texto (Rate_ID y otros campos de texto)
-  textFilter: (row: any, columnId: string, filterValue: string) => {
-    // Si no hay valor de filtro, mostrar todas las filas
+  numericFilter: (row: any, columnId: string, filterValue: string) => {
     if (!filterValue || filterValue === '') return true;
-    
-    // Obtener el valor de la fila
     const rowValue = row.getValue(columnId);
     if (rowValue === null || rowValue === undefined) return false;
-    
-    // Convertir el valor de la fila a string para la búsqueda
-    const rowValueStr = String(rowValue).toLowerCase();
-    
-    // Verificar si el valor de la fila contiene el texto de búsqueda
-    return rowValueStr.includes(filterValue.toLowerCase());
+    return String(rowValue).toLowerCase().includes(filterValue.toLowerCase());
+  },
+  textFilter: (row: any, columnId: string, filterValue: string) => {
+    if (!filterValue || filterValue === '') return true;
+    const rowValue = row.getValue(columnId);
+    if (rowValue === null || rowValue === undefined) return false;
+    return String(rowValue).toLowerCase().includes(filterValue.toLowerCase());
   },
 };
+
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -158,6 +144,27 @@ const columns: ColumnDef<Item>[] = [
     },
   },
   {
+    header: "Última Actualización",
+    accessorKey: "Last_Updated",
+    cell: ({ row }) => {
+      const rawDate: unknown = row.getValue("Last_Updated");
+  
+      if (!rawDate) return "N/A"; // Si el valor es null o undefined
+  
+      // Convertimos solo si es un string o número válido
+      if (typeof rawDate === "string" || typeof rawDate === "number") {
+        const parsedDate = new Date(rawDate);
+        return isNaN(parsedDate.getTime()) ? "Fecha inválida" : format(parsedDate, "dd/MM/yyyy");
+      }
+  
+      return "Fecha inválida"; // Manejo de error si no es un string o número
+    },
+    meta: {
+      filterVariant: "date",
+    },
+  }, 
+  
+  {
     header: "Rate",
     accessorKey: "Rate",
     cell: ({ row }) => {
@@ -190,6 +197,7 @@ const columns: ColumnDef<Item>[] = [
 ]
 
 export default function Component() {
+  
   // ✅ Movido dentro del componente
   const [items, setItems] = useState<Item[]>([])
 
