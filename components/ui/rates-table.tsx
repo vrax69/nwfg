@@ -23,20 +23,10 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react"
-
-// Import the Calendar component
-import Calendar from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover-rates"
+import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 
 // Añadir la importación al inicio del archivo
 import { Button } from "@/components/ui/button"
-
-// Función simple para formatear fechas como alternativa a date-fns
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-}
-
 
 // Añade esta función de filtrado personalizada al inicio del archivo
 const filterFunctions = {
@@ -74,20 +64,6 @@ const filterFunctions = {
     // Verificar si el valor de la fila contiene el texto de búsqueda
     return rowValueStr.includes(filterValue.toLowerCase());
   },
-
-  dateFilter: (row: any, columnId: string, filterValue: string) => {
-    if (!filterValue) return true;
-
-    const rowValue = row.getValue(columnId);
-    if (!rowValue) return false;
-
-    // Extraer solo la parte de la fecha (YYYY-MM-DD) sin convertir a UTC
-    const rowDate = new Date(rowValue).toISOString().split('T')[0];
-    const filterDate = new Date(filterValue).toISOString().split('T')[0];
-
-    return rowDate === filterDate;
-
-  },
 };
 
 declare module "@tanstack/react-table" {
@@ -97,18 +73,13 @@ declare module "@tanstack/react-table" {
   }
 }
 
-// Actualiza la interfaz de Item para que coincida con los campos de la API
+// Actualiza la interfaz para incluir solo los campos que quieres mostrar
 type Item = {
   Rate_ID: string
   SPL_Utility_Name: string
-  Product_Name: string
   Rate: number
   ETF: number | string
   MSF: number | string
-  Term: number | string
-  Company_DBA_Name: string
-  duracion_rate: string
-  Last_Updated: string
   SPL: string
 }
 
@@ -204,22 +175,6 @@ const columns: ColumnDef<Item>[] = [
     filterFn: filterFunctions.textFilter, // Añade la función de filtro personalizada
   },
   {
-    header: "Last Updated",
-    accessorKey: "Last_Updated",
-    cell: ({ row }) => {
-      const date = row.getValue("Last_Updated")
-      try {
-        return date ? new Date(date as string).toLocaleDateString() : "N/A"
-      } catch (e) {
-        return "Fecha inválida"
-      }
-    },
-    meta: {
-      filterVariant: "date",  // Cambiar de "range" a "date" para que utilice el selector de fecha
-    },
-    filterFn: filterFunctions.dateFilter, // Añade la función de filtro personalizada
-  },
-  {
     header: "ETF",
     accessorKey: "ETF",
     cell: ({ row }) => {
@@ -244,13 +199,10 @@ export default function Component() {
         }
         
         const data = await response.json()
-        console.log("Datos recibidos de la API:", data[0])  // Mostrar el primer elemento para depurar
+        console.log("Datos recibidos de la API:", data[0])
         
-        const cleanData = data.map((item: Item) => ({
-          ...item,
-          Last_Updated: item.Last_Updated.split("T")[0], // ✅ Eliminar la parte de la hora
-        }));
-        setItems(cleanData);
+        // Simplemente asigna los datos sin procesar campos de fecha
+        setItems(data);
       } catch (error) {
         console.error("Error fetching data:", error)
       }
@@ -308,10 +260,6 @@ export default function Component() {
         {/* Filtro de Rate-ID */}
         <div className="w-36">
           <Filter column={table.getColumn("Rate_ID")!} />
-        </div>
-        {/* Filtro de fecha de actualización */}
-        <div className="w-40">
-          <Filter column={table.getColumn("Last_Updated")!} />
         </div>
       </div>
 
@@ -391,184 +339,6 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const columnFilterValue = column.getFilterValue();
   const { filterVariant } = column.columnDef.meta ?? {};
   const columnHeader = typeof column.columnDef.header === "string" ? column.columnDef.header : "";
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>();
-
-  useEffect(() => {
-    if (column.id === "Last_Updated" && columnFilterValue && typeof columnFilterValue === "string") {
-      const parsedDate = new Date(columnFilterValue);
-      if (!isNaN(parsedDate.getTime())) {
-        setDate(parsedDate);
-      }
-    }
-  }, [column.id, columnFilterValue]);
-
-  if (column.id === "Last_Updated") {
-    return (
-      <div className="*:not-first:mt-2">
-        <Label>{columnHeader || "Fecha"}</Label>
-        <div className="relative">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <div className="relative">
-                <Input
-                  id={`${id}-date`}
-                  className={cn(
-                    "peer ps-9 w-full cursor-pointer",
-                    date && "pr-8"
-                  )}
-                  value={date ? formatDate(date) : ""}
-                  placeholder="Seleccionar fecha"
-                  readOnly
-                  onClick={() => setOpen(true)}
-                />
-                <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-                  <CalendarIcon size={16} />
-                </div>
-                
-                {date && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDate(undefined);
-                      column.setFilterValue(undefined);
-                    }}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 rounded-full"
-                    aria-label="Clear date"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="12" 
-                      height="12" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                      className="text-muted-foreground"
-                    >
-                      <path d="M18 6 6 18"></path>
-                      <path d="m6 6 12 12"></path>
-                    </svg>
-                  </Button>
-                )}
-              </div>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-                  selected={date ?? undefined}
-                  onSelect={(newDate) => {
-                    if (newDate) {
-                      console.log("Fecha seleccionada (original):", newDate);
-
-                      // 🔹 Formatear la fecha sin zona horaria ni ajuste
-                      const formattedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}-${String(newDate.getDate()).padStart(2, "0")}`;
-
-                      setDate(new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate())); // ✅ Guarda solo la fecha sin hora
-                      column.setFilterValue(formattedDate); // ✅ Envía la fecha correcta al filtro
-
-                      console.log("Fecha guardada en el filtro (sin zona horaria):", formattedDate);
-                    } else {
-                      setDate(undefined);
-                      column.setFilterValue(undefined);
-                    }
-                  }}
-                  initialFocus
-                  defaultMonth={date || new Date()}
-                  className="border rounded-md"
-                />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-    );
-  }
-
-  const sortedUniqueValues = useMemo(() => {
-    if (filterVariant === "range") return []
-
-    // Get all unique values from the column
-    const values = Array.from(column.getFacetedUniqueValues().keys())
-
-    // If the values are arrays, flatten them and get unique items
-    const flattenedValues = values.reduce((acc: string[], curr) => {
-      if (Array.isArray(curr)) {
-        return [...acc, ...curr]
-      }
-      return [...acc, curr]
-    }, [])
-
-    // Get unique values and sort them
-    return Array.from(new Set(flattenedValues)).sort()
-  }, [column.getFacetedUniqueValues(), filterVariant, column])
-
-  // Special case for the Last_Updated column
-  if (column.id === "Last_Updated") {
-    return (
-      <div className="*:not-first:mt-2">
-        <Label>{columnHeader || "Fecha"}</Label>
-        <div className="relative">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <div className="relative">
-                <Input
-                  id={`${id}-date`}
-                  className={cn(
-                    "peer ps-9 w-full cursor-pointer",
-                    date && "pr-8"
-                  )}
-                  value={date ? formatDate(date) : ""}
-                  placeholder="Seleccionar fecha"
-                  readOnly
-                  onClick={() => setOpen(true)}
-                />
-                <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-                  <CalendarIcon size={16} />
-                </div>
-                
-                {date && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDate(undefined);
-                      column.setFilterValue(undefined);
-                    }}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 rounded-full"
-                    aria-label="Clear date"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="12" 
-                      height="12" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                      className="text-muted-foreground"
-                    >
-                      <path d="M18 6 6 18"></path>
-                      <path d="m6 6 12 12"></path>
-                    </svg>
-                  </Button>
-                )}
-              </div>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-    );
-  }
 
   // Filtros de Rate y Rate_ID como campos de texto
   if (column.id === "Rate" || column.id === "Rate_ID") {
@@ -641,6 +411,9 @@ function Filter({ column }: { column: Column<any, unknown> }) {
       </div>
     )
   } else if (filterVariant === "select") {
+    // AGREGAR ESTA LÍNEA:
+    const sortedUniqueValues = Array.from(column.getFacetedUniqueValues().keys()).sort();
+    
     return (
       <div className="*:not-first:mt-2">
         <Label htmlFor={`${id}-select`}>{columnHeader}</Label>
