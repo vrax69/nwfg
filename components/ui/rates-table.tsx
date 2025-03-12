@@ -123,7 +123,6 @@ const columns: ColumnDef<Item>[] = [
         "RE": "Rushmore",
         "SPE": "Spark Energy",
         "WG": "WG&L",
-        // Agrega más mappings según sea necesario
       }
 
       const providerStyles: Record<string, string> = {
@@ -134,15 +133,14 @@ const columns: ColumnDef<Item>[] = [
         "RE": "bg-rose-50 text-rose-600 border-rose-200",
         "SPE": "bg-blue-50 text-blue-700 border-blue-200",
         "WG": "bg-orange-50 text-orange-600 border-orange-200",
-        // Agrega más estilos según sea necesario
       }
 
       const providerName = providerNames[spl] || spl
-      const style = providerStyles[spl] || "bg-gray-50 text-gray-600 border-gray-200"
+      const style = providerStyles[spl] || "bg-gray-100 text-gray-800 border-gray-300"
 
       return (
         <div className="flex items-center">
-          <div className={`px-3 py-1.5 rounded-md text-xs font-normal border ${style}`}>
+          <div className={`px-3 py-1.5 rounded-md text-xs font-medium border ${style}`}>
             {providerName}
           </div>
         </div>
@@ -375,6 +373,16 @@ function Filter({ column }: { column: Column<any, unknown> }) {
       "WG": "bg-orange-50 text-orange-600 border-orange-200",
     }
 
+    const providerNames: Record<string, string> = {
+      "CS": "Clean Sky",
+      "NE": "North Eastern",
+      "NGE": "National Gas & Electric",
+      "NV": "Next Volt",
+      "RE": "Rushmore",
+      "SPE": "Spark Energy",
+      "WG": "WG&L",
+    }
+
     return (
       <div className="*:not-first:mt-2">
         <Label htmlFor={`${id}-select`}>{columnHeader || "Proveedor"}</Label>
@@ -384,26 +392,34 @@ function Filter({ column }: { column: Column<any, unknown> }) {
             column.setFilterValue(value === "all" ? undefined : value)
           }}
         >
-          <SelectTrigger id={`${id}-select`}>
-            <SelectValue />
+          <SelectTrigger id={`${id}-select`} className="min-h-9">
+            <SelectValue placeholder="Seleccionar proveedor">
+              {(() => {
+                const selectedValue = columnFilterValue as string;
+                
+                if (!selectedValue) return "Todos";
+                
+                const name = providerNames[selectedValue] || selectedValue;
+                const style = providerStyles[selectedValue] || "";
+                
+                return (
+                  <div className={`px-2 py-0.5 rounded-md text-xs font-medium border ${style}`}>
+                    {name}
+                  </div>
+                );
+              })()}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            {Object.entries({
-              "CS": "Clean Sky",
-              "NE": "North Eastern",
-              "NGE": "National Gas & Electric",
-              "NV": "Next Volt",
-              "RE": "Rushmore",
-              "SPE": "Spark Energy",
-              "WG": "WG&L",
-            }).map(([code, name]) => (
+            {Object.entries(providerNames).map(([code, name]) => (
               <SelectItem 
                 key={code} 
-                value={code} 
-                className={`rounded px-2 my-0.5 ${providerStyles[code]}`}
+                value={code}
               >
-                {name}
+                <div className={`px-2 py-0.5 rounded-md text-xs font-medium border ${providerStyles[code]}`}>
+                  {name}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
