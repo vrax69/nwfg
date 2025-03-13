@@ -175,19 +175,17 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: "Last_Updated",
     cell: ({ row }) => {
       const rawDate: unknown = row.getValue("Last_Updated");
-  
-      if (!rawDate) return "N/A"; // Si es null o undefined
-  
-      const parsedDate = rawDate && typeof rawDate === "string" && !isNaN(Date.parse(rawDate))
-      ? new Date(rawDate)
-      : rawDate instanceof Date
-        ? rawDate
-        : undefined; // En lugar de null, usa undefined
-
-      return parsedDate ? parsedDate.toLocaleDateString("es-ES") : "N/A";
- // Evita error al formatear
-      // Formato correcto
-    },
+    
+      if (!rawDate || typeof rawDate !== "string") return "N/A"; // ✅ Validación segura
+    
+      const parsedDate = new Date(rawDate);
+      if (isNaN(parsedDate.getTime())) return "N/A"; // Evitar fechas inválidas
+    
+      // 🔹 Ajuste de zona horaria para que no muestre el día anterior
+      const adjustedDate = new Date(parsedDate.getTime() + parsedDate.getTimezoneOffset() * 60000);
+    
+      return adjustedDate.toLocaleDateString("es-ES"); // 📌 Ahora mostrará la fecha correcta
+    },    
     meta: {
       filterVariant: "date",
     },
