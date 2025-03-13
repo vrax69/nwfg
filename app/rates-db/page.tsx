@@ -371,7 +371,7 @@ const RatesDbPage = () => {
       if (result.success) {
         showAlert(
           "Operación exitosa",
-          `Datos cargados correctamente: ${mappedRows.length} filas procesadas.`,
+          `Datos cargados correctamente: ${result.insertedRows} filas insertadas.`,
           "success",
           () => {
             // Primero resetear todo el estado

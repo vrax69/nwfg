@@ -330,9 +330,10 @@ app.post("/map-columns", async (req, res) => {
 
         if (!supplier || !columnMapping || !rows || rows.length === 0) {
             console.error("❌ Error: Faltan datos necesarios para el mapeo");
-            return res.status(400).json({ 
+            return res.json({
                 success: false,
-                message: "Faltan datos necesarios (proveedor, mapping o filas)"
+                message: "Faltan datos necesarios (proveedor, mapping o filas)",
+                insertedRows: 0
             });
         }
 
@@ -443,31 +444,62 @@ app.post("/map-columns", async (req, res) => {
             await fs.writeFile(insertionLogPath, `\n=== DATOS A INSERTAR (${time}) ===\n\n`);
             
             // Insertar filas en la base de datos
-            let insertedCount = 0;
-            for (const row of rows) {
-                try {
-                    // Preparar valores para la inserción
-                    const values = dbColumns.map(col => {
-                        // Si es la columna SPL y no tiene valor en la fila, usar el proveedor seleccionado
-                        if (col === "SPL" && !row[col]) {
-                            return supplier;
+            let insertedCount = 0; // Asegurar que insertedCount está definido
+
+            try {
+                for (const row of rows) {
+                    try {
+                        // Preparar valores para la inserción
+                        const values = dbColumns.map(col => {
+                            // Si es la columna SPL y no tiene valor en la fila, usar el proveedor seleccionado
+                            if (col === "SPL" && (!row[col] || row[col] === "")) {
+                                return supplier;
+                            }
+                            // Para otras columnas, usar el valor de la fila o null si no existe
+                            return row[col] !== undefined && row[col] !== null && row[col] !== "" ? row[col] : null;
+                        });
+            
+                        // Omitir la inserción si todos los valores (excepto SPL) son nulos o vacíos
+                        const hasValidData = values.some((val, idx) => val !== null && val !== "" && dbColumns[idx] !== "SPL");
+                        if (!hasValidData) {
+                            console.log(`⚠️ Fila omitida por no contener datos válidos: ${JSON.stringify(row)}`);
+                            await fs.appendFile(insertionLogPath, `⚠️ Fila omitida: ${JSON.stringify(row)}\n`);
+                            continue; // Salta esta iteración y no inserta la fila vacía
                         }
-                        // Para otras columnas, usar el valor de la fila o null si no existe
-                        return row[col] !== undefined ? row[col] : null;
-                    });
-                    
-                    // Guardar detalle de la fila a insertar en el log
-                    const rowData = dbColumns.map((col, idx) => `${col}: ${values[idx]}`).join(", ");
-                    await fs.appendFile(insertionLogPath, `Fila ${insertedCount + 1}: ${rowData}\n`);
-                    
-                    // Ejecutar la inserción
-                    await connection.query(insertQuery, values);
-                    insertedCount++;
-                } catch (insertError) {
-                    console.error(`❌ Error insertando fila #${insertedCount + 1}:`, insertError);
-                    logConsole.error(`❌ Error insertando fila #${insertedCount + 1}:`, insertError);
-                    await fs.appendFile(insertionLogPath, `ERROR en fila ${insertedCount + 1}: ${insertError.message}\n`);
+            
+                        // Guardar detalle de la fila a insertar en el log
+                        const rowData = dbColumns.map((col, idx) => `${col}: ${values[idx]}`).join(", ");
+                        await fs.appendFile(insertionLogPath, `Fila ${insertedCount + 1}: ${rowData}\n`);
+            
+                        // Ejecutar la inserción en la base de datos
+                        await connection.query(insertQuery, values);
+                        insertedCount++; // Aumentar el contador solo si la inserción fue exitosa
+            
+                    } catch (insertError) {
+                        console.error(`❌ Error insertando fila #${insertedCount + 1}:`, insertError);
+                        logConsole.error(`❌ Error insertando fila #${insertedCount + 1}:`, insertError);
+                        await fs.appendFile(insertionLogPath, `ERROR en fila ${insertedCount + 1}: ${insertError.message}\n`);
+                    }
                 }
+            
+                console.log(`✅ ${insertedCount} filas insertadas correctamente en Rates`);
+                logConsole.log(`✅ ${insertedCount} filas insertadas correctamente en Rates`);
+            
+                // Enviar la respuesta asegurando que insertedCount esté presente
+                return res.json({
+                    success: true,
+                    message: `Datos procesados correctamente: ${insertedCount} filas insertadas.`,
+                    insertedRows: insertedCount
+                });
+            
+            } catch (error) {
+                console.error("❌ Error en la inserción de datos:", error);
+                logConsole.error("❌ Error en la inserción de datos:", error);
+            
+                return res.status(500).json({
+                    success: false,
+                    message: `Error interno del servidor: ${error.message}`
+                });
             }
             
             console.log(`✅ ${insertedCount} filas insertadas correctamente en Rates`);
@@ -484,40 +516,42 @@ app.post("/map-columns", async (req, res) => {
                 await fs.appendFile(mappingLogPath, `\n${message}\n`);
             }
             
-        } catch (dbError) {
-            console.error("❌ Error en operación de base de datos:", dbError);
-            logConsole.error("❌ Error en operación de base de datos:", dbError);
-            await fs.appendFile(mappingLogPath, `\n❌ ERROR DE BASE DE DATOS: ${dbError.message}\n`);
+            } catch (dbError) {
+                console.error("❌ Error en operación de base de datos:", dbError);
+                logConsole.error("❌ Error en operación de base de datos:", dbError);
+                await fs.appendFile(mappingLogPath, `\n❌ ERROR DE BASE DE DATOS: ${dbError.message}\n`);
             
-            // Si hay error de DB, propagarlo para que se maneje en el catch general
-            throw new Error(`Error de base de datos: ${dbError.message}`);
-        }
-
-        res.json({
-            success: true,
-            message: `Datos procesados correctamente: ${rows.length} filas.`
-        });
-
-    } catch (error) {
-        console.error("❌ Error en /map-columns:", error);
-        logConsole.error("❌ Error en /map-columns:", error);
-        res.status(500).json({ 
-            success: false,
-            message: `Error interno del servidor: ${error.message}`
-        });
-    } finally {
-        // Cerrar la conexión a la base de datos si está abierta
-        if (connection) {
-            try {
-                await connection.end();
-                console.log("📌 Conexión a la base de datos cerrada");
-                logConsole.log("📌 Conexión a la base de datos cerrada");
-            } catch (closeError) {
-                console.error("❌ Error al cerrar la conexión:", closeError);
-                logConsole.error("❌ Error al cerrar la conexión:", closeError);
+                // Si hay error de DB, propagarlo para que se maneje en el catch general
+                throw new Error(`Error de base de datos: ${dbError.message}`);
             }
-        }
-    }
+            
+            res.json({
+                success: true,
+                message: `Datos procesados correctamente: ${insertedCount} filas insertadas.`,
+                insertedRows: insertedCount
+            });
+            
+            } catch (error) {
+                console.error("❌ Error en /map-columns:", error);
+                logConsole.error("❌ Error en /map-columns:", error);
+                res.status(500).json({ 
+                    success: false,
+                    message: `Error interno del servidor: ${error.message}`
+                });
+            } finally {
+                // Cerrar la conexión a la base de datos si está abierta
+                if (connection) {
+                    try {
+                        await connection.end();
+                        console.log("📌 Conexión a la base de datos cerrada");
+                        logConsole.log("📌 Conexión a la base de datos cerrada");
+                    } catch (closeError) {
+                        console.error("❌ Error al cerrar la conexión:", closeError);
+                        logConsole.error("❌ Error al cerrar la conexión:", closeError);
+                    }
+                }
+            }
+            
 });
 
 // 📌 Ruta para verificar el estado del servidor
