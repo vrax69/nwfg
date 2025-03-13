@@ -38,10 +38,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 const filterFunctions = {
   // Filtro de fecha (Last_Updated)
   dateFilter: (row: any, columnId: string, filterValue: Date | undefined) => {
-    if (!filterValue) return true; // Si no hay filtro, muestra todas las filas
-
-    const rowDate = new Date(row.getValue(columnId));
-    return rowDate.toDateString() === filterValue.toDateString(); // Compara solo fecha, ignorando hora
+    if (!filterValue) return true; // Si no hay filtro, mostrar todo
+    
+    const rowValue = row.getValue(columnId);
+    if (!rowValue) return false; // Si no hay valor en la celda
+    
+    const rowDate = new Date(rowValue);
+    if (isNaN(rowDate.getTime())) return false; // Si no es una fecha válida, ignorar
+    
+    // Comparar solo día, mes y año
+    return (
+      rowDate.getFullYear() === filterValue.getFullYear() &&
+      rowDate.getMonth() === filterValue.getMonth() &&
+      rowDate.getDate() === filterValue.getDate()
+    );
   },
   numericFilter: (row: any, columnId: string, filterValue: string) => {
     if (!filterValue || filterValue === '') return true;
@@ -213,10 +223,21 @@ export default function Component() {
         const data = await response.json()
         console.log("Datos recibidos de la API:", data[0])
         
-        // Simplemente asigna los datos sin procesar campos de fecha
-        setItems(data);
+        // Procesar los datos con tipado correcto
+        const processedData = data.map((item: any) => ({
+          ...item,
+          // Convertir el campo Last_Updated a un objeto Date válido si existe
+          Last_Updated: item.Last_Updated ? new Date(item.Last_Updated) : null
+        }));
+        
+        setItems(processedData);
       } catch (error) {
         console.error("Error fetching data:", error)
+        // Opcional: Añadir estado de error para mostrarlo en la UI
+        // setError("No se pudieron cargar los datos. Por favor, inténtelo de nuevo.");
+      } finally {
+        // Opcional: Añadir estado de carga
+        // setIsLoading(false);
       }
     }
 
@@ -240,7 +261,7 @@ export default function Component() {
     },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), //client-side filtering
+    getFilteredRowModel: getFilteredRowModel(), // client-side filtering
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(), // client-side faceting
     getFacetedUniqueValues: getFacetedUniqueValues(), // generate unique values for select filter/autocomplete
@@ -250,11 +271,22 @@ export default function Component() {
     filterFns: {
       numericFilter: filterFunctions.numericFilter,
       textFilter: filterFunctions.textFilter,
+      dateFilter: filterFunctions.dateFilter, // Añadir la función de filtro de fecha
     }
-  })
+  });
+  
 
   // Añadir este estado para manejar la fecha
   const [date, setDate] = useState<Date | undefined>(undefined);
+
+  // Añadir este useEffect para aplicar el filtro de fechas
+  useEffect(() => {
+    if (date) {
+      table.getColumn("Last_Updated")?.setFilterValue(date);
+    } else {
+      table.getColumn("Last_Updated")?.setFilterValue(undefined);
+    }
+  }, [date, table]);
 
   return (
     <div className="space-y-6">
