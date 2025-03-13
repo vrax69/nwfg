@@ -309,7 +309,7 @@ app.get("/columns", async (req, res) => {
         // Puedes reemplazar esto con una consulta a la base de datos real si lo necesitas
         const columns = [
             "Rate_ID", "SPL_Utility_Name", "Product_Name", "Rate", "ETF", 
-            "MSF", "Term", "Company_DBA_Name","Last_Updated", "SPL"
+            "MSF", "duracion_rate", "Company_DBA_Name","Last_Updated", "SPL"
         ];
         
         console.log("📌 Devolviendo columnas de base de datos:", columns.length);
