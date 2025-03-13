@@ -38,36 +38,33 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 const filterFunctions = {
   // Filtro de fecha mejorado
   dateFilter: (row: any, columnId: string, filterValue: Date | undefined) => {
-    // Si no hay valor de filtro, mostrar todas las filas
-    if (!filterValue) return true;
-    
+    if (!filterValue) return true; // Si no hay filtro, mostrar todas las filas
+  
     const rowValue = row.getValue(columnId);
-    
-    // Si no hay valor en la celda, no mostrar
-    if (!rowValue) return false;
+  
+    if (!rowValue) return false; // Si no hay valor en la celda, no mostrar la fila
     
     let rowDate: Date;
-    
-    // Asegurar que rowValue sea una fecha válida
+  
+    // Convertir la fecha correctamente
     if (rowValue instanceof Date) {
       rowDate = rowValue;
     } else {
-      try {
-        rowDate = new Date(rowValue);
-        if (isNaN(rowDate.getTime())) return false;
-      } catch (e) {
+      rowDate = new Date(rowValue);
+      if (isNaN(rowDate.getTime())) {
+        console.warn("Fecha inválida en la fila:", rowValue);
         return false;
       }
     }
-    
-    // Comparar solo año, mes y día (ignorando la hora)
-    return (
-      rowDate.getFullYear() === filterValue.getFullYear() &&
-      rowDate.getMonth() === filterValue.getMonth() &&
-      rowDate.getDate() === filterValue.getDate()
-    );
-  },
   
+    // Formatear ambas fechas a "YYYY-MM-DD" para comparación sin hora
+    const normalizeToMidnight = (date: Date) => {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    };
+    
+    return normalizeToMidnight(rowDate).getTime() === normalizeToMidnight(filterValue).getTime();
+    
+  }, 
   // Resto de funciones de filtro...
   numericFilter: (row: any, columnId: string, filterValue: string) => {
     if (!filterValue || filterValue === '') return true;
@@ -174,20 +171,24 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: "Last_Updated",
     cell: ({ row }) => {
       const rawDate: unknown = row.getValue("Last_Updated");
+  
+      if (!rawDate) return "N/A"; // Si es null o undefined
+  
+      const parsedDate = rawDate && typeof rawDate === "string" && !isNaN(Date.parse(rawDate))
+      ? new Date(rawDate)
+      : rawDate instanceof Date
+        ? rawDate
+        : undefined; // En lugar de null, usa undefined
 
-      if (!rawDate) return "N/A"; // Si el valor es null o undefined
-
-      const parsedDate = rawDate instanceof Date ? rawDate : (typeof rawDate === 'string' || typeof rawDate === 'number') ? new Date(rawDate) : null;
-
-      return parsedDate === null || isNaN(parsedDate.getTime())
-        ? "Fecha inválida"
-        : format(parsedDate, "dd/MM/yyyy"); // Formato DD/MM/AAAA
+      return parsedDate ? parsedDate.toLocaleDateString("es-ES") : "N/A";
+ // Evita error al formatear
+      // Formato correcto
     },
-    filterFn: filterFunctions.dateFilter, // <- Asegurarse de especificar la función de filtro
     meta: {
       filterVariant: "date",
     },
-  },  
+  }
+  ,  
   {
     header: "Rate",
     accessorKey: "Rate",
@@ -235,31 +236,20 @@ export default function Component() {
         }
   
         const data = await response.json();
-        console.log("Datos recibidos de la API:", data[0]);
+        console.log("Datos recibidos de la API:", data);
   
-        // Procesamiento mejorado de fechas
-        const processedData = data.map((item: any) => {
-          let parsedDate = null;
-          
-          if (item.Last_Updated) {
-            try {
-              parsedDate = new Date(item.Last_Updated);
-              // Verificar que sea una fecha válida
-              if (isNaN(parsedDate.getTime())) {
-                parsedDate = null;
-                console.warn("Fecha inválida:", item.Last_Updated);
-              }
-            } catch (e) {
-              console.warn("Error al procesar fecha:", item.Last_Updated);
-            }
-          }
-  
-          return {
-            ...item,
-            Last_Updated: parsedDate
-          };
-        });
-  
+        // Procesamiento de fechas con validación
+        const processedData = data.map((item: { Last_Updated?: string }) => {
+          if (!item.Last_Updated) return { ...item, Last_Updated: null };
+        
+          const utcDate = new Date(item.Last_Updated); // Convertir a Date
+          if (isNaN(utcDate.getTime())) return { ...item, Last_Updated: null };
+        
+          // Ajustar la fecha a la zona horaria local sin modificar la hora
+          const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+        
+          return { ...item, Last_Updated: localDate };
+        }); 
         setItems(processedData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -268,8 +258,6 @@ export default function Component() {
   
     fetchData();
   }, []);
-  
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([
     {
@@ -310,14 +298,15 @@ export default function Component() {
     const column = table.getColumn("Last_Updated");
     if (column) {
       if (date) {
-        console.log("Aplicando filtro de fecha:", date);
-        column.setFilterValue(date);
+        const formattedDate = format(date, "yyyy-MM-dd"); // Formatear la fecha correctamente
+        console.log("Filtrando por fecha:", formattedDate);
+        column.setFilterValue(formattedDate);
       } else {
         console.log("Eliminando filtro de fecha");
         column.setFilterValue(undefined);
       }
     }
-  }, [date, table]);
+  }, [date, table]);  
 
   return (
     <div className="space-y-6">
