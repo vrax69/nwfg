@@ -36,23 +36,39 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 // Añade esta función de filtrado personalizada al inicio del archivo
 const filterFunctions = {
-  // Filtro de fecha (Last_Updated)
+  // Filtro de fecha mejorado
   dateFilter: (row: any, columnId: string, filterValue: Date | undefined) => {
-    if (!filterValue) return true; // Si no hay filtro, mostrar todo
+    // Si no hay valor de filtro, mostrar todas las filas
+    if (!filterValue) return true;
     
     const rowValue = row.getValue(columnId);
-    if (!rowValue) return false; // Si no hay valor en la celda
     
-    const rowDate = new Date(rowValue);
-    if (isNaN(rowDate.getTime())) return false; // Si no es una fecha válida, ignorar
+    // Si no hay valor en la celda, no mostrar
+    if (!rowValue) return false;
     
-    // Comparar solo día, mes y año
+    let rowDate: Date;
+    
+    // Asegurar que rowValue sea una fecha válida
+    if (rowValue instanceof Date) {
+      rowDate = rowValue;
+    } else {
+      try {
+        rowDate = new Date(rowValue);
+        if (isNaN(rowDate.getTime())) return false;
+      } catch (e) {
+        return false;
+      }
+    }
+    
+    // Comparar solo año, mes y día (ignorando la hora)
     return (
       rowDate.getFullYear() === filterValue.getFullYear() &&
       rowDate.getMonth() === filterValue.getMonth() &&
       rowDate.getDate() === filterValue.getDate()
     );
   },
+  
+  // Resto de funciones de filtro...
   numericFilter: (row: any, columnId: string, filterValue: string) => {
     if (!filterValue || filterValue === '') return true;
     const rowValue = row.getValue(columnId);
@@ -158,22 +174,20 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: "Last_Updated",
     cell: ({ row }) => {
       const rawDate: unknown = row.getValue("Last_Updated");
-  
+
       if (!rawDate) return "N/A"; // Si el valor es null o undefined
-  
-      // Convertimos solo si es un string o número válido
-      if (typeof rawDate === "string" || typeof rawDate === "number") {
-        const parsedDate = new Date(rawDate);
-        return isNaN(parsedDate.getTime()) ? "Fecha inválida" : format(parsedDate, "dd/MM/yyyy");
-      }
-  
-      return "Fecha inválida"; // Manejo de error si no es un string o número
+
+      const parsedDate = rawDate instanceof Date ? rawDate : (typeof rawDate === 'string' || typeof rawDate === 'number') ? new Date(rawDate) : null;
+
+      return parsedDate === null || isNaN(parsedDate.getTime())
+        ? "Fecha inválida"
+        : format(parsedDate, "dd/MM/yyyy"); // Formato DD/MM/AAAA
     },
+    filterFn: filterFunctions.dateFilter, // <- Asegurarse de especificar la función de filtro
     meta: {
       filterVariant: "date",
     },
-  }, 
-  
+  },  
   {
     header: "Rate",
     accessorKey: "Rate",
@@ -215,34 +229,46 @@ export default function Component() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch("https://nwfg.net:3002/api/rates")
+        const response = await fetch("https://nwfg.net:3002/api/rates");
         if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status}`)
+          throw new Error(`Error HTTP: ${response.status}`);
         }
-        
-        const data = await response.json()
-        console.log("Datos recibidos de la API:", data[0])
-        
-        // Procesar los datos con tipado correcto
-        const processedData = data.map((item: any) => ({
-          ...item,
-          // Convertir el campo Last_Updated a un objeto Date válido si existe
-          Last_Updated: item.Last_Updated ? new Date(item.Last_Updated) : null
-        }));
-        
+  
+        const data = await response.json();
+        console.log("Datos recibidos de la API:", data[0]);
+  
+        // Procesamiento mejorado de fechas
+        const processedData = data.map((item: any) => {
+          let parsedDate = null;
+          
+          if (item.Last_Updated) {
+            try {
+              parsedDate = new Date(item.Last_Updated);
+              // Verificar que sea una fecha válida
+              if (isNaN(parsedDate.getTime())) {
+                parsedDate = null;
+                console.warn("Fecha inválida:", item.Last_Updated);
+              }
+            } catch (e) {
+              console.warn("Error al procesar fecha:", item.Last_Updated);
+            }
+          }
+  
+          return {
+            ...item,
+            Last_Updated: parsedDate
+          };
+        });
+  
         setItems(processedData);
       } catch (error) {
-        console.error("Error fetching data:", error)
-        // Opcional: Añadir estado de error para mostrarlo en la UI
-        // setError("No se pudieron cargar los datos. Por favor, inténtelo de nuevo.");
-      } finally {
-        // Opcional: Añadir estado de carga
-        // setIsLoading(false);
+        console.error("Error fetching data:", error);
       }
     }
-
-    fetchData()
-  }, [])
+  
+    fetchData();
+  }, []);
+  
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([
@@ -281,10 +307,15 @@ export default function Component() {
 
   // Añadir este useEffect para aplicar el filtro de fechas
   useEffect(() => {
-    if (date) {
-      table.getColumn("Last_Updated")?.setFilterValue(date);
-    } else {
-      table.getColumn("Last_Updated")?.setFilterValue(undefined);
+    const column = table.getColumn("Last_Updated");
+    if (column) {
+      if (date) {
+        console.log("Aplicando filtro de fecha:", date);
+        column.setFilterValue(date);
+      } else {
+        console.log("Eliminando filtro de fecha");
+        column.setFilterValue(undefined);
+      }
     }
   }, [date, table]);
 
