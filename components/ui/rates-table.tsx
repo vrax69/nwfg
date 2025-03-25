@@ -349,9 +349,9 @@ export default function Component() {
         </div>
       </div>
 
-      <div className="sticky top-0 bg-white z-10 shadow border-b border-gray-200">
+      <div className="overflow-y-auto max-h-[500px] border border-gray-200 rounded-md shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-white z-10 shadow">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -365,11 +365,6 @@ export default function Component() {
               </TableRow>
             ))}
           </TableHeader>
-        </Table>
-      </div>
-
-      <div className="overflow-y-auto max-h-[500px] border border-gray-200 rounded-md shadow-sm">
-        <Table>
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
