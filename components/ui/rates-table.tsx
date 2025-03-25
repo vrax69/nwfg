@@ -34,6 +34,9 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover-rates"
 
+// Añadir la importación al inicio del archivo
+import { Switch } from "@/components/ui/switch"; // Ajusta la ruta según tu estructura de archivos
+
 // Añade esta función de filtrado personalizada al inicio del archivo
 const filterFunctions = {
   // Filtro de fecha mejorado
@@ -289,6 +292,9 @@ export default function Component() {
   // Añadir este estado para manejar la fecha
   const [date, setDate] = useState<Date | undefined>(undefined);
 
+  // Añadir este estado para manejar el toggle
+  const [isSwitchOn, setIsSwitchOn] = useState(false); // Estado para el toggle
+
   // Añadir este useEffect para aplicar el filtro de fechas
   useEffect(() => {
     const column = table.getColumn("Last_Updated");
@@ -307,7 +313,7 @@ export default function Component() {
   
   return (
     <div className="relative space-y-6">
-      {/* Filtros */}
+      {/* Contenedor de filtros */}
       <div className="flex flex-wrap gap-3 w-full ml-5">
         {/* Filtro de utilidad */}
         <div className="w-44">
@@ -347,8 +353,21 @@ export default function Component() {
             </PopoverContent>
           </Popover>
         </div>
+
+        {/* Toggle Switch */}
+        <div className="flex items-center space-x-2 mt-4">
+          <Switch
+            checked={isSwitchOn}
+            onCheckedChange={(checked) => setIsSwitchOn(checked)}
+            className="mt-1" // Añadido para centrar verticalmente
+          />
+          <span className="text-sm text-gray-700">
+            {isSwitchOn ? "Activado" : "Desactivado"}
+          </span>
+        </div>
       </div>
 
+      {/* Contenedor de la tabla */}
       <div className="overflow-y-auto max-h-[500px] border border-gray-200 rounded-md shadow-sm">
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10 shadow">
