@@ -250,11 +250,18 @@ export default function Component() {
     {
       header: "ETF",
       accessorKey: "ETF",
-      cell: ({ row }) => {
-        const etf = row.getValue("ETF");
-        return etf ? `$${etf}` : "N/A";
-      },
-      enableSorting: false,
+      cell: ({ row }) => isSwitchOn ? (
+        <input
+          type="text"
+          defaultValue={row.getValue("ETF")}
+          className="border rounded px-2 py-1 text-sm"
+          onChange={(e) => {
+            console.log(`Nuevo valor para ETF: ${e.target.value}`); // Aquí puedes añadir la lógica para manejar el cambio
+          }}
+        />
+      ) : (
+        row.getValue("ETF") ? `$${row.getValue("ETF")}` : "N/A" // Formato condicional para mostrar valores
+      )
     },
   ];
 
