@@ -1,13 +1,26 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/rates-table-interno"
-import { useId, useMemo, useState, useEffect } from "react"
+import { cn } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/rates-table-interno";
+import { useId, useMemo, useState, useEffect } from "react";
 
-import { Checkbox } from "@/components/ui/checkbox-rates-table"
-import { Input } from "@/components/ui/input-rates-table"
-import { Label } from "@/components/ui/label-rates-table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select-rates-table"
+import { Checkbox } from "@/components/ui/checkbox-rates-table";
+import { Input } from "@/components/ui/input-rates-table";
+import { Label } from "@/components/ui/label-rates-table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select-rates-table";
 import {
   type Column,
   type ColumnDef,
@@ -22,216 +35,66 @@ import {
   type RowData,
   type SortingState,
   useReactTable,
-} from "@tanstack/react-table"
-import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+} from "@tanstack/react-table";
+import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-// Añadir la importación al inicio del archivo
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-
-// Añade estos imports si no están ya
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover-rates"
-
-// Añadir la importación al inicio del archivo
+// Importaciones adicionales
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover-rates";
 import { Switch } from "@/components/ui/switch"; // Ajusta la ruta según tu estructura de archivos
 
-// Añade esta función de filtrado personalizada al inicio del archivo
+// Funciones de filtrado personalizadas
 const filterFunctions = {
-  // Filtro de fecha mejorado
-  dateFilter: (row: any, columnId: string, filterValue: Date | undefined) => {
-    if (!filterValue) return true; // Si no hay filtro, mostrar todas las filas
-
-    const rowValue = row.getValue(columnId);
-    console.log("Valor en la fila antes de conversión:", rowValue); // 🔍 Verifica qué valor tiene realmente
-
-    if (!rowValue) return false; // Si no hay valor en la celda, no mostrar la fila
-
-    let rowDate: Date;
-    if (typeof rowValue === "string") {
-        rowDate = new Date(rowValue + "T00:00:00Z"); // Asegura formato ISO sin errores de zona horaria
-    } else if (rowValue instanceof Date) {
-        rowDate = rowValue;
-    } else {
-        console.warn("Formato de fecha inválido en la fila:", rowValue);
-        return false;
-    }
-
-    if (isNaN(rowDate.getTime())) {
-        console.warn("Fecha inválida después de conversión:", rowDate);
-        return false;
-    }
-
-    // Normalizar ambas fechas a formato YYYY-MM-DD para comparación sin hora
-    const rowFormatted = rowDate.toISOString().split("T")[0];
-    const filterFormatted = filterValue.toISOString().split("T")[0];
-
-    console.log(`Comparando ${rowFormatted} con ${filterFormatted}`); // 🔍 Verifica si las fechas coinciden
-
-    return rowFormatted === filterFormatted;
-},
- 
-  // Resto de funciones de filtro...
   numericFilter: (row: any, columnId: string, filterValue: string) => {
-    if (!filterValue || filterValue === '') return true;
+    if (!filterValue || filterValue === "") return true;
     const rowValue = row.getValue(columnId);
     if (rowValue === null || rowValue === undefined) return false;
     return String(rowValue).toLowerCase().includes(filterValue.toLowerCase());
   },
   textFilter: (row: any, columnId: string, filterValue: string) => {
-    if (!filterValue || filterValue === '') return true;
+    if (!filterValue || filterValue === "") return true;
     const rowValue = row.getValue(columnId);
     if (rowValue === null || rowValue === undefined) return false;
     return String(rowValue).toLowerCase().includes(filterValue.toLowerCase());
   },
 };
 
-
+// Declaración de tipos para columnas
 declare module "@tanstack/react-table" {
-  //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
-    filterVariant?: "text" | "range" | "select" | "date"
+    filterVariant?: "text" | "range" | "select" | "date";
   }
 }
 
-// Actualiza la interfaz para incluir solo los campos que quieres mostrar
+// Tipo de datos para las filas
 type Item = {
-  Rate_ID: string
-  SPL_Utility_Name: string
-  Rate: number
-  ETF: number | string
-  MSF: number | string
-  SPL: string
-}
-
-const columns: ColumnDef<Item>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-  },
-  {
-    header: "Utilidad",
-    accessorKey: "SPL_Utility_Name",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("SPL_Utility_Name")}</div>,
-    meta: {
-      filterVariant: "text",
-    },
-  },
-  {
-    header: "SPL",
-    accessorKey: "SPL",
-    cell: ({ row }) => {
-      const spl = row.getValue("SPL") as string
-      // Mapeo de SPL a nombres y estilos específicos
-      const providerNames: Record<string, string> = {
-        "CS": "Clean Sky",
-        "NE": "North Eastern",
-        "NGE": "National Gas & Electric",
-        "NV": "Next Volt",
-        "RE": "Rushmore",
-        "SPE": "Spark Energy",
-        "WG": "WG&L",
-      }
-
-      const providerStyles: Record<string, string> = {
-        "CS": "bg-sky-50 text-blue-600 border-sky-200",
-        "NE": "bg-emerald-50 text-emerald-700 border-emerald-200",
-        "NGE": "bg-amber-50 text-amber-600 border-amber-200",
-        "NV": "bg-indigo-50 text-indigo-600 border-indigo-200",
-        "RE": "bg-rose-50 text-rose-600 border-rose-200",
-        "SPE": "bg-blue-50 text-blue-700 border-blue-200",
-        "WG": "bg-orange-50 text-orange-600 border-orange-200",
-      }
-
-      const providerName = providerNames[spl] || spl
-      const style = providerStyles[spl] || "bg-gray-100 text-gray-800 border-gray-300"
-
-      return (
-        <div className="flex items-center">
-          <div className={`px-3 py-1.5 rounded-md text-xs font-medium border ${style}`}>
-            {providerName}
-          </div>
-        </div>
-      )
-    },
-    enableSorting: false,
-    meta: {
-      filterVariant: "select",
-    },
-  },
-  {
-    header: "Última Actualización",
-    accessorKey: "Last_Updated",
-    cell: ({ row }) => {
-      const rawDate: unknown = row.getValue("Last_Updated");
-    
-      if (!rawDate || typeof rawDate !== "string") return "N/A"; // ✅ Validación segura
-    
-      const parsedDate = new Date(rawDate);
-      if (isNaN(parsedDate.getTime())) return "N/A"; // Evitar fechas inválidas
-    
-      // 🔹 Ajuste de zona horaria para que no muestre el día anterior
-      const adjustedDate = new Date(parsedDate.getTime() + parsedDate.getTimezoneOffset() * 60000);
-    
-      return adjustedDate.toLocaleDateString("es-ES"); // 📌 Ahora mostrará la fecha correcta
-    },    
-    meta: {
-      filterVariant: "date",
-    },
-  }
-  ,  
-  {
-    header: "Rate",
-    accessorKey: "Rate",
-    cell: ({ row }) => {
-      const rate = parseFloat(row.getValue("Rate"))
-      return isNaN(rate) ? "N/A" : `$${rate.toFixed(4)}`
-    },
-    meta: {
-      filterVariant: "range",
-    },
-    filterFn: filterFunctions.numericFilter, // Añade la función de filtro personalizada
-  },
-  {
-    header: "Rate-ID",
-    accessorKey: "Rate_ID",
-    cell: ({ row }) => <div>{row.getValue("Rate_ID")}</div>,
-    meta: {
-      filterVariant: "text",
-    },
-    filterFn: filterFunctions.textFilter, // Añade la función de filtro personalizada
-  },
-  {
-    header: "ETF",
-    accessorKey: "ETF",
-    cell: ({ row }) => {
-      const etf = row.getValue("ETF")
-      return etf ? `$${etf}` : "N/A"
-    },
-    enableSorting: false,
-  },
-]
+  Rate_ID: string;
+  SPL_Utility_Name: string;
+  Rate: number;
+  ETF: number | string;
+  MSF: number | string;
+  SPL: string;
+};
 
 export default function Component() {
-  
-  // ✅ Movido dentro del componente
-  const [items, setItems] = useState<Item[]>([])
+  const [items, setItems] = useState<Item[]>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: "Rate",
+      desc: false,
+    },
+  ]);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isSwitchOn, setIsSwitchOn] = useState(false); // Estado para alternar entre edición y solo lectura
 
-  // ✅ useEffect ahora está correctamente dentro del componente
   useEffect(() => {
     async function fetchData() {
       try {
@@ -239,31 +102,161 @@ export default function Component() {
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
-  
+
         const data = await response.json();
-        console.log("Datos recibidos de la API:", data);
-  
-        // Procesamiento de fechas con validación
-        const processedData = data.map((item: { Last_Updated?: string }) => {
-          if (!item.Last_Updated) return { ...item, Last_Updated: null };
-        
-          return { ...item, Last_Updated: item.Last_Updated }; // Mantener la fecha como string YYYY-MM-DD
-        });        
-        setItems(processedData);
+        setItems(data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     }
-  
+
     fetchData();
   }, []);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [sorting, setSorting] = useState<SortingState>([
+
+  const columns: ColumnDef<Item>[] = [
     {
-      id: "Rate",  // Cambiado de "traffic" a "Rate"
-      desc: false,
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
     },
-  ])
+    {
+      header: "Utilidad",
+      accessorKey: "SPL_Utility_Name",
+      cell: ({ row }) => <div className="font-medium">{row.getValue("SPL_Utility_Name")}</div>,
+      meta: {
+        filterVariant: "text",
+      },
+    },
+    {
+      header: "SPL",
+      accessorKey: "SPL",
+      cell: ({ row }) => {
+        const spl = row.getValue("SPL") as string
+        // Mapeo de SPL a nombres y estilos específicos
+        const providerNames: Record<string, string> = {
+          "CS": "Clean Sky",
+          "NE": "North Eastern",
+          "NGE": "National Gas & Electric",
+          "NV": "Next Volt",
+          "RE": "Rushmore",
+          "SPE": "Spark Energy",
+          "WG": "WG&L",
+        }
+
+        const providerStyles: Record<string, string> = {
+          "CS": "bg-sky-50 text-blue-600 border-sky-200",
+          "NE": "bg-emerald-50 text-emerald-700 border-emerald-200",
+          "NGE": "bg-amber-50 text-amber-600 border-amber-200",
+          "NV": "bg-indigo-50 text-indigo-600 border-indigo-200",
+          "RE": "bg-rose-50 text-rose-600 border-rose-200",
+          "SPE": "bg-blue-50 text-blue-700 border-blue-200",
+          "WG": "bg-orange-50 text-orange-600 border-orange-200",
+        }
+
+        const providerName = providerNames[spl] || spl
+        const style = providerStyles[spl] || "bg-gray-100 text-gray-800 border-gray-300"
+
+        return (
+          <div className="flex items-center">
+            <div className={`px-3 py-1.5 rounded-md text-xs font-medium border ${style}`}>
+              {providerName}
+            </div>
+          </div>
+        )
+      },
+      enableSorting: false,
+      meta: {
+        filterVariant: "select",
+      },
+    },
+    {
+      header: "Última Actualización",
+      accessorKey: "Last_Updated",
+      cell: ({ row }) => {
+        const rawDate: unknown = row.getValue("Last_Updated");
+      
+        if (!rawDate || typeof rawDate !== "string") return "N/A"; // ✅ Validación segura
+      
+        const parsedDate = new Date(rawDate);
+        if (isNaN(parsedDate.getTime())) return "N/A"; // Evitar fechas inválidas
+      
+        // 🔹 Ajuste de zona horaria para que no muestre el día anterior
+        const adjustedDate = new Date(parsedDate.getTime() + parsedDate.getTimezoneOffset() * 60000);
+      
+        return adjustedDate.toLocaleDateString("es-ES"); // 📌 Ahora mostrará la fecha correcta
+      },    
+      meta: {
+        filterVariant: "date",
+      },
+    }
+    ,  
+    {
+      header: "Rate",
+      accessorKey: "Rate",
+      cell: ({ row }) =>
+        isSwitchOn ? (
+          <input
+            type="number"
+            defaultValue={row.getValue("Rate")}
+            className="border rounded px-2 py-1 text-sm"
+            onChange={(e) => {
+              const newValue = parseFloat(e.target.value);
+              if (!isNaN(newValue)) {
+                row.original.Rate = newValue;
+              }
+            }}
+          />
+        ) : (
+          `$${parseFloat(row.getValue("Rate")).toFixed(4)}`
+        ),
+      meta: {
+        filterVariant: "range",
+      },
+      filterFn: filterFunctions.numericFilter,
+    },
+    {
+      header: "Rate-ID",
+      accessorKey: "Rate_ID",
+      cell: ({ row }) =>
+        isSwitchOn ? (
+          <input
+            type="text"
+            defaultValue={row.getValue("Rate_ID")}
+            className="border rounded px-2 py-1 text-sm"
+            onChange={(e) => {
+              row.original.Rate_ID = e.target.value;
+            }}
+          />
+        ) : (
+          <div>{row.getValue("Rate_ID")}</div>
+        ),
+      meta: {
+        filterVariant: "text",
+      },
+      filterFn: filterFunctions.textFilter,
+    },
+    {
+      header: "ETF",
+      accessorKey: "ETF",
+      cell: ({ row }) => {
+        const etf = row.getValue("ETF");
+        return etf ? `$${etf}` : "N/A";
+      },
+      enableSorting: false,
+    },
+  ];
 
   const table = useReactTable({
     data: items,
@@ -274,60 +267,31 @@ export default function Component() {
     },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), // client-side filtering
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(), // client-side faceting
-    getFacetedUniqueValues: getFacetedUniqueValues(), // generate unique values for select filter/autocomplete
-    getFacetedMinMaxValues: getFacetedMinMaxValues(), // generate min/max values for range filter
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
     onSortingChange: setSorting,
     enableSortingRemoval: false,
     filterFns: {
       numericFilter: filterFunctions.numericFilter,
       textFilter: filterFunctions.textFilter,
-      dateFilter: filterFunctions.dateFilter, // Añadir la función de filtro de fecha
-    }
+    },
   });
-  
 
-  // Añadir este estado para manejar la fecha
-  const [date, setDate] = useState<Date | undefined>(undefined);
-
-  // Añadir este estado para manejar el toggle
-  const [isSwitchOn, setIsSwitchOn] = useState(false); // Estado para el toggle
-
-  // Añadir este useEffect para aplicar el filtro de fechas
-  useEffect(() => {
-    const column = table.getColumn("Last_Updated");
-    if (column) {
-      if (date) {
-        const formattedDate = date.toISOString().split("T")[0]; // Convertir a formato YYYY-MM-DD
-        console.log("Fecha seleccionada (Date Picker):", date);
-        console.log("Fecha formateada para el filtro:", formattedDate);
-        column.setFilterValue(formattedDate);
-      } else {
-        console.log("Eliminando filtro de fecha");
-        column.setFilterValue(undefined);
-      }
-    }
-  }, [date, table]);
-  
   return (
     <div className="relative space-y-6">
-      {/* Contenedor de filtros */}
       <div className="flex flex-wrap gap-3 w-full ml-5">
-        {/* Filtro de utilidad */}
         <div className="w-44">
           <Filter column={table.getColumn("SPL_Utility_Name")!} />
         </div>
-        {/* Filtro de proveedor (SPL) */}
         <div className="w-36">
           <Filter column={table.getColumn("SPL")!} />
         </div>
-        {/* Filtro de tarifa */}
         <div className="w-36">
           <Filter column={table.getColumn("Rate")!} />
         </div>
-        {/* Filtro de Rate-ID */}
         <div className="w-36">
           <Filter column={table.getColumn("Rate_ID")!} />
         </div>
@@ -354,12 +318,11 @@ export default function Component() {
           </Popover>
         </div>
 
-        {/* Toggle Switch */}
         <div className="flex items-center space-x-2 mt-4">
           <Switch
             checked={isSwitchOn}
             onCheckedChange={(checked) => setIsSwitchOn(checked)}
-            className="mt-1" // Añadido para centrar verticalmente
+            className="mt-1"
           />
           <span className="text-sm text-gray-700">
             {isSwitchOn ? "Modo editor🖋️" : "Solo lectura📖"}
@@ -367,7 +330,6 @@ export default function Component() {
         </div>
       </div>
 
-      {/* Contenedor de la tabla */}
       <div className="overflow-y-auto max-h-[500px] border border-gray-200 rounded-md shadow-sm">
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10 shadow">
@@ -378,7 +340,10 @@ export default function Component() {
                     key={header.id}
                     className="h-10 select-none text-left font-medium text-gray-700"
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -389,15 +354,24 @@ export default function Component() {
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-sm text-gray-600">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <TableCell
+                      key={cell.id}
+                      className="text-sm text-gray-600"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-gray-500">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-gray-500"
+                >
                   No hay resultados.
                 </TableCell>
               </TableRow>
