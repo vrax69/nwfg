@@ -362,7 +362,7 @@ export default function Component() {
             className="mt-1" // Añadido para centrar verticalmente
           />
           <span className="text-sm text-gray-700">
-            {isSwitchOn ? "Modo editor" : "Solo lectura"}
+            {isSwitchOn ? "Modo editor🖋️" : "Solo lectura📖"}
           </span>
         </div>
       </div>
