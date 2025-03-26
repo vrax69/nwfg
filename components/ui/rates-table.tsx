@@ -447,15 +447,30 @@ export default function Component() {
         A continuación se muestran los cambios realizados. ¿Deseas aplicarlos?
       </AlertDialogDescription>
     </AlertDialogHeader>
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Títulos en negrita */}
+      <div className="flex justify-between items-center font-bold text-gray-700">
+        <span className="w-1/2 text-left">Valor actual</span>
+        <span className="w-8 text-center">→</span>
+        <span className="w-1/2 text-right">Nuevo valor</span>
+      </div>
+      {/* Mostrar cambios */}
       {changedRows.map(({ original, updated }) => (
         Object.entries(updated).map(([key, value]) => {
           if (original[key] !== value) {
             return (
               <div key={key} className="flex justify-between items-center">
-                <span className="text-gray-500">{`${original[key]}`}</span>
-                <span className="mx-2">→</span>
-                <span className="text-green-500">{`${value}`}</span>
+                {/* Valor actual */}
+                <div className="w-1/2 text-left">
+                  <p className="text-gray-500 text-sm">
+                    {key}: {original[key]}
+                  </p>
+                </div>
+                <div className="w-1/2 text-right">
+                  <p className="text-gray-500 text-sm">
+                    {key}: <span className="text-green-500">{value}</span>
+                  </p>
+                </div>
               </div>
             );
           }
