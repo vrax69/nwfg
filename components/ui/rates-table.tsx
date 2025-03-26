@@ -468,9 +468,14 @@ export default function Component() {
             {Object.entries(updated).map(([key, value]) => {
               if (original[key] !== value) {
                 return (
-                  <p key={key} className="text-gray-500 text-sm">
-                    {key}: <span className="text-green-500">{value}</span>
-                  </p>
+                  <div key={key} className="mb-2">
+                    <p className="text-gray-500 text-sm">
+                      {key}: <span className="text-green-500">{value}</span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      (Actual: {original[key]})
+                    </p>
+                  </div>
                 );
               }
               return null;
