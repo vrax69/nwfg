@@ -9,6 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/rates-table-interno";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+
 import { useId, useMemo, useState, useEffect } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox-rates-table";
@@ -81,6 +92,7 @@ type Item = {
   ETF: number | string;
   MSF: number | string;
   SPL: string;
+  [key: string]: any; // Permite acceso dinámico a propiedades
 };
 
 export default function Component() {
@@ -95,6 +107,8 @@ export default function Component() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [isSwitchOn, setIsSwitchOn] = useState(false); // Estado para alternar entre edición y solo lectura
   const [showApplyButton, setShowApplyButton] = useState(false);
+  const [showChangesDialog, setShowChangesDialog] = useState(false);
+  const [changedRows, setChangedRows] = useState<{ original: Item; updated: Item }[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -113,6 +127,29 @@ export default function Component() {
 
     fetchData();
   }, []);
+
+  const handleInputChange = (row: any, columnId: string, newValue: any) => {
+    const updatedRow = { ...row.original, [columnId]: newValue };
+    setChangedRows((prev) => {
+      const existingChange = prev.find((change) => change.original.Rate_ID === row.original.Rate_ID);
+      if (existingChange) {
+        return prev.map((change) =>
+          change.original.Rate_ID === row.original.Rate_ID
+            ? { ...change, updated: updatedRow }
+            : change
+        );
+      }
+      return [...prev, { original: row.original, updated: updatedRow }];
+    });
+    setShowApplyButton(true);
+  };
+
+  const applyChanges = () => {
+    console.log("Cambios aplicados:", changedRows);
+    // Aquí puedes enviar los cambios al servidor o actualizar el estado local
+    setChangedRows([]);
+    setShowChangesDialog(false);
+  };
 
   const columns: ColumnDef<Item>[] = [
     {
@@ -215,8 +252,7 @@ export default function Component() {
             onChange={(e) => {
               const newValue = parseFloat(e.target.value);
               if (!isNaN(newValue) && row.original.Rate !== newValue) {
-                row.original.Rate = newValue;
-                setShowApplyButton(true); // Mostrar el botón al cambiar el valor
+                handleInputChange(row, "Rate", newValue);
               }
             }}
           />
@@ -240,8 +276,7 @@ export default function Component() {
             onChange={(e) => {
               const newValue = e.target.value;
               if (row.original.Rate_ID !== newValue) {
-                row.original.Rate_ID = newValue;
-                setShowApplyButton(true); // Mostrar el botón al cambiar el valor
+                handleInputChange(row, "Rate_ID", newValue);
               }
             }}
           />
@@ -265,8 +300,7 @@ export default function Component() {
             onChange={(e) => {
               const newValue = e.target.value;
               if (row.original.ETF !== newValue) {
-                row.original.ETF = newValue;
-                setShowApplyButton(true); // Mostrar el botón al cambiar el valor
+                handleInputChange(row, "ETF", newValue);
               }
             }}
           />
@@ -347,11 +381,7 @@ export default function Component() {
           </span>
           {showApplyButton && (
             <Button
-              onClick={() => {
-                // Lógica para aplicar los cambios
-                console.log("Aplicando cambios...");
-                setShowApplyButton(false); // Ocultar el botón después de aplicar los cambios
-              }}
+              onClick={() => setShowChangesDialog(true)}
               className="bg-blue-500 text-white hover:bg-blue-600 ml-4"
             >
               Aplicar Cambios
@@ -409,6 +439,45 @@ export default function Component() {
           </TableBody>
         </Table>
       </div>
+      <AlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Confirmar Cambios</AlertDialogTitle>
+      <AlertDialogDescription>
+        A continuación se muestran los cambios realizados. ¿Deseas aplicarlos?
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <div className="space-y-4">
+      {changedRows.map(({ original, updated }) => (
+        Object.entries(updated).map(([key, value]) => {
+          if (original[key] !== value) {
+            return (
+              <div key={key} className="flex justify-between items-center">
+                <span className="text-gray-500">{`${original[key]}`}</span>
+                <span className="mx-2">→</span>
+                <span className="text-green-500">{`${value}`}</span>
+              </div>
+            );
+          }
+          return null;
+        })
+      ))}
+    </div>
+    <AlertDialogFooter className="flex justify-between">
+      <AlertDialogCancel onClick={() => setShowChangesDialog(false)}>
+        Cancelar
+      </AlertDialogCancel>
+      <AlertDialogAction
+        onClick={() => {
+          applyChanges();
+          setShowChangesDialog(false);
+        }}
+      >
+        Confirmar
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
     </div>
   );
 }
