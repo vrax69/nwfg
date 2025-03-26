@@ -456,26 +456,27 @@ export default function Component() {
       </div>
       {/* Mostrar cambios */}
       {changedRows.map(({ original, updated }) => (
-        Object.entries(updated).map(([key, value]) => {
-          if (original[key] !== value) {
-            return (
-              <div key={key} className="flex justify-between items-center">
-                {/* Valor actual */}
-                <div className="w-1/2 text-left">
-                  <p className="text-gray-500 text-sm">
-                    {key}: {original[key]}
-                  </p>
-                </div>
-                <div className="w-1/2 text-right">
-                  <p className="text-gray-500 text-sm">
+        <div key={original.Rate_ID} className="flex justify-between items-center">
+          {/* Mostrar SPL y Utilidad juntos en el lado de "Valor actual" */}
+          <div className="w-1/2 text-left">
+            <p className="text-gray-500 text-sm">
+              {original.SPL} - {original.SPL_Utility_Name}
+            </p>
+          </div>
+          <div className="w-1/2 text-right">
+            {/* Mostrar los valores actualizados */}
+            {Object.entries(updated).map(([key, value]) => {
+              if (original[key] !== value) {
+                return (
+                  <p key={key} className="text-gray-500 text-sm">
                     {key}: <span className="text-green-500">{value}</span>
                   </p>
-                </div>
-              </div>
-            );
-          }
-          return null;
-        })
+                );
+              }
+              return null;
+            })}
+          </div>
+        </div>
       ))}
     </div>
     <AlertDialogFooter className="flex justify-between">
