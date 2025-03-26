@@ -94,6 +94,7 @@ export default function Component() {
   ]);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [isSwitchOn, setIsSwitchOn] = useState(false); // Estado para alternar entre edición y solo lectura
+  const [showApplyButton, setShowApplyButton] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -213,8 +214,9 @@ export default function Component() {
             className="border rounded px-2 py-1 text-sm"
             onChange={(e) => {
               const newValue = parseFloat(e.target.value);
-              if (!isNaN(newValue)) {
+              if (!isNaN(newValue) && row.original.Rate !== newValue) {
                 row.original.Rate = newValue;
+                setShowApplyButton(true); // Mostrar el botón al cambiar el valor
               }
             }}
           />
@@ -236,7 +238,11 @@ export default function Component() {
             defaultValue={row.getValue("Rate_ID")}
             className="border rounded px-2 py-1 text-sm"
             onChange={(e) => {
-              row.original.Rate_ID = e.target.value;
+              const newValue = e.target.value;
+              if (row.original.Rate_ID !== newValue) {
+                row.original.Rate_ID = newValue;
+                setShowApplyButton(true); // Mostrar el botón al cambiar el valor
+              }
             }}
           />
         ) : (
@@ -250,18 +256,23 @@ export default function Component() {
     {
       header: "ETF",
       accessorKey: "ETF",
-      cell: ({ row }) => isSwitchOn ? (
-        <input
-          type="text"
-          defaultValue={row.getValue("ETF")}
-          className="border rounded px-2 py-1 text-sm"
-          onChange={(e) => {
-            console.log(`Nuevo valor para ETF: ${e.target.value}`); // Aquí puedes añadir la lógica para manejar el cambio
-          }}
-        />
-      ) : (
-        row.getValue("ETF") ? `$${row.getValue("ETF")}` : "N/A" // Formato condicional para mostrar valores
-      )
+      cell: ({ row }) =>
+        isSwitchOn ? (
+          <input
+            type="text"
+            defaultValue={row.getValue("ETF")}
+            className="border rounded px-2 py-1 text-sm"
+            onChange={(e) => {
+              const newValue = e.target.value;
+              if (row.original.ETF !== newValue) {
+                row.original.ETF = newValue;
+                setShowApplyButton(true); // Mostrar el botón al cambiar el valor
+              }
+            }}
+          />
+        ) : (
+          row.getValue("ETF") ? `$${row.getValue("ETF")}` : "N/A"
+        ),
     },
   ];
 
@@ -385,6 +396,21 @@ export default function Component() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex justify-end mt-4">
+        {showApplyButton && (
+          <Button
+            onClick={() => {
+              // Lógica para aplicar los cambios
+              console.log("Aplicando cambios...");
+              setShowApplyButton(false); // Ocultar el botón después de aplicar los cambios
+            }}
+            className="bg-blue-500 text-white hover:bg-blue-600"
+          >
+            Aplicar Cambios
+          </Button>
+        )}
       </div>
     </div>
   );
