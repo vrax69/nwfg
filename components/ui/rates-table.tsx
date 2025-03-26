@@ -465,7 +465,7 @@ export default function Component() {
                       {key}: <span className="text-green-500">{value}</span>
                     </p>
                     <p className="text-gray-400 text-xs">
-                      (Actual: {original[key]})
+                      ( {original[key]})
                     </p>
                   </div>
                 );
