@@ -128,18 +128,18 @@ export default function Component() {
     fetchData();
   }, []);
 
-  const handleInputChange = (row: any, columnId: string, newValue: any) => {
-    const updatedRow = { ...row.original, [columnId]: newValue };
+  const handleInputChange = (rowId: string, columnId: string, newValue: any) => {
     setChangedRows((prev) => {
-      const existingChange = prev.find((change) => change.original.Rate_ID === row.original.Rate_ID);
+      const existingChange = prev.find((change) => change.original.Rate_ID === rowId);
       if (existingChange) {
         return prev.map((change) =>
-          change.original.Rate_ID === row.original.Rate_ID
-            ? { ...change, updated: updatedRow }
+          change.original.Rate_ID === rowId
+            ? { ...change, updated: { ...change.updated, [columnId]: newValue } }
             : change
         );
       }
-      return [...prev, { original: row.original, updated: updatedRow }];
+      const originalRow = items.find((item) => item.Rate_ID === rowId);
+      return [...prev, { original: originalRow!, updated: { ...originalRow!, [columnId]: newValue } }];
     });
     setShowApplyButton(true);
   };
@@ -147,8 +147,15 @@ export default function Component() {
   const applyChanges = () => {
     console.log("Cambios aplicados:", changedRows);
     // Aquí puedes enviar los cambios al servidor o actualizar el estado local
+    setItems((prev) =>
+      prev.map((item) => {
+        const change = changedRows.find((row) => row.original.Rate_ID === item.Rate_ID);
+        return change ? change.updated : item;
+      })
+    );
     setChangedRows([]);
     setShowChangesDialog(false);
+    setShowApplyButton(false);
   };
 
   const columns: ColumnDef<Item>[] = [
@@ -245,16 +252,11 @@ export default function Component() {
       accessorKey: "Rate",
       cell: ({ row }) =>
         isSwitchOn ? (
-          <input
-            type="number"
-            defaultValue={row.getValue("Rate")}
-            className="border rounded px-2 py-1 text-sm"
-            onChange={(e) => {
-              const newValue = parseFloat(e.target.value);
-              if (!isNaN(newValue) && row.original.Rate !== newValue) {
-                handleInputChange(row, "Rate", newValue);
-              }
-            }}
+          <EditableCell
+            value={row.getValue("Rate")}
+            row={row}
+            columnId="Rate"
+            updateMyData={handleInputChange}
           />
         ) : (
           `$${parseFloat(row.getValue("Rate")).toFixed(4)}`
@@ -269,16 +271,11 @@ export default function Component() {
       accessorKey: "Rate_ID",
       cell: ({ row }) =>
         isSwitchOn ? (
-          <input
-            type="text"
-            defaultValue={row.getValue("Rate_ID")}
-            className="border rounded px-2 py-1 text-sm"
-            onChange={(e) => {
-              const newValue = e.target.value;
-              if (row.original.Rate_ID !== newValue) {
-                handleInputChange(row, "Rate_ID", newValue);
-              }
-            }}
+          <EditableCell
+            value={row.getValue("Rate_ID")}
+            row={row}
+            columnId="Rate_ID"
+            updateMyData={handleInputChange}
           />
         ) : (
           <div>{row.getValue("Rate_ID")}</div>
@@ -293,16 +290,11 @@ export default function Component() {
       accessorKey: "ETF",
       cell: ({ row }) =>
         isSwitchOn ? (
-          <input
-            type="text"
-            defaultValue={row.getValue("ETF")}
-            className="border rounded px-2 py-1 text-sm"
-            onChange={(e) => {
-              const newValue = e.target.value;
-              if (row.original.ETF !== newValue) {
-                handleInputChange(row, "ETF", newValue);
-              }
-            }}
+          <EditableCell
+            value={row.getValue("ETF")}
+            row={row}
+            columnId="ETF"
+            updateMyData={handleInputChange}
           />
         ) : (
           row.getValue("ETF") ? `$${row.getValue("ETF")}` : "N/A"
@@ -647,3 +639,37 @@ function Filter({ column }: { column: Column<any, unknown> }) {
     </div>
   )
 }
+
+const EditableCell = ({
+  value: initialValue,
+  row,
+  columnId,
+  updateMyData,
+}: {
+  value: any;
+  row: any;
+  columnId: string;
+  updateMyData: (rowId: string, columnId: string, value: any) => void;
+}) => {
+  // Aseguramos que el valor inicial nunca sea null o undefined
+  const [value, setValue] = useState(initialValue ?? '');
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
+  const onBlur = () => {
+    if (value !== initialValue) {
+      updateMyData(row.original.Rate_ID, columnId, value);
+    }
+  };
+
+  return (
+    <input
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      className="border rounded px-2 py-1 text-sm"
+    />
+  );
+};
