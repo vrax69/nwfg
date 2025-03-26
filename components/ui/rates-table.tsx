@@ -345,6 +345,18 @@ export default function Component() {
           <span className="text-sm text-gray-700">
             {isSwitchOn ? "Modo editor🖋️" : "Solo lectura📖"}
           </span>
+          {showApplyButton && (
+            <Button
+              onClick={() => {
+                // Lógica para aplicar los cambios
+                console.log("Aplicando cambios...");
+                setShowApplyButton(false); // Ocultar el botón después de aplicar los cambios
+              }}
+              className="bg-blue-500 text-white hover:bg-blue-600 ml-4"
+            >
+              Aplicar Cambios
+            </Button>
+          )}
         </div>
       </div>
 
@@ -396,21 +408,6 @@ export default function Component() {
             )}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="flex justify-end mt-4">
-        {showApplyButton && (
-          <Button
-            onClick={() => {
-              // Lógica para aplicar los cambios
-              console.log("Aplicando cambios...");
-              setShowApplyButton(false); // Ocultar el botón después de aplicar los cambios
-            }}
-            className="bg-blue-500 text-white hover:bg-blue-600"
-          >
-            Aplicar Cambios
-          </Button>
-        )}
       </div>
     </div>
   );
