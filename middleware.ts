@@ -1,41 +1,43 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from "jose";
 
-const JWT_SECRET = "Nwp"; // Clave directamente en código
+const JWT_SECRET = new TextEncoder().encode("Nwp"); // ⚠️ Asegúrate que coincida con backend
 const ADMIN_ONLY_ROUTES = ['/rates-db'];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
+  // 🔒 Si no hay token, redirige a login (home)
   if (!token) {
-    return NextResponse.redirect(new URL("/", request.url)); // redirige al login
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Verifica si la ruta requiere ser administrador
-  const isAdminRoute = ADMIN_ONLY_ROUTES.some(route => 
+  let payload: any;
+
+  try {
+    // 🧠 Verificamos el token JWT
+    const verified = await jwtVerify(token, JWT_SECRET);
+    payload = verified.payload;
+  } catch (err) {
+    // 🔴 Token inválido → login
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // ✅ Solo aquí validamos el rol SI la ruta requiere admin
+  const isAdminRoute = ADMIN_ONLY_ROUTES.some(route =>
     request.nextUrl.pathname.startsWith(route)
   );
 
-  if (isAdminRoute) {
-    try {
-      // Decodifica el token
-      const decoded: any = jwt.verify(token, JWT_SECRET);
-      
-      // Verifica si el usuario es administrador
-      if (decoded.role !== 'Administrador') {
-        return NextResponse.redirect(new URL("/unauthorized", request.url));
-      }
-    } catch (error) {
-      // Si hay un error en la verificación del token
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+  if (isAdminRoute && payload.role !== 'Administrador') {
+    return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
-  return NextResponse.next(); // si hay token, permite continuar
+  return NextResponse.next();
 }
 
+// 👇 Aplica middleware a todas las rutas, excepto login, unauthorized, y archivos públicos
 export const config = {
   matcher: [
     "/((?!login|unauthorized|$|_next/static|_next/image|favicon.ico|logo.png).*)"
