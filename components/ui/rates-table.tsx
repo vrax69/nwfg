@@ -86,15 +86,19 @@ declare module "@tanstack/react-table" {
 
 // Tipo de datos para las filas
 type Item = {
+  id: number;
   Rate_ID: string;
   SPL_Utility_Name: string;
+  Product_Name: string;
   Rate: number;
   ETF: number | string;
   MSF: number | string;
+  Company_DBA_Name: string;
+  duracion_rate: string;
+  Last_Updated: string;
   SPL: string;
-  [key: string]: any; // Permite acceso dinámico a propiedades
+  [key: string]: any;
 };
-
 export default function Component() {
   const [items, setItems] = useState<Item[]>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -117,48 +121,109 @@ export default function Component() {
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
-
+  
         const data = await response.json();
-        setItems(data);
+  
+        // Transformamos los datos una sola vez con fallback seguro
+        const dataWithId = data.map((row: any) => ({
+          ...row,
+          id: Number(row.id) ?? null  // Convierte a número, pero mantiene null si es inválido
+        }));
+  
+        setItems(dataWithId);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     }
-
+  
     fetchData();
   }, []);
+  
+const handleInputChange = (rowOriginal: Item, columnId: string, newValue: any) => {
+  const rowId = rowOriginal.Rate_ID;
 
-  const handleInputChange = (rowId: string, columnId: string, newValue: any) => {
-    setChangedRows((prev) => {
-      const existingChange = prev.find((change) => change.original.Rate_ID === rowId);
-      if (existingChange) {
-        return prev.map((change) =>
-          change.original.Rate_ID === rowId
-            ? { ...change, updated: { ...change.updated, [columnId]: newValue } }
-            : change
-        );
+  setChangedRows((prev) => {
+    const existingChange = prev.find((change) => change.original.Rate_ID === rowId);
+
+    if (existingChange) {
+      return prev.map((change) =>
+        change.original.Rate_ID === rowId
+          ? {
+              ...change,
+              updated: {
+                ...change.updated,
+                [columnId]: newValue,
+                id: rowOriginal.id // 👈 FORZAMOS ID AQUÍ
+              }
+            }
+          : change
+      );
+    }
+
+    return [
+      ...prev,
+      {
+        original: {
+          ...rowOriginal,
+          id: rowOriginal.id // 👈 FORZAMOS ID AQUÍ TAMBIÉN
+        },
+        updated: {
+          ...rowOriginal,
+          [columnId]: newValue,
+          id: rowOriginal.id // 👈 Y AQUÍ
+        }
       }
-      const originalRow = items.find((item) => item.Rate_ID === rowId);
-      return [...prev, { original: originalRow!, updated: { ...originalRow!, [columnId]: newValue } }];
-    });
-    setShowApplyButton(true);
-  };
+    ];
+  });
 
-  const applyChanges = () => {
-    console.log("Cambios aplicados:", changedRows);
-    // Aquí puedes enviar los cambios al servidor o actualizar el estado local
-    setItems((prev) =>
-      prev.map((item) => {
-        const change = changedRows.find((row) => row.original.Rate_ID === item.Rate_ID);
-        return change ? change.updated : item;
-      })
-    );
-    setChangedRows([]);
-    setShowChangesDialog(false);
-    setShowApplyButton(false);
-  };
+  setShowApplyButton(true);
+};
 
+
+  const applyChanges = async () => {
+    try {
+      console.log("Datos enviados al backend:", changedRows);
+      // Aquí puedes enviar los cambios al backend
+      const response = await fetch("https://nwfg.net:3002/api/rates/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ changes: changedRows }) // Enviamos los cambios al backend
+      });
+  
+      const result = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(result.message || "Error al aplicar cambios");
+      }
+  
+      // Si todo salió bien, actualizamos la tabla local
+      setItems((prev) =>
+        prev.map((item) => {
+          const change = changedRows.find((row) => row.original.Rate_ID === item.Rate_ID);
+          return change ? change.updated : item;
+        })
+      );
+  
+      // Limpiar estados
+      setChangedRows([]);
+      setShowChangesDialog(false);
+      setShowApplyButton(false);
+  
+      alert("Cambios aplicados con éxito.");
+      window.location.reload(); // 🔄 Fuerza recarga total
+    } catch (error) {
+      console.error("Error aplicando cambios:", error);
+      alert("No se pudieron aplicar los cambios.");
+    }
+  };
   const columns: ColumnDef<Item>[] = [
+
+    {
+      accessorKey: "id",
+      header: "ID"
+    },
     {
       id: "select",
       header: ({ table }) => (
@@ -649,7 +714,8 @@ const EditableCell = ({
   value: any;
   row: any;
   columnId: string;
-  updateMyData: (rowId: string, columnId: string, value: any) => void;
+  updateMyData: (rowOriginal: Item, columnId: string, value: any) => void;
+
 }) => {
   // Aseguramos que el valor inicial nunca sea null o undefined
   const [value, setValue] = useState(initialValue ?? '');
@@ -660,7 +726,7 @@ const EditableCell = ({
 
   const onBlur = () => {
     if (value !== initialValue) {
-      updateMyData(row.original.Rate_ID, columnId, value);
+      updateMyData(row.original, columnId, value);
     }
   };
 
