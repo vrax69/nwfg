@@ -8,6 +8,7 @@ export default function WavyBackgroundDemo() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Debug log para confirmar que el componente se monta
   console.log("👀 Componente cargado");
@@ -20,18 +21,17 @@ export default function WavyBackgroundDemo() {
     
     try {
       setError(""); // limpia errores anteriores
+      setLoading(true); // activar estado de carga
       
       // Debug log para ver los datos enviados
       console.log("📤 Enviando:", { email, password });
       
-      // Cambio en la URL - quitamos el puerto para evitar problemas CORS
       const res = await fetch("https://www.nwfg.net:3003/api/auth/login", {
-
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", 
+        credentials: "include", // ¡Crítico para enviar/recibir cookies!
         body: JSON.stringify({ email, password }),
       });
       
@@ -41,13 +41,21 @@ export default function WavyBackgroundDemo() {
       console.log("📦 Datos:", data);
 
       if (res.ok) {
-        router.push("/dashboard");
+        console.log("✅ Login exitoso - Redirigiendo...");
+        
+        // Esperamos un momento para asegurar que la cookie se establezca
+        setTimeout(() => {
+          // Redirección forzada con URL completa (no con router.push que podría ser interceptado)
+          window.location.href = "/dashboard";
+        }, 500);
       } else {
         setError(data.message || "Error desconocido");
+        setLoading(false);
       }
     } catch (error) {
       console.error("💥 Error de login:", error);
       setError("Error al conectar con el servidor");
+      setLoading(false);
     }
   };
 
@@ -87,14 +95,22 @@ export default function WavyBackgroundDemo() {
             />
           </div>
           <div className="btn">
-            <button type="submit" className="button1">Login</button>
-            <button type="button" className="button2">Crear Usuario</button>
+            <button type="submit" className="button1" disabled={loading}>
+              {loading ? "Cargando..." : "Login"}
+            </button>
+            <button type="button" className="button2" disabled={loading}>Crear Usuario</button>
           </div>
-          <button type="button" className="button3">Soy tonto y olvidé la Contraseña</button>
+          <button type="button" className="button3" disabled={loading}>Soy tonto y olvidé la Contraseña</button>
 
           {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+          {loading && <p style={{ color: "blue", marginTop: "10px" }}>Procesando login...</p>}
         </form>
       </div>
     </WavyBackground>
   );
+}
+
+// Versión segura para debugging de cookies (evita errores en SSR)
+if (typeof window !== 'undefined') {
+  console.log('🍪 Cookies disponibles:', document.cookie);
 }
