@@ -498,7 +498,10 @@ const RatesDbPage = () => {
                           <>
                             <ColumnSelector options={columns} onSelectionChange={handleColumnSelection} />
                             <p className="text-sm text-gray-400 mt-2">
-                              Recuerda no escoger nunca State, Service_Type y Unit_of_Measure.
+                              Recuerda no escoger nunca State, Service_Type y Unit_of_Measure. 
+                              <br />
+                              <br />
+                              En el caso de Spark evita usar Commodity, UnitOfMeasure, ProductType, PTC, Savings?, CustomerTypes,	RenewablePercentage,	SpecialOffers.
                             </p>
                             {rowCount > 0 && (
                               <p className="text-sm text-blue-500 mt-1">
