@@ -359,8 +359,10 @@ const RatesDbPage = () => {
           rows: mappedRows,
           selectedColumns: selectedColumns,
           headers: columns
-        })
+        }),
+        credentials: "include" // ✅ Esto envía la cookie con el token
       });
+      
       
       if (!response.ok) {
         throw new Error(`Error de HTTP al procesar datos: ${response.status} ${response.statusText}`);
