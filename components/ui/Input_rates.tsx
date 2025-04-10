@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 interface CustomCSSProperties {
@@ -10,6 +10,61 @@ declare module 'react' {
 }
 
 const Input = () => {
+  console.log('Componente Input renderizado'); // Log inicial de renderizado
+  
+  const [rates, setRates] = useState<any[]>([]);  // Guarda los datos de la vista
+  const [searchTerm, setSearchTerm] = useState(''); // Lo que escribe el usuario
+  const [filteredSPLs, setFilteredSPLs] = useState<string[]>([]); // SPLs que coinciden
+
+  useEffect(() => {
+    console.log('Iniciando fetch de datos...');
+    const fetchRates = async () => {
+      try {
+        const res = await fetch('https://nwfg.net:3002/api/rates/view', {
+          credentials: 'include',
+        });
+        const data = await res.json();
+        console.log(`Datos recibidos: ${data.length} registros`);
+        setRates(data);
+      } catch (err) {
+        console.error("Error al cargar tarifas:", err);
+      }
+    };
+    fetchRates();
+  }, []);
+
+  useEffect(() => {
+    console.log(`Término de búsqueda actualizado: "${searchTerm}"`);
+    console.log(`Estado actual de rates: ${rates.length} elementos`);
+    
+    if (!searchTerm || rates.length === 0) {
+      console.log('Búsqueda vacía o sin datos, limpiando filteredSPLs');
+      setFilteredSPLs([]);
+      return;
+    }
+
+    const matches = rates.filter(rate =>
+      rate.Standard_Utility_Name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    console.log(`Coincidencias encontradas: ${matches.length}`);
+
+    const splsUnicos = Array.from(new Set(matches.map(rate => rate.SPL)));
+    console.log(`SPLs únicos: ${splsUnicos.length}`, splsUnicos);
+    
+    setFilteredSPLs(splsUnicos);
+  }, [searchTerm, rates]);
+
+  // Log después de cada renderizado cuando filteredSPLs cambia
+  useEffect(() => {
+    console.log('Estado actualizado de filteredSPLs:', filteredSPLs);
+  }, [filteredSPLs]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(`Input cambiado a: "${e.target.value}"`);
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <StyledWrapper>
       <div className="container">
@@ -17,7 +72,13 @@ const Input = () => {
           <div className="input">
             <div className="glow left" />
             <div className="glow right" />
-            <input type="text" name="text" placeholder="Buscar..." />
+            <input
+              type="text"
+              name="text"
+              placeholder="Buscar..."
+              value={searchTerm}
+              onChange={handleInputChange}
+            />
             <div className="reflection" />
             <div className="icon">
               <svg stroke="#fff" viewBox="0 0 38 38" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" className="loading">
