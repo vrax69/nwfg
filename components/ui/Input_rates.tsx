@@ -17,6 +17,7 @@ const Input = () => {
   const [searchTerm, setSearchTerm] = useState(''); // Lo que escribe el usuario
   const [filteredSPLs, setFilteredSPLs] = useState<string[]>([]); // SPLs que coinciden
   const [debouncedTerm, setDebouncedTerm] = useState(''); // Término de búsqueda con debounce
+  const [selectedSPL, setSelectedSPL] = useState<string>(''); // SPL seleccionado
 
   // Nuevo efecto para manejar el debounce
   useEffect(() => {
@@ -68,6 +69,15 @@ const Input = () => {
     setFilteredSPLs(splsUnicos);
   }, [debouncedTerm, rates]);
 
+  // Actualizar el useEffect para establecer el SPL seleccionado por defecto cuando cambian los filteredSPLs
+  useEffect(() => {
+    if (filteredSPLs.length > 0 && !filteredSPLs.includes(selectedSPL)) {
+      setSelectedSPL(filteredSPLs[0]);
+    } else if (filteredSPLs.length === 0) {
+      setSelectedSPL('');
+    }
+  }, [filteredSPLs]);
+
   // Log después de cada renderizado cuando filteredSPLs cambia
   useEffect(() => {
     console.log('Estado actualizado de filteredSPLs:', filteredSPLs);
@@ -76,6 +86,11 @@ const Input = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(`Input cambiado a: "${e.target.value}"`);
     setSearchTerm(e.target.value);
+  };
+
+  // Función para manejar el cambio de pestañas
+  const handleTabChange = (spl: string) => {
+    setSelectedSPL(spl);
   };
 
   return (
@@ -108,48 +123,38 @@ const Input = () => {
             </div>
             <div className={`result ${filteredSPLs.length > 0 ? 'visible' : ''}`}>
               <header className="result-header">
-                <div style={{"--i": 1}}>
-                  <input type="radio" id="all" name="tab" defaultChecked />
-                  <label htmlFor="all" data-label="All">
-                    <span>All</span>
-                  </label>
-                </div>
-                <div style={{"--i": 2}}>
-                  <input type="radio" id="buttons" name="tab" />
-                  <label htmlFor="buttons" data-label="Buttons">
-                    <span>Buttons</span>
-                  </label>
-                </div>
-                <div style={{"--i": 3}}>
-                  <input type="radio" id="cards" name="tab" />
-                  <label htmlFor="cards" data-label="Cards">
-                    <span>Cards</span>
-                  </label>
-                </div>
-                <div style={{"--i": 4}}>
-                  <input type="radio" id="inputs" name="tab" />
-                  <label htmlFor="inputs" data-label="Inputs">
-                    <span>Inputs</span>
-                  </label>
-                </div>
+                {filteredSPLs.map((spl, index) => (
+                  <div key={spl} style={{ "--i": index + 1 } as React.CSSProperties }>
+                    <input
+                      type="radio"
+                      id={`spl-${spl}`}
+                      name="tab"
+                      checked={selectedSPL === spl}
+                      onChange={() => handleTabChange(spl)}
+                    />
+                    <label htmlFor={`spl-${spl}`} data-label={spl.toUpperCase()}>
+                      <span>{spl.toUpperCase()}</span>
+                    </label>
+                  </div>
+                ))}
               </header>
               <div className="result-content-header">
-                <div style={{"--i": 1}}>Name <span>↓</span></div>
-                <div style={{"--i": 2}}>Date</div>
-                <div style={{"--i": 3}}>Rating</div>
+                <div style={{"--i": 1}}>Utility <span>↓</span></div>
+                <div style={{"--i": 2}}>Rate Class</div>
+                <div style={{"--i": 3}}>$/kWh</div>
               </div>
               <div className="result-content">
-                <a style={{"--i": 1}}>
+                <a style={{"--i": 1} as React.CSSProperties}>
                   <div>Item I</div>
                   <div>11th July</div>
                   <div>★★★★★</div>
                 </a>
-                <a style={{"--i": 2}}>
+                <a style={{"--i": 2} as React.CSSProperties}>
                   <div>Item II</div>
                   <div>09th June</div>
                   <div>★★★★</div>
                 </a>
-                <a style={{"--i": 3}}>
+                <a style={{"--i": 3} as React.CSSProperties}>
                   <div>Item III</div>
                   <div>07th May</div>
                   <div>★★★</div>
