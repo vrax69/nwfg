@@ -140,8 +140,8 @@ const Input = () => {
               </header>
               <div className="result-content-header">
                 <div style={{"--i": 1}}>Utility <span>↓</span></div>
-                <div style={{"--i": 2}}>Rate Class</div>
-                <div style={{"--i": 3}}>$/kWh</div>
+                <div style={{"--i": 2}}>Product Name</div>
+                <div style={{"--i": 3}}>Rate $</div>
               </div>
               <div className="result-content">
                 <a style={{"--i": 1} as React.CSSProperties}>
