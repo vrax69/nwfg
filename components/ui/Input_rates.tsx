@@ -16,6 +16,18 @@ const Input = () => {
   const [rates, setRates] = useState<any[]>([]);  // Guarda los datos de la vista
   const [searchTerm, setSearchTerm] = useState(''); // Lo que escribe el usuario
   const [filteredSPLs, setFilteredSPLs] = useState<string[]>([]); // SPLs que coinciden
+  const [debouncedTerm, setDebouncedTerm] = useState(''); // Término de búsqueda con debounce
+
+  // Nuevo efecto para manejar el debounce
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedTerm(searchTerm);
+    }, 1000); // Espera 1 segundo después de dejar de escribir
+
+    return () => {
+      clearTimeout(handler); // Cancela si el usuario escribe otra vez
+    };
+  }, [searchTerm]);
 
   useEffect(() => {
     console.log('Iniciando fetch de datos...');
@@ -35,17 +47,17 @@ const Input = () => {
   }, []);
 
   useEffect(() => {
-    console.log(`Término de búsqueda actualizado: "${searchTerm}"`);
+    console.log(`Término de búsqueda con debounce: "${debouncedTerm}"`);
     console.log(`Estado actual de rates: ${rates.length} elementos`);
     
-    if (!searchTerm || rates.length === 0) {
+    if (!debouncedTerm || rates.length === 0) {
       console.log('Búsqueda vacía o sin datos, limpiando filteredSPLs');
       setFilteredSPLs([]);
       return;
     }
 
     const matches = rates.filter(rate =>
-      rate.Standard_Utility_Name?.toLowerCase().includes(searchTerm.toLowerCase())
+      rate.Standard_Utility_Name?.toLowerCase().includes(debouncedTerm.toLowerCase())
     );
     
     console.log(`Coincidencias encontradas: ${matches.length}`);
@@ -54,7 +66,7 @@ const Input = () => {
     console.log(`SPLs únicos: ${splsUnicos.length}`, splsUnicos);
     
     setFilteredSPLs(splsUnicos);
-  }, [searchTerm, rates]);
+  }, [debouncedTerm, rates]);
 
   // Log después de cada renderizado cuando filteredSPLs cambia
   useEffect(() => {
