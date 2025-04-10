@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import styles from "./rates.module.css"
+import styles from "../styles/rates.module.css" // Importa el CSS del componente
 import { useEffect } from "react"; // Importa useEffect
 
 // Dynamic import of the Input component
