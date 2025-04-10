@@ -8,7 +8,7 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "Nwp");
 const ADMIN_ONLY_ROUTES = ['/rates-db'];
 
 // Rutas que requieren autenticación
-const PROTECTED_ROUTES = ['/dashboard', '/rates-db'];
+const PROTECTED_ROUTES = ['/dashboard', '/rates-db', '/rates'];
 
 function decodeJwt(token: string) {
   try {
@@ -96,6 +96,7 @@ export const config = {
     // Solo aplica a rutas protegidas específicas
     '/dashboard/:path*',
     '/rates-db/:path*',
-    '/profile/:path*'
+    '/profile/:path*',
+    '/rates/:path*'
   ]
 };
