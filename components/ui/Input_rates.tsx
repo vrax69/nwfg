@@ -22,7 +22,7 @@ const Input = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(searchTerm);
-    }, 1000); // Espera 1 segundo después de dejar de escribir
+    }, 100); // Espera 1 segundo después de dejar de escribir
 
     return () => {
       clearTimeout(handler); // Cancela si el usuario escribe otra vez
