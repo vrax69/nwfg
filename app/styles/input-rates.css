@@ -457,13 +457,31 @@
     transform: translateY(0);
   }
   .result-content a:nth-child(2):hover ~ .lava {
-    transform: translateY(var(--result-item-h));
+    transform: translateY(calc(var(--result-item-h) * 1));
   }
   .result-content a:nth-child(3):hover ~ .lava {
     transform: translateY(calc(var(--result-item-h) * 2));
   }
-  .result-content a {
-    animation: slideUp 0.4s ease forwards calc(var(--i) * 0.05s);
+  .result-content a:nth-child(4):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 3));
+  }
+  .result-content a:nth-child(5):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 4));
+  }
+  .result-content a:nth-child(6):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 5));
+  }
+  .result-content a:nth-child(7):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 6));
+  }
+  .result-content a:nth-child(8):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 7));
+  }
+  .result-content a:nth-child(9):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 8));
+  }
+  .result-content a:nth-child(10):hover ~ .lava {
+    transform: translateY(calc(var(--result-item-h) * 9));
   }
   
   @keyframes slideUp {

@@ -159,6 +159,11 @@ const Input = () => {
                   <div>07th May</div>
                   <div>★★★</div>
                 </a>
+                <a style={{"--i": 4} as React.CSSProperties}>
+                  <div>Item IV</div>
+                  <div>07th May</div>
+                  <div>★★★</div>
+                </a>
                 <div className="lava" />
               </div>
             </div>
