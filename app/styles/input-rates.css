@@ -832,10 +832,10 @@
     animation: slideDown 1.4s ease forwards calc(1.3s + var(--i) * 0.04s);
   }
   
- /*  .input input:not(:placeholder-shown) ~ .result .result-content a {
+  .input input:not(:placeholder-shown) ~ .result .result-content a {
     opacity: 0;
     animation: slideDown 1.4s ease forwards calc(1.4s + var(--i) * 0.1s);
-  } */
+  } 
   
   .input input:not(:placeholder-shown) ~ .result .result-content-header {
     opacity: 0;

@@ -143,7 +143,7 @@ const Input = () => {
                 <div style={{"--i": 2}}>Product Name</div>
                 <div style={{"--i": 3}}>Rate $</div>
               </div>
-              <div className="result-content">
+              <div className="result-content" key={selectedSPL}>
                 {rates
                   .filter(
                     (item) =>
