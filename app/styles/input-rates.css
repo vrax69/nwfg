@@ -742,10 +742,13 @@
   }
 
   .result.visible {
-    height: 193px;
+    min-height: 290px;
+    max-height: 490px;
+    height: auto;
     opacity: 1;
     pointer-events: all;
     transition-delay: 0.4s;
+    
   }
 
   .result.visible .result-header::before {
