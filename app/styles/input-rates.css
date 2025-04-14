@@ -788,11 +788,7 @@
   }
   
   /* Mantener los estilos originales para compatibilidad mientras se migra */
-  .input input:not(:placeholder-shown) ~ .result {
-    height: 193px;
-    transition-delay: 0.8s;
-    pointer-events: all;
-  }
+
   
   .input input:not(:placeholder-shown) ~ .result .result-header::before {
     width: 100%;
