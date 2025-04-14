@@ -144,26 +144,21 @@ const Input = () => {
                 <div style={{"--i": 3}}>Rate $</div>
               </div>
               <div className="result-content">
-                <a style={{"--i": 1} as React.CSSProperties}>
-                  <div>Item I</div>
-                  <div>11th July</div>
-                  <div>★★★★★</div>
-                </a>
-                <a style={{"--i": 2} as React.CSSProperties}>
-                  <div>Item II</div>
-                  <div>09th June</div>
-                  <div>★★★★</div>
-                </a>
-                <a style={{"--i": 3} as React.CSSProperties}>
-                  <div>Item III</div>
-                  <div>07th May</div>
-                  <div>★★★</div>
-                </a>
-                <a style={{"--i": 4} as React.CSSProperties}>
-                  <div>Item IV</div>
-                  <div>07th May</div>
-                  <div>★★★</div>
-                </a>
+                {rates
+                  .filter(
+                    (item) =>
+                      item.Standard_Utility_Name.toLowerCase().includes(debouncedTerm.toLowerCase()) &&
+                      item.SPL === selectedSPL
+                  )
+                  .sort((a, b) => a.Standard_Utility_Name.localeCompare(b.Standard_Utility_Name))
+                  .map((item, index) => (
+                    <a key={item.Rate_ID} style={{ "--i": index + 1 } as React.CSSProperties}>
+                      <div>{item.Standard_Utility_Name}</div>
+                      <div>{item.Product_Name}</div>
+                      <div>{Number(item.Rate).toFixed(4)}</div>
+                    </a>
+                  ))}
+
                 <div className="lava" />
               </div>
             </div>

@@ -742,7 +742,7 @@
   }
 
   .result.visible {
-    min-height: 290px;
+    min-height: 230px;
     max-height: 490px;
     height: auto;
     opacity: 1;
