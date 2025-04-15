@@ -81,6 +81,7 @@ export function CardWithForm({ onCancel, onContinue, onColumnsReceived, selected
                   <SelectItem value="re">Rushmore</SelectItem>
                   <SelectItem value="spe">Spark Energy</SelectItem>
                   <SelectItem value="wg">WG&L</SelectItem>
+                  <SelectItem value="ie">Indra Energy</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -245,6 +246,14 @@ const RatesDbPage = () => {
       );
       return;
     }
+    if (count === 0) {
+      showAlert(
+        "Archivo sin datos",
+        "El archivo fue cargado pero no contiene ninguna fila de datos.",
+        "error"
+      );
+      return;
+    }
   
     console.log("📌 Columnas recibidas del archivo:", newColumns);
     setColumns(newColumns); // Guardamos las columnas correctamente
@@ -370,25 +379,27 @@ const RatesDbPage = () => {
       
       const result = await response.json();
       
-      if (result.success) {
+      // Verificar si no se insertaron filas o el backend indicó fallo
+      if (!result.success || result.insertedRows === 0) {
         showAlert(
-          "Operación exitosa",
-          `Datos cargados correctamente: ${result.insertedRows} filas insertadas.`,
-          "success",
-          () => {
-            // Primero resetear todo el estado
-            resetAllState();
-            // Luego redireccionamos
-            window.location.href = "/rates-db";
-          }
-        );
-      } else {
-        showAlert(
-          "Error al procesar datos",
-          result.message || 'Error desconocido',
+          "Archivo sin filas válidas",
+          result.message || "No se insertó ninguna fila. Verifica los datos o el mapeo.",
           "error"
         );
+        return;
       }
+      
+      showAlert(
+        "Operación exitosa",
+        `Datos cargados correctamente: ${result.insertedRows} filas insertadas.`,
+        "success",
+        () => {
+          // Primero resetear todo el estado
+          resetAllState();
+          // Luego redireccionamos
+          window.location.href = "/rates-db";
+        }
+      );
     } catch (error) {
       console.error("❌ Error en la carga de datos:", error);
       showAlert(
