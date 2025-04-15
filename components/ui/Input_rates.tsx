@@ -147,10 +147,10 @@ const Input = () => {
                 {rates
                   .filter(
                     (item) =>
-                      item.Standard_Utility_Name.toLowerCase().includes(debouncedTerm.toLowerCase()) &&
+                      item.Standard_Utility_Name?.toLowerCase().includes(debouncedTerm.toLowerCase()) &&
                       item.SPL === selectedSPL
                   )
-                  .sort((a, b) => a.Standard_Utility_Name.localeCompare(b.Standard_Utility_Name))
+                  .sort((a, b) => a.Standard_Utility_Name?.localeCompare(b.Standard_Utility_Name) || 0)
                   .map((item, index) => (
                     <a key={item.Rate_ID} style={{ "--i": index + 1 } as React.CSSProperties}>
                       <div>{item.Standard_Utility_Name}</div>
