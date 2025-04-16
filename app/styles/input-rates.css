@@ -448,7 +448,10 @@
     padding: 3px 5px;
     width: 100%;
     filter: grayscale(1);
-  }
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } 
   .result-content a:hover {
     color: white;
   }

@@ -144,20 +144,32 @@ const Input = () => {
                 <div style={{"--i": 3}}>Rate $</div>
               </div>
               <div className="result-content" key={selectedSPL}>
-                {rates
-                  .filter(
+                {(() => {
+                  const seen = new Set();
+                  const filtered = rates.filter(
                     (item) =>
                       item.Standard_Utility_Name?.toLowerCase().includes(debouncedTerm.toLowerCase()) &&
                       item.SPL === selectedSPL
-                  )
-                  .sort((a, b) => a.Standard_Utility_Name?.localeCompare(b.Standard_Utility_Name) || 0)
-                  .map((item, index) => (
-                    <a key={item.Rate_ID} style={{ "--i": index + 1 } as React.CSSProperties}>
-                      <div>{item.Standard_Utility_Name}</div>
-                      <div>{item.Product_Name}</div>
-                      <div>{Number(item.Rate).toFixed(4)}</div>
-                    </a>
-                  ))}
+                  );
+
+                  const uniqueResults = filtered.filter((item) => {
+                    // Crear una clave única basada en los campos visibles
+                    const key = `${item.Standard_Utility_Name}-${item.Product_Name}-${item.Rate}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                  });
+
+                  return uniqueResults
+                    .sort((a, b) => a.Standard_Utility_Name?.localeCompare(b.Standard_Utility_Name) || 0)
+                    .map((item, index) => (
+                      <a key={`${item.Rate_ID}-${index}`} style={{ "--i": index + 1 } as React.CSSProperties}>
+                        <div>{item.Standard_Utility_Name}</div>
+                        <div>{item.Product_Name}</div>
+                        <div>{Number(item.Rate).toFixed(4)}</div>
+                      </a>
+                    ));
+                })()}
 
                 <div className="lava" />
               </div>
