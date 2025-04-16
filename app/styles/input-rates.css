@@ -858,17 +858,24 @@
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.7); /* semi transparente */
-    backdrop-filter: blur(4px); /* efecto blur */
+    backdrop-filter: blur(1px); /* efecto blur */
     z-index: 9999;
     cursor: pointer;
+    opacity: 0;
+    animation: fadeBlur 0.3s ease forwards;
   }
-  
   
   @keyframes visibility {
     99% {
       opacity: 0;
     }
     100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeBlur {
+    to {
       opacity: 1;
     }
   }
