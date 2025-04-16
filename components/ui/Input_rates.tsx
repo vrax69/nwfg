@@ -18,6 +18,7 @@ const Input = () => {
   const [filteredSPLs, setFilteredSPLs] = useState<string[]>([]); // SPLs que coinciden
   const [debouncedTerm, setDebouncedTerm] = useState(''); // Término de búsqueda con debounce
   const [selectedSPL, setSelectedSPL] = useState<string>(''); // SPL seleccionado
+  const [blurVisible, setBlurVisible] = useState(false); // Estado para controlar el overlay blur
 
   // Nuevo efecto para manejar el debounce
   useEffect(() => {
@@ -163,9 +164,13 @@ const Input = () => {
                   return uniqueResults
                     .sort((a, b) => a.Standard_Utility_Name?.localeCompare(b.Standard_Utility_Name) || 0)
                     .map((item, index) => (
-                      <a key={`${item.Rate_ID}-${index}`} style={{ "--i": index + 1 } as React.CSSProperties}>
+                      <a
+                        key={`${item.Rate_ID}-${index}`}
+                        style={{ "--i": index + 1 } as React.CSSProperties}
+                        onClick={() => setBlurVisible(true)}
+                      >
                         <div>{item.Standard_Utility_Name}</div>
-                        <div>{item.Product_Name}</div>
+                        <div title={item.Product_Name}>{item.Product_Name}</div>
                         <div>{Number(item.Rate).toFixed(4)}</div>
                       </a>
                     ));
@@ -184,6 +189,9 @@ const Input = () => {
           <div className="glow right" />
         </div>
       </div>
+      {blurVisible && (
+        <div className="blur-overlay" onClick={() => setBlurVisible(false)} />
+      )}
     </div>
   );
 }
