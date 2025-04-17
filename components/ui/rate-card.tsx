@@ -1,5 +1,34 @@
 import React from "react";
-import { Check, Clock } from "lucide-react";
+import {
+  Check,
+  Clock,
+  CreditCard,
+  Flame,
+  Zap,
+  BarChart3,
+  Building2,
+  Map,
+  Server
+} from "lucide-react";
+
+// Componente personalizado para ClockFading
+const ClockFadingSVG = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M12 8v4l2 2" />
+    <circle cx="12" cy="12" r="10" />
+  </svg>
+);
 
 interface RateProps {
   Standard_Utility_Name: string;
@@ -18,16 +47,6 @@ interface RateProps {
 }
 
 const Card = ({ rate }: { rate: RateProps }) => {
-  const features: string[] = [];
-
-  if (rate.ETF) features.push(`ETF: ${rate.ETF}`);
-  if (rate.MSF) features.push(`MSF: ${rate.MSF}`);
-  if (rate.Service_Type) features.push(`Servicio: ${rate.Service_Type}`);
-  if (rate.Unit_of_Measure) features.push(`Unidad: ${rate.Unit_of_Measure}`);
-  if (rate.Company_DBA_Name) features.push(`Proveedor: ${rate.Company_DBA_Name}`);
-  if (rate.State) features.push(`Estado: ${rate.State}`);
-  if (rate.LDC) features.push(`LDC: ${rate.LDC}`);
-
   return (
     <div className="group relative w-80">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-950 to-slate-900 p-[1px] shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-cyan-500/25">
@@ -50,16 +69,48 @@ const Card = ({ rate }: { rate: RateProps }) => {
           </div>
 
           <div className="relative mt-6 space-y-4">
-            {features.map((text, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-500/10">
-                  <Check className="h-4 w-4 text-cyan-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white">{text}</p>
-                </div>
-              </div>
-            ))}
+            {[
+              {
+                label: rate.ETF && `ETF: ${rate.ETF}`,
+                icon: ClockFadingSVG,
+              },
+              {
+                label: rate.MSF && `MSF: ${rate.MSF}`,
+                icon: CreditCard,
+              },
+              {
+                label: rate.Service_Type === "Electric" ? "Electricidad" : rate.Service_Type === "Gas" ? "Gas" : null,
+                icon: rate.Service_Type === "Electric" ? Zap : Flame,
+              },
+              {
+                label: rate.Unit_of_Measure && `Unidad: ${rate.Unit_of_Measure}`,
+                icon: BarChart3,
+              },
+              {
+                label: rate.Company_DBA_Name && `Proveedor: ${rate.Company_DBA_Name}`,
+                icon: Building2,
+              },
+              {
+                label: rate.State && `Estado: ${rate.State}`,
+                icon: Map,
+              },
+              {
+                label: rate.LDC && `Distribuidor: ${rate.LDC}`,
+                icon: Server,
+              },
+            ].map(
+              (item, index) =>
+                item.label && (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-500/10">
+                      <item.icon className="h-4 w-4 text-cyan-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">{item.label}</p>
+                    </div>
+                  </div>
+                )
+            )}
           </div>
 
           <div className="relative mt-8">
