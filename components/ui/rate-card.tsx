@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Check,
-  Clock,
+  History,
   CreditCard,
   Flame,
   Zap,
@@ -72,7 +72,7 @@ const Card = ({ rate }: { rate: RateProps }) => {
             {[
               {
                 label: rate.ETF && `ETF: ${rate.ETF}`,
-                icon: ClockFadingSVG,
+                icon: History,
               },
               {
                 label: rate.MSF && `MSF: ${rate.MSF}`,
@@ -128,7 +128,7 @@ const Card = ({ rate }: { rate: RateProps }) => {
 
           {rate.Last_Updated && (
             <div className="mt-4 flex items-center justify-center gap-2">
-              <Clock className="h-4 w-4 text-slate-400" />
+              <History className="h-4 w-4 text-slate-400" />
               <span className="text-xs font-medium text-slate-400">
                 Actualizado: {new Date(rate.Last_Updated).toLocaleDateString()}
               </span>
