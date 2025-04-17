@@ -72,42 +72,50 @@ const Card = ({ rate }: { rate: RateProps }) => {
           <div className="relative mt-6 space-y-4">
             {[
               {
-                label: rate.ETF && `ETF: ${rate.ETF}`,
+                label: rate.ETF && "ETF:",
+                value: rate.ETF,
                 icon: History,
               },
               {
-                label: rate.MSF && `MSF: ${rate.MSF}`,
+                label: rate.MSF && "MSF:",
+                value: rate.MSF,
                 icon: CreditCard,
               },
               {
-                label: rate.Service_Type === "Electric" ? "Electricidad" : rate.Service_Type === "Gas" ? "Gas" : null,
+                label: rate.Service_Type && (rate.Service_Type === "Electric" ? "Servicio:" : rate.Service_Type === "Gas" ? "Servicio:" : null),
+                value: rate.Service_Type === "Electric" ? "Electricidad" : rate.Service_Type === "Gas" ? "Gas" : null,
                 icon: rate.Service_Type === "Electric" ? Zap : Flame,
               },
               {
-                label: rate.Unit_of_Measure && `Unidad: ${rate.Unit_of_Measure}`,
+                label: rate.Unit_of_Measure && "Unidad:",
+                value: rate.Unit_of_Measure,
                 icon: BarChart3,
               },
               {
-                label: rate.Company_DBA_Name && `Proveedor: ${rate.Company_DBA_Name}`,
+                label: rate.Company_DBA_Name && "Proveedor:",
+                value: rate.Company_DBA_Name,
                 icon: Building2,
               },
               {
-                label: rate.State && `Estado: ${rate.State}`,
+                label: rate.State && "Estado:",
+                value: rate.State,
                 icon: Map,
               },
               {
-                label: rate.LDC && `Distribuidor: ${rate.LDC}`,
+                label: rate.LDC && "Distribuidor:",
+                value: rate.LDC,
                 icon: Server,
               },
             ].map(
               (item, index) =>
-                item.label && (
+                item.label && item.value && (
                   <div key={index} className="flex items-start gap-3">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-500/10">
                       <item.icon className="h-4 w-4 text-cyan-500" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">{item.label}</p>
+                    <div className="flex gap-1">
+                      <p className="text-sm font-bold text-white">{item.label}</p>
+                      <p className="text-sm text-slate-300">{item.value}</p>
                     </div>
                   </div>
                 )
@@ -129,9 +137,13 @@ const Card = ({ rate }: { rate: RateProps }) => {
 
           {rate.Last_Updated && (
             <div className="mt-4 flex items-center justify-center gap-2">
-              <CalendarDays className="h-4 w-4 text-slate-400" />
+              <CalendarDays className="h-5 w-5 text-slate-400" />
               <span className="text-xs font-medium text-slate-400">
-                Actualizado en: {new Date(rate.Last_Updated).toLocaleDateString()}
+                Actualizado en {new Date(rate.Last_Updated).toLocaleDateString('es-ES', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }).replace(/\//g, '-')}
               </span>
             </div>
           )}
