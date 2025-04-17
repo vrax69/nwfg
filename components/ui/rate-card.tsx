@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Check,
+  CalendarDays,
   History,
   CreditCard,
   Flame,
@@ -128,9 +129,9 @@ const Card = ({ rate }: { rate: RateProps }) => {
 
           {rate.Last_Updated && (
             <div className="mt-4 flex items-center justify-center gap-2">
-              <History className="h-4 w-4 text-slate-400" />
+              <CalendarDays className="h-4 w-4 text-slate-400" />
               <span className="text-xs font-medium text-slate-400">
-                Actualizado: {new Date(rate.Last_Updated).toLocaleDateString()}
+                Actualizado en: {new Date(rate.Last_Updated).toLocaleDateString()}
               </span>
             </div>
           )}
