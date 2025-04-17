@@ -8,7 +8,7 @@ export default function Page() {
     Standard_Utility_Name: "Energy Texas",
     Product_Name: "Plan Premium",
     Rate: 12.99,
-    duracion_rate: "12 meses",
+    duracion_rate: "12 Months",
     ETF: "$150",
     MSF: "$9.99",
     Last_Updated: "2023-04-15T10:30:00",
