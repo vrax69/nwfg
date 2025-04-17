@@ -857,7 +857,7 @@
   .blur-overlay {
     position: fixed;
     inset: 0;
-    background-color: #08080826; /* semi transparente */
+    background-color: #00031945; /* semi transparente */
     backdrop-filter: blur(1px); /* efecto blur */
     z-index: 9999;
     cursor: pointer;
