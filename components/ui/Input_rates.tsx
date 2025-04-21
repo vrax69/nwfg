@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import '../../app/styles/input-rates.css';
+import Card from "./rate-card"; // o tu ruta correcta
+
 
 interface CustomCSSProperties {
   "--i"?: number;
@@ -19,12 +21,13 @@ const Input = () => {
   const [debouncedTerm, setDebouncedTerm] = useState(''); // Término de búsqueda con debounce
   const [selectedSPL, setSelectedSPL] = useState<string>(''); // SPL seleccionado
   const [blurVisible, setBlurVisible] = useState(false); // Estado para controlar el overlay blur
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null); // Plan seleccionado para mostrar en la tarjeta
 
   // Nuevo efecto para manejar el debounce
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(searchTerm);
-    }, 100); // Espera 1 segundo después de dejar de escribir
+    }, 100); // Espera 100ms después de dejar de escribir
 
     return () => {
       clearTimeout(handler); // Cancela si el usuario escribe otra vez
@@ -167,7 +170,10 @@ const Input = () => {
                       <a
                         key={`${item.Rate_ID}-${index}`}
                         style={{ "--i": index + 1 } as React.CSSProperties}
-                        onClick={() => setBlurVisible(true)}
+                        onClick={() => {
+                          setSelectedPlan(item);
+                          setBlurVisible(true);
+                        }}
                       >
                         <div>{item.Standard_Utility_Name}</div>
                         <div title={item.Product_Name}>{item.Product_Name}</div>
@@ -189,8 +195,21 @@ const Input = () => {
           <div className="glow right" />
         </div>
       </div>
-      {blurVisible && (
-        <div className="blur-overlay" onClick={() => setBlurVisible(false)} />
+      {blurVisible && selectedPlan && (
+        <div
+          className="blur-overlay"
+          onClick={() => {
+            setBlurVisible(false);
+            setSelectedPlan(null);
+          }}
+        >
+          <div
+            className="flex items-center justify-center h-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Card rate={selectedPlan} />
+          </div>
+        </div>
       )}
     </div>
   );

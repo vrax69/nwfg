@@ -45,6 +45,7 @@ interface RateProps {
   SPL?: string;
   State?: string;
   LDC?: string;
+  Logo_URL?: string; // Añadida la nueva propiedad
 }
 
 const Card = ({ rate }: { rate: RateProps }) => {
@@ -57,11 +58,21 @@ const Card = ({ rate }: { rate: RateProps }) => {
           <div className="absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70" />
 
           <div className="relative">
-            <h3 className="text-sm font-medium uppercase tracking-wider text-cyan-500">
-              {rate.Standard_Utility_Name}
-            </h3>
+            <div className="flex items-center gap-2">
+              {rate.Logo_URL && (
+                <img
+                  src={rate.Logo_URL}
+                  alt="Logo"
+                  className="h-6 w-6 object-contain rounded"
+                />
+              )}
+              <h3 className="text-sm font-medium uppercase tracking-wider text-cyan-500">
+                {rate.Standard_Utility_Name}
+              </h3>
+            </div>
+            
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-white">${rate.Rate.toFixed(4)}</span>
+              <span className="text-3xl font-bold text-white">${Number(rate.Rate).toFixed(4)}</span>
               {rate.duracion_rate && (
                 <span className="text-sm text-slate-400">/ {rate.duracion_rate}</span>
               )}
