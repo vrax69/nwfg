@@ -165,7 +165,11 @@ const Input = () => {
                   });
 
                   return uniqueResults
-                    .sort((a, b) => a.Standard_Utility_Name?.localeCompare(b.Standard_Utility_Name) || 0)
+                    .sort((a, b) => {
+                      const productCompare = (a.Product_Name || "").localeCompare(b.Product_Name || "");
+                      if (productCompare !== 0) return productCompare;
+                      return (a.Standard_Utility_Name || "").localeCompare(b.Standard_Utility_Name || "");
+                    })
                     .map((item, index) => (
                       <a
                         key={`${item.Rate_ID}-${index}`}
