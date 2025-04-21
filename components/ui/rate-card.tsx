@@ -63,7 +63,7 @@ const Card = ({ rate }: { rate: RateProps }) => {
                 <img
                   src={rate.Logo_URL}
                   alt="Logo"
-                  className="h-6 w-6 object-contain rounded"
+                  className="h-10 max-w-[100px] object-contain rounded"
                 />
               )}
               <h3 className="text-sm font-medium uppercase tracking-wider text-cyan-500">
