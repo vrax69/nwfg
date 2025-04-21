@@ -204,8 +204,8 @@ const Input = () => {
           }}
         >
           <div
-            className="flex items-center justify-center h-full"
-            onClick={(e) => e.stopPropagation()}
+            className="relative"
+            onClick={(e) => e.stopPropagation()} // evita cerrar si clicas dentro
           >
             <Card rate={selectedPlan} />
           </div>

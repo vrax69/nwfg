@@ -856,13 +856,18 @@
 
   .blur-overlay {
     position: fixed;
-    inset: 0;
-    background-color: #00031945; /* semi transparente */
-    backdrop-filter: blur(2px); /* efecto blur */
+    inset: 0; /* mantiene esto que ya es equivalente a top:0, left:0, right:0, bottom:0 */
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.45); /* cambio de color a un negro más oscuro */
+    backdrop-filter: blur(8px); /* incremento del efecto blur de 2px a 8px */
+    display: flex; /* añadido para centrar contenido */
+    align-items: center; /* centrado vertical */
+    justify-content: center; /* centrado horizontal */
     z-index: 9999;
     cursor: pointer;
     opacity: 0;
-    animation: fadeBlur 0.3s ease forwards;
+    animation: fadeBlur 0.3s ease forwards; /* mantenemos la animación original */
   }
   
   @keyframes visibility {
