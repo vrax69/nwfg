@@ -27,12 +27,12 @@ import {
 const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
   cs: {
     english: {
-      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZaxS1BYmdBCoz8xIWsuUVkBjHZqmUHbLyyShrMHUV-FTQ?e=we1qSw",
+      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZaxS1BYmdBCoz8xIWsuUVkBgwgPy4JIRTKDBlir6q-3YQ?e=uzlSSS",
       flex: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Ea0reQ8iyJdBoOaXSF7G-qMBOyU31_KPr2UHN2ITfEugLg?e=AbWuoW",
     },
     spanish: {
       inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQ7sXWsvYuNNsz9V1ut8Re0Bbs104onPQuWeyvGHAXoYUw?e=vM64m1",
-      flex: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ETspDTYPFNdEs-86Rg4JXWIBPWFejy1IwVlDEG12lRbXMA?e=6lUYKb",
+      flex: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ETspDTYPFNdEs-86Rg4JXWIB1dal-YqN5ehzOSkj2PCOXg?e=6jDBuv",
     },
   },
   // Aquí irán después los otros SPL como ne, nge, nv, etc.
