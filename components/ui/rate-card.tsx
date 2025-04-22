@@ -23,6 +23,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"; // Ajusta la ruta según tu estructura de proyecto
 
+// Objeto de enlaces para los scripts por SPL, idioma y tipo
+const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
+  cs: {
+    english: {
+      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZaxS1BYmdBCoz8xIWsuUVkBjHZqmUHbLyyShrMHUV-FTQ?e=we1qSw",
+      flex: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Ea0reQ8iyJdBoOaXSF7G-qMBOyU31_KPr2UHN2ITfEugLg?e=AbWuoW",
+    },
+    spanish: {
+      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQ7sXWsvYuNNsz9V1ut8Re0Bbs104onPQuWeyvGHAXoYUw?e=vM64m1",
+      flex: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ETspDTYPFNdEs-86Rg4JXWIBPWFejy1IwVlDEG12lRbXMA?e=6lUYKb",
+    },
+  },
+  // Aquí irán después los otros SPL como ne, nge, nv, etc.
+};
+
 // Componente personalizado para ClockFading
 const ClockFadingSVG = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -162,19 +177,29 @@ const Card = ({ rate }: { rate: RateProps }) => {
                   Elige el tipo de guion que quieres abrir para este proveedor.
                 </AlertDialogDescription>
 
-                {/* Contenedor general del contenido del modal */}
+                {/* Script buttons dinámicos */}
                 <div className="flex flex-col gap-4 mt-4">
                   <div className="flex flex-wrap justify-start items-start gap-2">
-                    {['primero', 'segundo', 'Third ', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'].map((text, index) => (
-                      <AlertDialogAction asChild key={index}>
-                        <a
-                          href="#"
-                          className="px-3 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition whitespace-nowrap"
-                        >
-                          {text}
-                        </a>
-                      </AlertDialogAction>
-                    ))}
+                    {(Object.entries(scriptLinks[rate.SPL?.toLowerCase() ?? ""] ?? {}) || []).flatMap(([lang, types]) =>
+                      Object.entries(types).flatMap(([type, url]) => {
+                        const allowedStates = ["PA", "OH", "DC"];
+                        const showFlex = type !== "flex" || allowedStates.includes(rate.State ?? "");
+
+                        return showFlex
+                          ? [
+                              <AlertDialogAction asChild key={`${lang}-${type}`}>
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  className="px-3 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition whitespace-nowrap"
+                                >
+                                  {`${type.charAt(0).toUpperCase() + type.slice(1)} (${lang === "english" ? "EN" : "ES"})`}
+                                </a>
+                              </AlertDialogAction>,
+                            ]
+                          : [];
+                      })
+                    )}
                   </div>
 
                   <div className="flex justify-end">
