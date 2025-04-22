@@ -48,6 +48,30 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EfVLXS-EeRVAtmxHeSvKMiABJeEygGodGsYJu-vShRQBrw?e=9gcVIV",
     },
   },
+  nv: {
+    english: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EV7nWgTJH89Irm0lxWn5D9gB18iDaD7THGiFy8Lx3kmvgQ?e=C9OXDA",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EW79hKvZiI9ElrvyfZU5OLsBxRWNHOSebq9cTZ1wSbAkDA?e=RR9ZF7",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXPxa13uSmRNrRWldGc7bbcBKvJi-cLDwMe0sQMl4J-ruA?e=0w30aM",
+    },
+    spanish: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EdjmradY0cJAq7tspkukgygBaalVNhlWMrpm_EYspHzPIw?e=1zwHj1",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQuWGg_3EMBChdDBMEQN_OQBKjiHabFUatXx2OD9e-MkHA?e=JOXoAE",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVCOObhispNOhIsbRnrzIDABqKPqMv5QNW9uiiFwYTtPZA?e=GRF3h6",
+    },  
+  },
+  re: {
+    english: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EV7nWgTJH89Irm0lxWn5D9gB18iDaD7THGiFy8Lx3kmvgQ?e=C9OXDA",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EW79hKvZiI9ElrvyfZU5OLsBxRWNHOSebq9cTZ1wSbAkDA?e=RR9ZF7",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXPxa13uSmRNrRWldGc7bbcBKvJi-cLDwMe0sQMl4J-ruA?e=0w30aM",
+    },
+    spanish: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EdjmradY0cJAq7tspkukgygBaalVNhlWMrpm_EYspHzPIw?e=1zwHj1",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQuWGg_3EMBChdDBMEQN_OQBKjiHabFUatXx2OD9e-MkHA?e=JOXoAE",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVCOObhispNOhIsbRnrzIDABqKPqMv5QNW9uiiFwYTtPZA?e=GRF3h6",
+    },  
+  },
 
 };
 
