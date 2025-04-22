@@ -163,16 +163,22 @@ const Card = ({ rate }: { rate: RateProps }) => {
                 </AlertDialogDescription>
 
                 {/* Área de botones de guion */}
-                <div className="flex flex-col gap-2 mt-4">
-                  <AlertDialogAction asChild>
-                    <a href="#" className="text-sm font-medium text-blue-500 hover:underline">Inbound Call</a>
-                  </AlertDialogAction>
-                  <AlertDialogAction asChild>
-                    <a href="#" className="text-sm font-medium text-blue-500 hover:underline">Outbound Call</a>
-                  </AlertDialogAction>
+                <div className="flex flex-wrap gap-2 justify-start items-start mt-4">
+                  {['primero', 'segundo', 'Third ', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'].map((text, index) => (
+                    <AlertDialogAction asChild key={index}>
+                      <a href="#" className="px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition">
+                        {text}
+                      </a>
+                    </AlertDialogAction>
+                  ))}
                 </div>
 
-                <AlertDialogCancel className="mt-4">Cerrar</AlertDialogCancel>
+                {/* Nuevo botón Cerrar pequeño y posicionado abajo a la derecha */}
+                <div className="absolute bottom-3 right-3">
+                  <AlertDialogCancel className="text-red-500 text-xs px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-white transition rounded">
+                    Cerrar
+                  </AlertDialogCancel>
+                </div>
               </AlertDialogContent>
             </AlertDialog>
           </div>
