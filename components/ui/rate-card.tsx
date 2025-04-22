@@ -11,6 +11,17 @@ import {
   Map,
   Server
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"; // Ajusta la ruta según tu estructura de proyecto
 
 // Componente personalizado para ClockFading
 const ClockFadingSVG = (props: React.SVGProps<SVGSVGElement>) => (
@@ -134,16 +145,36 @@ const Card = ({ rate }: { rate: RateProps }) => {
           </div>
 
           <div className="relative mt-8">
-            <button className="group/btn relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 p-px font-semibold text-white shadow-[0_1000px_0_0_hsl(0_0%_100%_/_0%)_inset] transition-colors hover:shadow-[0_1000px_0_0_hsl(0_0%_100%_/_2%)_inset]">
-              <div className="relative rounded-xl bg-slate-950/50 px-4 py-3 transition-colors group-hover/btn:bg-transparent">
-                <span className="relative flex items-center justify-center gap-2">
-                  ¡Leer guion!
-                  <svg stroke="currentColor" viewBox="0 0 24 24" fill="none" className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1">
-                    <path d="M17 8l4 4m0 0l-4 4m4-4H3" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-                  </svg>
-                </span>
-              </div>
-            </button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="group/btn relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 p-px font-semibold text-white shadow-[0_1000px_0_0_hsl(0_0%_100%_/_0%)_inset] transition-colors hover:shadow-[0_1000px_0_0_hsl(0_0%_100%_/_2%)_inset]">
+                  <div className="relative rounded-xl bg-slate-950/50 px-4 py-3 transition-colors group-hover/btn:bg-transparent">
+                    <span className="relative flex items-center justify-center gap-2">
+                      ¡Leer guion!
+                    </span>
+                  </div>
+                </button>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent>
+                <AlertDialogTitle>Selecciona un guion</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm text-muted-foreground">
+                  Elige el tipo de guion que quieres abrir para este proveedor.
+                </AlertDialogDescription>
+
+                {/* Área de botones de guion */}
+                <div className="flex flex-col gap-2 mt-4">
+                  <AlertDialogAction asChild>
+                    <a href="#" className="text-sm font-medium text-blue-500 hover:underline">Inbound Call</a>
+                  </AlertDialogAction>
+                  <AlertDialogAction asChild>
+                    <a href="#" className="text-sm font-medium text-blue-500 hover:underline">Outbound Call</a>
+                  </AlertDialogAction>
+                </div>
+
+                <AlertDialogCancel className="mt-4">Cerrar</AlertDialogCancel>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
 
           {rate.Last_Updated && (
