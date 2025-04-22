@@ -35,7 +35,20 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       flex: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ETspDTYPFNdEs-86Rg4JXWIB1dal-YqN5ehzOSkj2PCOXg?e=6jDBuv",
     },
   },
-  // Aquí irán después los otros SPL como ne, nge, nv, etc.
+  ne: {
+    english: {
+      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EcyHH3PIjQJKhkm6VIJU3lUBtJC_00OEKpc-d9jSNZGOqA?e=soB16R",
+    },
+  },
+  nge: {
+    english: {
+      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EcSm-NddOHtAvwgBwHIGMD0BQGB4qNjrMj_O4tHEl5DB2g?e=gcL1hf",
+    },
+    spanish: {
+      inbound: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EfVLXS-EeRVAtmxHeSvKMiABJeEygGodGsYJu-vShRQBrw?e=9gcVIV",
+    },
+  },
+
 };
 
 // Componente personalizado para ClockFading
