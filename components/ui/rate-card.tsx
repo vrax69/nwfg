@@ -62,14 +62,16 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
   },
   re: {
     english: {
-      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EV7nWgTJH89Irm0lxWn5D9gB18iDaD7THGiFy8Lx3kmvgQ?e=C9OXDA",
-      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EW79hKvZiI9ElrvyfZU5OLsBxRWNHOSebq9cTZ1wSbAkDA?e=RR9ZF7",
-      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXPxa13uSmRNrRWldGc7bbcBKvJi-cLDwMe0sQMl4J-ruA?e=0w30aM",
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQVZBfylsdhDvsd0b1_mfGUBAN4QQdwVRlNk-3aBYRRF9A?e=oWbCjS",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EdTFhArcu6NHk7sp4LKRcZ4ByuubARKvVGxLiMefKqT37w?e=3V1p4y",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EYVm27iYCAFBs9TsmB_66lgBh9GILP0D-JWEOF0HccRbrA?e=yDMs5d",
+      PA:"https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ERN8wsicKKpJuBDJrebrYcEBgj3Ip3h5ZsXXqHOKXUV6iQ?e=GYpMhC",
     },
     spanish: {
-      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EdjmradY0cJAq7tspkukgygBaalVNhlWMrpm_EYspHzPIw?e=1zwHj1",
-      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQuWGg_3EMBChdDBMEQN_OQBKjiHabFUatXx2OD9e-MkHA?e=JOXoAE",
-      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVCOObhispNOhIsbRnrzIDABqKPqMv5QNW9uiiFwYTtPZA?e=GRF3h6",
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EWvpSDWENblCsIntpPyy734BWdZxSjPvyH9TtnxkdSgy_g?e=ANuI6x",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EX53ahMySLFPlAVdbdZN6IYB-xu-uMkIm99mtyoY-rvxVQ?e=8evMv5",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EcjQeOa6T_RHjgV4sijOwbMB7onCkVtKBIKuw7ONzh5GvQ?e=WR7SJm",
+      PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EdZsU6giNRlDsHseov5UkbwBmp3Xg5QEy1WZIeu5DnnSig?e=mS4EgL",
     },  
   },
   spe: {
@@ -115,7 +117,7 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       VA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUaI9RqjtctKs6N9P-fB7E0BtP0mj0pZ730DeBYaAcA4cw?e=NwtEqq",
     },
   },
-  IE: {
+  ie: {
     english: {
       DE: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/ESR8UdARYpRJiDR34pDsM1MBN7uPID9Mwz-qFj-4gdZUIQ?e=GKRHMm",
       DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ESaI8y7-uqJJms03Y4U87voBSFzoWTJ822doGn1hfaSdFw?e=jXA3zR",
