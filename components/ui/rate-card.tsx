@@ -72,9 +72,40 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVCOObhispNOhIsbRnrzIDABqKPqMv5QNW9uiiFwYTtPZA?e=GRF3h6",
     },  
   },
-
+  spe: {
+    english: {      
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Efjp1BqhMT5Eg4YNzWdTmg0BQkrZSR6-zgMA76BJkMPO7A?e=HIcbjs",
+      DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EV7g-G4GU6pInPfQ6IRVmcUByj0DrgpGIFRt-JZHG8v8fw?e=1eCttb",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUtXEAFnfqFNliV26xdrtUcB8EgbfHY6RweJvYnODGRfvg?e=CAZNSJ",
+      OH: "",
+      IN: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Ea-lrRIICjxFiE80T5S67hgBQxF6MREQepZ73pcxnlfY3g?e=skONnV",
+      ME: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQNdSu8YsrdDgW88LFKsEFEBFEyZdQ2UGLKzMSpX3EiSdA?e=5CHjbc",
+      MA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EX1dbucwPUtDmRVl3xDco-MBuyDFqiqzkIFlic6uybfuyw?e=hbnMog",
+      MI: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXeDlXi0K-xNrBem6CwYCkwBblXJE7SFLJHCRdvPrfidLg?e=KDib5C",
+      NJ: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Ean7wZriHMlMhJ-wvxCZOxQB8x3QdLtYBy6BlKfcmovlFg?e=8MQ5m7",
+      NH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EWGaga3G_pxDt7imIuzmJmIB6Absn0GVxgC1eN0BeuVVhg?e=lVfI4y",
+      NY: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EV-q8tQkxiVOpH-kdmhjNVoBf9BfL0yCWh6gmPDY7eYT4w?e=fm1CVo",
+      PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EcSxrK9rA_lBixQUwkDRtoUBr13R3DNeUk9PSlqQxP9qGw?e=izUSDb",
+      RI: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EbmTQOGSxipHumdaivj4fp4Bnfj4z25OPANQxxIHsYMe7g?e=HqvAmx",
+      VA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EcDPR68z25pKiXxpd4mBEmwBWogrI90nz1DrbCkQBxlQKQ?e=49S5vU",
+    },
+    spanish: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXpsqjlFOr1DvBif2LMb8NYBJpcC172pg4Y01C5iXDmSeQ?e=pYRfko",
+      DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Ea9vX39Ww6pEgkoRY6FE9MIBNcbEtPCmGuOMrDvHa5ePkw?e=ZqPnyp",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZsyW8th2tNNuZihn3jpJggB234BDx4w6VPWAwCuG4ejGg?e=6c5j4d",
+      MA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXYbUUn1zfxNufykCH-9ZSgBmcdctKMxNCp2P25lBh6tWQ?e=6CYaCv",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EfCKSU4Fpr1NttsHZkhFk1cBPyujSqdJHm22Krd85hRURw?e=fbibU5",
+      ME: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EXi6Zhtz6fxAoyVBT9abO6ABAGsAr3Qf2pQF_HLVEj-Jvg?e=bt0b6F",
+      MI: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUXmHQEeebFImaMxvUe-EYMBnwT1ArcPpyylB80AgoaemA?e=aflHKa",
+      NJ: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQOIN1ukcIxPkovBIO6weCYB59ysMgydB8Q4ipe1yh45Hw?e=pcDLu4",
+      NH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQOIN1ukcIxPkovBIO6weCYB59ysMgydB8Q4ipe1yh45Hw?e=xKLsoM",
+      NY: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Efwd2WfjvGNFqjbkGhXM2FkBp1TmqaFokpiRsZjGjJU60g?e=vFPJyg",
+      PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Efwd2WfjvGNFqjbkGhXM2FkBp1TmqaFokpiRsZjGjJU60g?e=vFPJyg",
+      RI: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EShYBoldertHsgoWYogXAXkBBQVdNrtZZWByTNedo3Bj4A?e=xh0ACz",
+      VA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZrnsBjPegdFi46d0h8OqNQBQLxVG80eYeI5wZwAcAYB4w?e=wr7rYP",
+    },  
+  }
 };
-
 // Componente personalizado para ClockFading
 const ClockFadingSVG = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
