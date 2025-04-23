@@ -202,7 +202,9 @@ const Card = ({ rate }: { rate: RateProps }) => {
             </div>
             
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-white">${Number(rate.Rate).toFixed(4)}</span>
+              <span className="text-3xl font-bold text-white">
+                ${Number(rate.Rate) < 1 ? Number(rate.Rate).toFixed(4) : Number(rate.Rate).toFixed(2)}
+              </span>
               {rate.duracion_rate && (
                 <span className="text-sm text-slate-400">/ {rate.duracion_rate}</span>
               )}
