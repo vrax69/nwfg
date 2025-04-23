@@ -206,7 +206,9 @@ const Card = ({ rate }: { rate: RateProps }) => {
                 ${Number(rate.Rate) < 1 ? Number(rate.Rate).toFixed(4) : Number(rate.Rate).toFixed(2)}
               </span>
               {rate.duracion_rate && (
-                <span className="text-sm text-slate-400">/ {rate.duracion_rate}</span>
+              <span className="text-sm text-slate-400">
+                / {isNaN(Number(rate.duracion_rate)) ? rate.duracion_rate : `${rate.duracion_rate} meses`}
+              </span>
               )}
             </div>
             <p className="mt-2 text-sm text-slate-400">{rate.Product_Name}</p>
