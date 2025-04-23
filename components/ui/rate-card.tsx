@@ -77,7 +77,7 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Efjp1BqhMT5Eg4YNzWdTmg0BQkrZSR6-zgMA76BJkMPO7A?e=HIcbjs",
       DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EV7g-G4GU6pInPfQ6IRVmcUByj0DrgpGIFRt-JZHG8v8fw?e=1eCttb",
       IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUtXEAFnfqFNliV26xdrtUcB8EgbfHY6RweJvYnODGRfvg?e=CAZNSJ",
-      OH: "",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EbhDTheu12pInOEojShdk10BlPqwj4UCkTUoQlQPvKsSYw?e=NliHQr",
       IN: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Ea-lrRIICjxFiE80T5S67hgBQxF6MREQepZ73pcxnlfY3g?e=skONnV",
       ME: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQNdSu8YsrdDgW88LFKsEFEBFEyZdQ2UGLKzMSpX3EiSdA?e=5CHjbc",
       MA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EX1dbucwPUtDmRVl3xDco-MBuyDFqiqzkIFlic6uybfuyw?e=hbnMog",
@@ -104,14 +104,41 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       RI: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EShYBoldertHsgoWYogXAXkBBQVdNrtZZWByTNedo3Bj4A?e=xh0ACz",
       VA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZrnsBjPegdFi46d0h8OqNQBQLxVG80eYeI5wZwAcAYB4w?e=wr7rYP",
     },
-    wg: {   
-        DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUAIJJu-wMJLumsq0RfCe74Bgqp-41TU_EGs5_dQPkQwJw?e=dNos7B",
-        DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EeESlouSyERFjA4ALSkBAEYBQmfBZWmRGiJih3d9gJihSQ?e=5Qleuh",
-        MD: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EUdg2h2HCL9OmaXnWQy_VDgBdUJw-JABADD0f2tH6pR5og?e=CfROsN",
-        OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQmGB_A0p0lOqAmI496AaMABWe4DzxFAV0kAO6gCHz926g?e=PemihX",
-        PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQIL3Esp8JZMofGET-vY6rgBHI_HQ8qZ2Vpg-NrIoE1fVg?e=wIylnC",
+  },
+  wg: {
+    english: {
+      DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUAIJJu-wMJLumsq0RfCe74Bgqp-41TU_EGs5_dQPkQwJw?e=dNos7B",
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EeESlouSyERFjA4ALSkBAEYBQmfBZWmRGiJih3d9gJihSQ?e=5Qleuh",
+      MD: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EUdg2h2HCL9OmaXnWQy_VDgBdUJw-JABADD0f2tH6pR5og?e=CfROsN",
+      OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQmGB_A0p0lOqAmI496AaMABWe4DzxFAV0kAO6gCHz926g?e=PemihX",
+      PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQIL3Esp8JZMofGET-vY6rgBHI_HQ8qZ2Vpg-NrIoE1fVg?e=wIylnC",
+      VA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUaI9RqjtctKs6N9P-fB7E0BtP0mj0pZ730DeBYaAcA4cw?e=NwtEqq",
     },
-  }
+  },
+  IE: {
+    english: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/ESR8UdARYpRJiDR34pDsM1MBN7uPID9Mwz-qFj-4gdZUIQ?e=GKRHMm",
+      DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/ESaI8y7-uqJJms03Y4U87voBSFzoWTJ822doGn1hfaSdFw?e=jXA3zR",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVZNGarJC21PojA1rZSNb5gBOqcmqkftx-iSBlcq-SdKFw?e=KfEM0L",
+      MA: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EdEun0duWJ5Og5HVzeckDZwB4eU-KgP9Qb8bdW2sWOsYpg?e=6Pjj1v",
+      MI: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/Efuzo3qTjZ9KpJxxjrZkOB0BxqeDgwyRY8Ufux38oHNIZA?e=KSIPq2",
+      NJ: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EfhnO5v3qj5HjDkd8v71UqABZ3ZIWTrloXfO8jmg-a3V4A?e=3LyYkK",
+      PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EaoQe0FoP9tNkE_hojN9zq0BnmdlmFzl1NhNGPv9cI3gqQ?e=s02YMs",
+      VA: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/ET9oqJUe6LlDkAiVyXonlWYB04izL9zqKYGQJ3BAeQ3hUw?e=4Etg6o",
+      MD: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EWGm2dqiGVpCofaE9wKK_N8BWmAiQBYoaxK3E4rAL9qNMg?e=76gEpM",
+    },
+    spanish: {
+      DE: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EQMtQm4NftdPvS9h6yThGcEBQD7poR2XTICf0lfi27tl9w?e=7TADDj",
+      DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUWzUjL-6jZOnB2dzHv9lbABYZSAiZkxgxOegpUdxL4AlQ?e=2Hq4yK",
+      IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Efol4olBPhJArNpH1qy4KdgBSz1Tqnk0UYbIgPhcKOKaxg?e=tSA7Dn",
+      MA: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EZbNPTtpMPNFl9OUbQUydIoBJHuutn_55p9sMcX1EIKlyQ?e=a973o4",
+      MI: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/ESsSkfHc_tNNmPUSU9WmKHEBYD7AL70xQxNNANy-4cPuMQ?e=gH4yb2",
+      NJ: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/ETU6v1F2QxNNpVY4cD25YBoBrN84rpVLFiTkK0xWbqrxQA?e=iwlmkp",
+      PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVpCVj1RGU5IjDASezjg1V4B5c4jAz_D4mvtOWySus9tLA?e=dvwn7O",
+      VA: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EZf4ky3HtrtKsXyxBP1HsH0B_As0Hy2RfL4N9g3shNPa4w?e=bnbeYx",
+      MD: "",
+    }
+  }   
 };
 // Componente personalizado para ClockFading
 const ClockFadingSVG = (props: React.SVGProps<SVGSVGElement>) => (
@@ -255,26 +282,47 @@ const Card = ({ rate }: { rate: RateProps }) => {
                 {/* Script buttons dinámicos */}
                 <div className="flex flex-col gap-4 mt-4">
                   <div className="flex flex-wrap justify-start items-start gap-2">
-                    {(Object.entries(scriptLinks[rate.SPL?.toLowerCase() ?? ""] ?? {}) || []).flatMap(([lang, types]) =>
-                      Object.entries(types).flatMap(([type, url]) => {
-                        const allowedStates = ["PA", "OH", "DC"];
-                        const showFlex = type !== "flex" || allowedStates.includes(rate.State ?? "");
+                    {["english", "spanish"].flatMap((lang) => {
+                      const spl = rate.SPL?.toLowerCase() ?? "";
+                      const state = rate.State ?? "";
+                      const scriptSet = scriptLinks[spl]?.[lang];
 
-                        return showFlex
-                          ? [
-                              <AlertDialogAction asChild key={`${lang}-${type}`}>
-                                <a
-                                  href={url}
-                                  target="_blank"
-                                  className="px-3 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition whitespace-nowrap"
-                                >
-                                  {`${type.charAt(0).toUpperCase() + type.slice(1)} (${lang === "english" ? "EN" : "ES"})`}
-                                </a>
-                              </AlertDialogAction>,
-                            ]
-                          : [];
-                      })
-                    )}
+                      if (!scriptSet) return [];
+
+                      // SPLs que solo muestran scripts por estado
+                      const onlyStateBased = ["nv", "re", "spe", "wg", "ie"];
+
+                      if (onlyStateBased.includes(spl)) {
+                        const url = scriptSet[state];
+                        if (!url || !url.startsWith("http")) return [];
+                        return [
+                          <AlertDialogAction asChild key={`${lang}-${state}`}>
+                            <a
+                              href={url}
+                              target="_blank"
+                              className="px-3 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition whitespace-nowrap"
+                            >
+                              {`Script (${lang === "english" ? "EN" : "ES"})`}
+                            </a>
+                          </AlertDialogAction>,
+                        ];
+                      } else {
+                        // SPLs que muestran todos los tipos (cs, ne, nge)
+                        return Object.entries(scriptSet)
+                          .filter(([, url]) => url?.startsWith("http"))
+                          .map(([key, url]) => (
+                            <AlertDialogAction asChild key={`${lang}-${key}`}>
+                              <a
+                                href={url}
+                                target="_blank"
+                                className="px-3 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition whitespace-nowrap"
+                              >
+                                {`${key.charAt(0).toUpperCase() + key.slice(1)} (${lang === "english" ? "EN" : "ES"})`}
+                              </a>
+                            </AlertDialogAction>
+                          ));
+                      }
+                    })}
                   </div>
 
                   <div className="flex justify-end">
