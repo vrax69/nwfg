@@ -103,7 +103,14 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/Efwd2WfjvGNFqjbkGhXM2FkBp1TmqaFokpiRsZjGjJU60g?e=vFPJyg",
       RI: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EShYBoldertHsgoWYogXAXkBBQVdNrtZZWByTNedo3Bj4A?e=xh0ACz",
       VA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EZrnsBjPegdFi46d0h8OqNQBQLxVG80eYeI5wZwAcAYB4w?e=wr7rYP",
-    },  
+    },
+    wg: {   
+        DC: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EUAIJJu-wMJLumsq0RfCe74Bgqp-41TU_EGs5_dQPkQwJw?e=dNos7B",
+        DE: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EeESlouSyERFjA4ALSkBAEYBQmfBZWmRGiJih3d9gJihSQ?e=5Qleuh",
+        MD: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EUdg2h2HCL9OmaXnWQy_VDgBdUJw-JABADD0f2tH6pR5og?e=CfROsN",
+        OH: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQmGB_A0p0lOqAmI496AaMABWe4DzxFAV0kAO6gCHz926g?e=PemihX",
+        PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EQIL3Esp8JZMofGET-vY6rgBHI_HQ8qZ2Vpg-NrIoE1fVg?e=wIylnC",
+    },
   }
 };
 // Componente personalizado para ClockFading
