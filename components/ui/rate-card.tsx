@@ -208,11 +208,11 @@ const Card = ({ rate }: { rate: RateProps }) => {
             </div>
             
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-white">
-                {rate.Service_Type === "Electric"
-                  ? `${(Number(rate.Rate) * 100).toFixed(2)}¢`
-                  : `$${Number(rate.Rate).toFixed(2)}`}
-              </span>
+            <span className="text-3xl font-bold text-white">
+              {rate.Service_Type === "Electric" && Number(rate.Rate) < 1.5
+                ? `${(Number(rate.Rate) * 100).toFixed(2)}¢`
+                : `$${Number(rate.Rate).toFixed(2)}`}
+            </span>
               {rate.duracion_rate && (
                 <span className="text-sm text-slate-400">
                   / {isNaN(Number(rate.duracion_rate)) ? rate.duracion_rate : `${rate.duracion_rate} meses`}
