@@ -180,7 +180,14 @@ const Input = () => {
                         }}
                       >
                         <div>{item.Standard_Utility_Name}</div>
-                        <div title={item.Product_Name}>{item.Product_Name}</div>
+                        <div title={item.Product_Name}>
+                          {item.Product_Name +
+                            (item.SPL?.toLowerCase() === "spe" &&
+                            item.Standard_Utility_Name.toLowerCase().includes("nationalgrid nimo") &&
+                            Number(item.Rate) > 0.6
+                              ? " (Gas)"
+                              : "")}
+                        </div>
                         <div>{Number(item.Rate).toFixed(4)}</div>
                       </a>
                     ));

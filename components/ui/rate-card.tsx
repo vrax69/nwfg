@@ -209,7 +209,7 @@ const Card = ({ rate }: { rate: RateProps }) => {
             
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-3xl font-bold text-white">
-                {Number(rate.Rate) < 1
+                {rate.Service_Type === "Electric"
                   ? `${(Number(rate.Rate) * 100).toFixed(2)}¢`
                   : `$${Number(rate.Rate).toFixed(2)}`}
               </span>
