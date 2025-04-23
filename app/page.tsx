@@ -100,7 +100,7 @@ export default function WavyBackgroundDemo() {
             </button>
             <button type="button" className="button2" disabled={loading}>Crear Usuario</button>
           </div>
-          <button type="button" className="button3" disabled={loading}>Soy tonto y olvidé la Contraseña</button>
+          <button type="button" className="button3" disabled={loading}>forgot password</button>
 
           {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
           {loading && <p style={{ color: "blue", marginTop: "10px" }}>Procesando login...</p>}
