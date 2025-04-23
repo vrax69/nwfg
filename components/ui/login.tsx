@@ -22,7 +22,7 @@ const Login = () => {
           <button type="submit" className="button1">Login</button>
           <button type="button" className="button2">Crear Usuario</button>
         </div>
-        <button type="button" className="button3">Soy tonto y olvidé la Contraseña</button>
+        <button type="button" className="button3">forgot pwd</button>
       </form>
     </div>
   );
