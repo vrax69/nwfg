@@ -179,6 +179,12 @@ interface RateProps {
 }
 
 const Card = ({ rate }: { rate: RateProps }) => {
+  // Añadir esta variable de detección justo al inicio del componente
+  const isSpecialSPEGas =
+    rate.SPL?.toLowerCase() === "spe" &&
+    rate.Standard_Utility_Name.toLowerCase().includes("nationalgrid nimo") &&
+    rate.Rate > 0.6;
+
   return (
     <div className="group relative w-80">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-950 to-slate-900 p-[1px] shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-cyan-500/25">
@@ -203,12 +209,14 @@ const Card = ({ rate }: { rate: RateProps }) => {
             
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-3xl font-bold text-white">
-                ${Number(rate.Rate) < 1 ? Number(rate.Rate).toFixed(4) : Number(rate.Rate).toFixed(2)}
+                {Number(rate.Rate) < 1
+                  ? `${(Number(rate.Rate) * 100).toFixed(2)}¢`
+                  : `$${Number(rate.Rate).toFixed(2)}`}
               </span>
               {rate.duracion_rate && (
-              <span className="text-sm text-slate-400">
-                / {isNaN(Number(rate.duracion_rate)) ? rate.duracion_rate : `${rate.duracion_rate} meses`}
-              </span>
+                <span className="text-sm text-slate-400">
+                  / {isNaN(Number(rate.duracion_rate)) ? rate.duracion_rate : `${rate.duracion_rate} meses`}
+                </span>
               )}
             </div>
             <p className="mt-2 text-sm text-slate-400">{rate.Product_Name}</p>
@@ -227,13 +235,27 @@ const Card = ({ rate }: { rate: RateProps }) => {
                 icon: CreditCard,
               },
               {
-                label: rate.Service_Type && (rate.Service_Type === "Electric" ? "Servicio:" : rate.Service_Type === "Gas" ? "Servicio:" : null),
-                value: rate.Service_Type === "Electric" ? "Electricidad" : rate.Service_Type === "Gas" ? "Gas" : null,
-                icon: rate.Service_Type === "Electric" ? Zap : Flame,
+                label: "Servicio:",
+                value: isSpecialSPEGas
+                  ? "Gas"
+                  : rate.Service_Type === "Electric"
+                  ? "Electricidad"
+                  : rate.Service_Type === "Gas"
+                  ? "Gas"
+                  : null,
+                icon: isSpecialSPEGas
+                  ? Flame
+                  : rate.Service_Type === "Electric"
+                  ? Zap
+                  : rate.Service_Type === "Gas"
+                  ? Flame
+                  : Check,
               },
               {
-                label: rate.Unit_of_Measure && "Unidad:",
-                value: rate.Unit_of_Measure,
+                label: "Unidad:",
+                value: isSpecialSPEGas
+                  ? "THERM"
+                  : rate.Unit_of_Measure,
                 icon: BarChart3,
               },
               {
