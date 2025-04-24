@@ -61,16 +61,20 @@ const Input = () => {
       return;
     }
 
-    const matches = rates.filter(rate =>
-      rate.Standard_Utility_Name?.toLowerCase().includes(debouncedTerm.toLowerCase())
+    const splsFiltrados = Array.from(
+      new Set(
+        rates
+          .filter(rate =>
+            rate.Standard_Utility_Name?.toLowerCase().includes(debouncedTerm.toLowerCase()) &&
+            rate.Excel_Status?.toLowerCase() !== "missing"
+          )
+          .map(rate => rate.SPL)
+      )
     );
-    
-    console.log(`Coincidencias encontradas: ${matches.length}`);
 
-    const splsUnicos = Array.from(new Set(matches.map(rate => rate.SPL)));
-    console.log(`SPLs únicos: ${splsUnicos.length}`, splsUnicos);
-    
-    setFilteredSPLs(splsUnicos);
+    console.log(`SPLs únicos válidos: ${splsFiltrados.length}`, splsFiltrados);
+
+    setFilteredSPLs(splsFiltrados);
   }, [debouncedTerm, rates]);
 
   // Actualizar el useEffect para establecer el SPL seleccionado por defecto cuando cambian los filteredSPLs
