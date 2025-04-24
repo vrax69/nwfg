@@ -153,7 +153,8 @@ const Input = () => {
                   const filtered = rates.filter(
                     (item) =>
                       item.Standard_Utility_Name?.toLowerCase().includes(debouncedTerm.toLowerCase()) &&
-                      item.SPL === selectedSPL
+                      item.SPL === selectedSPL &&
+                      item.Excel_Status?.toLowerCase() !== "missing"
                   );
 
                   const uniqueResults = filtered.filter((item) => {
