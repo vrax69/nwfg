@@ -1,26 +1,27 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import styles from "../styles/rates.module.css" // Importa el CSS del componente
-import { useEffect } from "react"; // Importa useEffect
+import { useEffect } from "react"
+import "../styles/rates-global.css" // Importa el nuevo CSS global sin módulos
 
-// Dynamic import of the Input component
-const Input_rates  = dynamic(() => import("../../components/ui/Input_rates"), {
+const Input_rates = dynamic(() => import("../../components/ui/Input_rates"), {
   ssr: false,
   loading: () => <div>Loading...</div>,
 })
 
 export default function RatesPage() {
-   // Cambia el título de la pestaña usando useEffect
-   useEffect(() => {
-    document.title = "Rates Nwfg "; // Título personalizado
-  }, []);
+  useEffect(() => {
+    document.title = "Rates Nwfg"
+  }, [])
 
   return (
-    <div className={styles.container}>
-      <img src="https://rates-nwpc.s3.us-east-2.amazonaws.com/LOGO_NWFG-.png" alt="Logo NWFG" className={styles.logo} />
+    <div className="page-container">
+      <img
+        src="https://rates-nwpc.s3.us-east-2.amazonaws.com/LOGO_NWFG-.png"
+        alt="Logo NWFG"
+        className="logo"
+      />
       <Input_rates />
     </div>
   )
 }
-
