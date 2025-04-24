@@ -6,9 +6,7 @@
 }
 
 /* Aplica la fuente globalmente */
-html {
-    font-family: 'SpotifyMixUI-Regular', Arial, sans-serif;
-}
+
 
 :global(body) {
   background-color: #000000 !important; /* Fondo negro */
