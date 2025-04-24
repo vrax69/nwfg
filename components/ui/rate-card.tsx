@@ -345,7 +345,7 @@ const Card = ({ rate }: { rate: RateProps }) => {
                                 target="_blank"
                                 className="px-3 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-700 rounded transition whitespace-nowrap"
                               >
-                                {`${key.charAt(0).toUpperCase() + key.slice(1)} (${lang === "english" ? "EN" : "ES"})`}
+                                {`${key.charAt(0).toUpperCase() + key.slice(1)} (${lang === "english" ? "Eglish" : "Spanish"})`}
                               </a>
                             </AlertDialogAction>
                           ));
