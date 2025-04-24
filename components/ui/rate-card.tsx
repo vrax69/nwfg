@@ -124,7 +124,7 @@ const scriptLinks: Record<string, Record<string, Record<string, string>>> = {
       IL: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EVZNGarJC21PojA1rZSNb5gBOqcmqkftx-iSBlcq-SdKFw?e=KfEM0L",
       MA: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EdEun0duWJ5Og5HVzeckDZwB4eU-KgP9Qb8bdW2sWOsYpg?e=6Pjj1v",
       MI: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/Efuzo3qTjZ9KpJxxjrZkOB0BxqeDgwyRY8Ufux38oHNIZA?e=KSIPq2",
-      NJ: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EfhnO5v3qj5HjDkd8v71UqABZ3ZIWTrloXfO8jmg-a3V4A?e=3LyYkK",
+      NJ: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/EfhnO5v3qj5HjDkd8v71UqABZ3ZIWTrloXfO8jmg-a3V4A?e=3LyYk",
       PA: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EaoQe0FoP9tNkE_hojN9zq0BnmdlmFzl1NhNGPv9cI3gqQ?e=s02YMs",
       VA: "https://newwavefamilygroupsas-my.sharepoint.com/:b:/g/personal/mortiz_nwfamilygroup_com/ET9oqJUe6LlDkAiVyXonlWYB04izL9zqKYGQJ3BAeQ3hUw?e=4Etg6o",
       MD: "https://newwavefamilygroupsas-my.sharepoint.com/:w:/g/personal/mortiz_nwfamilygroup_com/EWGm2dqiGVpCofaE9wKK_N8BWmAiQBYoaxK3E4rAL9qNMg?e=76gEpM",
@@ -208,11 +208,11 @@ const Card = ({ rate }: { rate: RateProps }) => {
             </div>
             
             <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white">
-              {rate.Service_Type === "Electric" && Number(rate.Rate) < 1.5
-                ? `${(Number(rate.Rate) * 100).toFixed(2)}¢`
-                : `$${Number(rate.Rate).toFixed(2)}`}
-            </span>
+              <span className="text-3xl font-bold text-white">
+                {rate.Service_Type === "Electric" || Number(rate.Rate) < 1.0
+                  ? `${Number(rate.Rate)}¢`
+                  : `$${Number(rate.Rate)}`}
+              </span>
               {rate.duracion_rate && (
                 <span className="text-sm text-slate-400">
                   / {isNaN(Number(rate.duracion_rate)) ? rate.duracion_rate : `${rate.duracion_rate} meses`}
