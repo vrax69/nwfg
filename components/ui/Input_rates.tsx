@@ -38,7 +38,7 @@ const Input = () => {
     console.log('Iniciando fetch de datos...');
     const fetchRates = async () => {
       try {
-        const res = await fetch('https://nwfg.net:3002/api/rates/view', {
+        const res = await fetch('/api/rates/view', {
           credentials: 'include',
         });
         const data = await res.json();

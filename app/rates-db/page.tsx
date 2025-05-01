@@ -174,7 +174,7 @@ const RatesDbPage = () => {
 
   // Obtener las columnas desde el backend
   useEffect(() => {
-    fetch("https://nwfg.net:3001/columns")
+    fetch("/api/upload/columns")
       .then(response => response.json())
       .then(data => {
         if (data.columns) {
@@ -272,7 +272,7 @@ const RatesDbPage = () => {
     
     // Enviar columnas seleccionadas al backend cuando el usuario las selecciona
     if (selected.length > 0 && selectedSupplier) {
-      fetch("https://nwfg.net:3001/save-selected-columns", {
+      fetch("/api/upload/columns/selected", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -327,7 +327,7 @@ const RatesDbPage = () => {
       // 📌 Primero, obtener todas las filas del backend
       console.log(`📌 Obteniendo todas las filas del proveedor: ${selectedSupplier}`);
       
-      const rowsResponse = await fetch(`https://nwfg.net:3001/get-rows/${selectedSupplier}`);
+      const rowsResponse = await fetch(`/api/upload/rows/${selectedSupplier}`);
       
       if (!rowsResponse.ok) {
         throw new Error(`Error al obtener las filas: ${rowsResponse.status} ${rowsResponse.statusText}`);
@@ -359,7 +359,7 @@ const RatesDbPage = () => {
       console.log(`📌 Enviando ${mappedRows.length} filas mapeadas al backend`);
       
       // 📌 Enviar los datos mapeados al backend
-      const response = await fetch("https://nwfg.net:3001/map-columns", {
+      const response = await fetch("/api/upload/map-columns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

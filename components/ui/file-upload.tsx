@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IconUpload } from "@tabler/icons-react";
@@ -105,7 +105,7 @@ export const FileUpload = ({
     try {
       console.log("📌 Iniciando subida de archivo con supplier:", supplier);
       
-      const response = await fetch("https://nwfg.net:3001/upload", {
+      const response = await fetch("/api/upload/file", {
         method: "POST",
         body: formData,
       });

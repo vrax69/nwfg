@@ -26,7 +26,7 @@ export default function WavyBackgroundDemo() {
       // Debug log para ver los datos enviados
       console.log("📤 Enviando:", { email, password });
       
-      const res = await fetch("https://www.nwfg.net:3003/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

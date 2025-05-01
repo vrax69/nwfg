@@ -117,7 +117,7 @@ export default function Component() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch("https://nwfg.net:3002/api/rates");
+        const response = await fetch("/api/rates");
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
@@ -184,7 +184,7 @@ const handleInputChange = (rowOriginal: Item, columnId: string, newValue: any) =
     try {
       console.log("Datos enviados al backend:", changedRows);
       // Aquí puedes enviar los cambios al backend
-      const response = await fetch("https://nwfg.net:3002/api/rates/update", {
+      const response = await fetch("/api/rates/update", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
