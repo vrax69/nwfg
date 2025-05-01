@@ -269,7 +269,7 @@ const Card = ({ rate }: { rate: RateProps }) => {
                 icon: Map,
               },
               {
-                label: rate.LDC && "LDC#:",
+                label: rate.LDC && "Lo que se necesita:",
                 value: rate.LDC,
                 icon: Server,
               },

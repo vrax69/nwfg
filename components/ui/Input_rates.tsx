@@ -111,7 +111,7 @@ const Input = () => {
             <input
               type="text"
               name="text"
-              placeholder="Buscar..."
+              placeholder="Buscar utilidad/rate..."
               value={searchTerm}
               onChange={handleInputChange}
             />
