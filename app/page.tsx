@@ -9,6 +9,7 @@ export default function WavyBackgroundDemo() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const baseURL = process.env.NEXT_PUBLIC_API_AUTH;
 
   // Debug log para confirmar que el componente se monta
   console.log("👀 Componente cargado");
@@ -25,8 +26,9 @@ export default function WavyBackgroundDemo() {
       
       // Debug log para ver los datos enviados
       console.log("📤 Enviando:", { email, password });
-      
-      const res = await fetch("/api/auth/login", {
+      console.log("🌍 API Base URL:", process.env.NEXT_PUBLIC_API_AUTH);
+      console.log("🔗 URL de login:", `${baseURL}/login`);
+      const res = await fetch(`${baseURL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

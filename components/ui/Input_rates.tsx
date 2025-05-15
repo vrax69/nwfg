@@ -34,11 +34,13 @@ const Input = () => {
     };
   }, [searchTerm]);
 
+  const apiBase = process.env.NEXT_PUBLIC_API_RATES;
+
   useEffect(() => {
     console.log('Iniciando fetch de datos...');
     const fetchRates = async () => {
       try {
-        const res = await fetch('/api/rates/view', {
+        const res = await fetch(`${apiBase}/api/rates/view`, {
           credentials: 'include',
         });
         const data = await res.json();
