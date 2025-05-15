@@ -40,7 +40,7 @@ const Input = () => {
     console.log('Iniciando fetch de datos...');
     const fetchRates = async () => {
       try {
-        const res = await fetch(`${apiBase}/api/rates/view`, {
+        const res = await fetch(`${apiBase}/view`, {
           credentials: 'include',
         });
         const data = await res.json();
