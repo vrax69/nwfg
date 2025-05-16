@@ -1,7 +1,4 @@
-¡Genial! Tener un **README profesional** y específico para **cada repo** es la mejor práctica, y más aún cuando tienes cada parte separada (frontend, backend, etc).
 
-Te dejo un **ejemplo recomendado para cada tipo de repo**, personalizable con tus rutas y puertos reales, para que lo copies/pegues según corresponda a cada uno.
-**No omito ningún detalle clave, así nunca tendrás confusiones en el futuro.**
 
 ---
 
